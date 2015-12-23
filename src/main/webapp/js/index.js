@@ -575,6 +575,9 @@ var NCE = (function ($)
         {
             compareRevisions();
         });
+        $('#promoteRev').click(function() {
+            promoteRevision();
+        });
         $('#clearRevSelection').click(function()
         {
             clearRevSelection();
@@ -1223,8 +1226,7 @@ var NCE = (function ($)
         }
     }
 
-    function compareRevisions()
-    {
+    function getSelectedRevisions() {
         var cubeIds = [];
         var revIds = [];
         $.each($('#revisionHistoryList').find('.commitCheck:checked'), function()
@@ -1232,6 +1234,15 @@ var NCE = (function ($)
             cubeIds.push($(this).attr('data-cube-id'));
             revIds.push($(this).attr('data-rev-id'))
         });
+
+        return {cubeIds:cubeIds, revIds:revIds};
+    }
+
+    function compareRevisions()
+    {
+        var revs = getSelectedRevisions();
+        var revIds = revs.revIds;
+        var cubeIds = revs.cubeIds;
 
         if (revIds.length != 2)
         {
@@ -1250,6 +1261,37 @@ var NCE = (function ($)
             var hiIdx = 0;
         }
         diffCubeRevs(cubeIds[loIdx], cubeIds[hiIdx], revIds[loIdx], revIds[hiIdx], revIds[loIdx] + ' vs. ' + revIds[hiIdx]);
+    }
+
+    function promoteRevision() {
+        var revs = getSelectedRevisions();
+        var revIds = revs.revIds;
+
+        var note;
+        if (revIds.length == 0) {
+            note = 'Must select a revision to promote.';
+        } else if (revIds.length > 1) {
+            note = 'Must select only 1 revision to promote.';
+        }
+        if (note) {
+            showNote(note, 'Note', 2500);
+            return;
+        }
+
+        var jsonResult = call("ncubeController.loadCubeById", [getAppId(), revs.cubeIds[0], "json"], {noResolveRefs:true});
+        if (jsonResult.status !== true) {
+            showNote('Unable to load n-cube revision ' + revIds[0] + ':<hr class="hr-small"/>' + result.data);
+            return;
+        }
+
+        var result = call("ncubeController.saveJson", [getAppId(), getSelectedCubeName(), jsonResult.data]);
+
+        if (result.status === true) {
+            loadCube();
+            revisionHistoryOk();
+        } else {
+            showNote("Unable to promote n-cube '" + _selectedCubeName + "':<hr class=\"hr-small\"/>" + result.data);
+        }
     }
 
     function clearRevSelection()

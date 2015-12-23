@@ -189,6 +189,10 @@ var NCubeEditor2 = (function ($)
         var keys = Object.keys(objColumns);
         var obj;
 
+        if (keys.length === 0) {
+            return;
+        }
+
         if (colNum >= keys.length) {
             obj = getAxisDefault(axis);
         } else {
@@ -205,7 +209,8 @@ var NCubeEditor2 = (function ($)
     };
 
     var getColumnHeaderValue = function(col) {
-        return getColumnHeader(col).value;
+        var columnHeader = getColumnHeader(col);
+        return columnHeader ? columnHeader.value : '';
     };
 
     var getColumnHeaderId = function(col) {
@@ -404,6 +409,9 @@ var NCubeEditor2 = (function ($)
                 }
 
                 var colLen = getColumnLength(horizAxis);
+                if (colLen === 0) {
+                    colNums.push('');
+                }
                 for (var columnIndex = 1; columnIndex <= colLen; columnIndex++) {
                     var columnLetterNum = getColumnString(columnIndex);
                     colNums.push(columnLetterNum);
