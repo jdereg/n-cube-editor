@@ -578,3 +578,23 @@ span.selected-count {
 .modal-xl {
     width: 94%;
 }
+
+#appIdMenu {
+    background-color: #2474b8;
+    border-color: #1f639c;
+    color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+#appIdMenu li {
+    width: 100%;
+}
+
+#appIdMenu li a.dropdown-toggle {
+    padding: 10px 0;
+}
+
+#appIdMenu .open a.dropdown-toggle, #appIdMenu li a.dropdown-toggle:hover, #appIdMenu li a.dropdown-toggle:focus {
+    background-color: #1f639c;
+}

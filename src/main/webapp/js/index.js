@@ -96,6 +96,10 @@ var NCE = (function ($)
     var _batchUpdateAxisReferencesVersion = $('#batchUpdateAxisReferencesVersion');
     var _batchUpdateAxisReferencesCubeName = $('#batchUpdateAxisReferencesCubeName');
     var _batchUpdateAxisReferencesAxisName = $('#batchUpdateAxisReferencesAxisName');
+    var _changeVersionMenu = $('#changeVerMenu');
+    var _releaseCubesMenu = $('#releaseCubesMenu');
+    var _releaseMenu = $('#ReleaseMenu');
+    var _branchCommit = $('#branchCommit');
 
     //  modal dialogs
     var _selectBranchModal = $('#selectBranchModal');
@@ -1286,16 +1290,13 @@ var NCE = (function ($)
         {
             showReqScopeClose();
         });
-        $('#releaseCubesMenu').click(function ()
-        {
+        _releaseCubesMenu.click(function () {
             releaseCubes();
         });
-        $('#releaseCubesOk').click(function ()
-        {
+        $('#releaseCubesOk').click(function () {
             releaseCubesOk();
         });
-        $('#changeVerMenu').click(function ()
-        {
+        _changeVersionMenu.click(function () {
             changeVersion();
         });
         $('#changeVerOk').click(function ()
@@ -1489,10 +1490,37 @@ var NCE = (function ($)
         }
     }
 
+    function checkAppPermission(action) {
+        var result = call('ncubeController.checkPermissions', [getAppId(), null, action]);
+        return result.data;
+    }
+
+    function enableDisableReleaseMenu() {
+        if (checkAppPermission(PERMISSION_ACTION.RELEASE)) {
+            _releaseMenu.show();
+        } else {
+            _releaseMenu.hide();
+        }
+    }
+
+    function enableDisableCommitBranch() {
+        if (checkAppPermission(PERMISSION_ACTION.COMMIT)) {
+            _branchCommit.show();
+        } else {
+            _branchCommit.hide();
+        }
+    }
+
+    function handleAppPermissions() {
+        enableDisableReleaseMenu();
+        enableDisableCommitBranch();
+    }
+
     function loadAppListView()
     {
         var ul = _appMenu.parent().find('.dropdown-menu');
         ul.empty();
+        handleAppPermissions();
 
         $.each(_apps, function (index, value)
         {
@@ -1504,6 +1532,8 @@ var NCE = (function ($)
                 localStorage[SELECTED_APP] = value;
                 _selectedApp = value;
                 _appMenu.find('button')[0].innerHTML = value + '&nbsp;<b class="caret"></b>';
+
+                handleAppPermissions();
 
                 setVersionListLoading();
                 setCubeListLoading();
@@ -1525,7 +1555,7 @@ var NCE = (function ($)
 
         if (_selectedApp)
         {
-            _appMenu[0].innerHTML = 'Application:&nbsp;<button class="btn-sm btn-primary">' + _selectedApp + '&nbsp;<b class="caret"></b></button>';
+            _appMenu[0].innerHTML = '<button class="btn-sm btn-primary">' + _selectedApp + '&nbsp;<b class="caret"></b></button>';
         }
     }
 
@@ -1587,7 +1617,7 @@ var NCE = (function ($)
 
         if (_selectedVersion)
         {
-            _versionMenu[0].innerHTML = 'Version:&nbsp;<button class="btn-sm btn-primary">' + _selectedVersion + '-' + _selectedStatus + '&nbsp;<b class="caret"></b></button>';
+            _versionMenu[0].innerHTML = '<button class="btn-sm btn-primary">' + _selectedVersion + '-' + _selectedStatus + '&nbsp;<b class="caret"></b></button>';
         }
     }
 
@@ -2729,7 +2759,7 @@ var NCE = (function ($)
 
     function showActiveBranch()
     {
-        $('#BranchMenu')[0].innerHTML = 'Branch:&nbsp;<button class="btn-sm btn-primary">&nbsp;' + (_selectedBranch || head) + '&nbsp;<b class="caret"></b></button>';
+        $('#BranchMenu')[0].innerHTML = '<button class="btn-sm btn-primary">&nbsp;' + (_selectedBranch || head) + '&nbsp;<b class="caret"></b></button>';
     }
 
     function getBranchNames(refresh)

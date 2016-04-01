@@ -58,40 +58,22 @@
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <li class="dropdown">
-                <a id="AppMenu" href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    Application: &nbsp;<button class="btn-sm btn-primary">&nbsp;<b class="caret"></b></button>
-                </a>
-                <ul class="dropdown-menu">
-                </ul>
-            </li>
-            <li class="dropdown">
-                <a id="VersionMenu" href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    Version: &nbsp;<button class="btn-sm btn-primary">&nbsp;<b class="caret"></b></button>
-                </a>
-                <ul class="dropdown-menu">
-                </ul>
-            </li>
-            <li class="dropdown">
-                <a id="BranchMenu" href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    Branch: &nbsp;<button class="btn-sm btn-primary">&nbsp;<b class="caret"></b></button>
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a id="branchSelect" href="#">Select/Create Branch...</a></li>
-                    <li><a id="branchUpdate" href="#">Update Branch</a></li>
-                    <li><a id="branchDelete" href="#">Delete Branch</a></li>
-                    <li class="divider"></li>
-                    <li><a id="branchCommit" href="#">Commit...</a></li>
-                    <li><a id="branchRollback" href="#">Rollback...</a></li>
-                </ul>
-            </li>
-            <li class="dropdown">
                 <a id="DataMenu" href="#" class="dropdown-toggle" data-toggle="dropdown">Data <b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                    <li><a id="clearCache" href="#">Clear Cache</a></li>
                     <li><a id="clearStorage" href="#">Clear Local Storage</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a id="ServerMenu" href="#" class="dropdown-toggle" data-toggle="dropdown">Server <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a id="clearCache" href="#">Clear Server Cache</a></li>
                     <li><a id="serverStats" href="#">Server Stats</a></li>
                     <li><a id="httpHeaders" href="#">View HTTP Headers</a></li>
-                    <li class="divider"></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a id="ReleaseMenu" href="#" class="dropdown-toggle" data-toggle="dropdown">Release <b class="caret"></b></a>
+                <ul class="dropdown-menu">
                     <li><a href="#" id="releaseCubesMenu">Release SNAPSHOT</a></li>
                     <li><a href="#" id="changeVerMenu">Change SNAPSHOT version</a></li>
                 </ul>
@@ -101,6 +83,38 @@
 </header>
 
 <div id="west" class="ui-layout-west noselect">
+    <ul id="appIdMenu" class="nav navbar-nav">
+        <li class="dropdown">
+            Application<br/>
+            <a id="AppMenu" href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <button class="btn-sm btn-primary">&nbsp;<b class="caret"></b></button>
+            </a>
+            <ul class="dropdown-menu">
+            </ul>
+        </li>
+        <li class="dropdown">
+            Version<br/>
+            <a id="VersionMenu" href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <button class="btn-sm btn-primary">&nbsp;<b class="caret"></b></button>
+            </a>
+            <ul class="dropdown-menu">
+            </ul>
+        </li>
+        <li class="dropdown">
+            Branch<br/>
+            <a id="BranchMenu" href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <button class="btn-sm btn-primary">&nbsp;<b class="caret"></b></button>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a id="branchSelect" href="#">Select/Create Branch...</a></li>
+                <li><a id="branchUpdate" href="#">Update Branch</a></li>
+                <li><a id="branchDelete" href="#">Delete Branch</a></li>
+                <li class="divider"></li>
+                <li><a id="branchCommit" href="#">Commit...</a></li>
+                <li><a id="branchRollback" href="#">Rollback...</a></li>
+            </ul>
+        </li>
+    </ul>
     <div id="ncube-list-div" class="panel" style="height:100%">
         <div class="panel-heading">
             <div class="btn-group">

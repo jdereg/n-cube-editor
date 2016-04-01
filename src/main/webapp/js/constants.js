@@ -124,6 +124,11 @@ var DEFAULT_SCOPE = [
     }
 ];
 
+var PERMISSION_ACTION = {
+    RELEASE: 'release',
+    COMMIT: 'commit'
+};
+
 var KEY_CODES = {
     MOUSE_LEFT: 1,
     MOUSE_RIGHT: 3,
