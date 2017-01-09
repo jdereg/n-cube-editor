@@ -1170,14 +1170,54 @@ var TestEditor = (function ($)
         }, 200);
     };
 
-    function duplicateTest(test, newTestName) {
-        return {
-            '@type': 'com.cedarsoftware.ncube.NCubeTest',
-            name: newTestName,
-            coord: $.extend(true, {}, test['coord']),
-            expected: $.extend(true, [], test['expected'])
-        };
-    }
+    var duplicateTest = function(test, newTestName)
+    {
+        var newTest = {};
+        newTest["@type"] = "com.cedarsoftware.ncube.NCubeTest";
+        newTest["name"] = newTestName;
+
+        var parameters = {};
+
+        $.each(test["coord"], function(key, value)
+        {
+            var newCell = {};
+
+            if (!value)
+            {
+                parameters[key] = null;
+            }
+            else
+            {
+                $.each(value, function(key1, value1) {
+                    newCell[key1] = value1;
+                });
+                parameters[key] = newCell;
+            }
+        });
+
+        newTest["coord"] = parameters;
+        var result = [];
+
+        $.each(test["expected"], function(index, item) {
+            var newCell = {};
+
+            if (!item)
+            {
+                newCell = null;
+            }
+            else
+            {
+                $.each(item, function (key, value) {
+                    newCell[key] = value;
+                });
+            }
+
+            result.push(newCell);
+        });
+
+        newTest["expected"] = result;
+        return newTest;
+    };
 
     var createTypeSelector = function(typeStr, url)
     {
