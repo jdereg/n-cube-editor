@@ -4552,6 +4552,11 @@ var NCE = (function ($) {
         if (delta.type.name === DELTA.TYPE.UPDATE) {
             return getObjectTextArray(isSource ? delta.sourceVal : delta.destVal);
         }
+        if ([DELTA.LOC.AXIS_META, DELTA.LOC.CELL_META, DELTA.LOC.COLUMN_META, DELTA.LOC.NCUBE_META].indexOf(delta.loc.name) > -1) {
+            var sourceInput = delta.sourceVal ? delta.sourceVal : [];
+            var destInput = delta.destVal ? delta.destVal : [];
+            return getObjectTextArray(isSource ? sourceInput : destInput);
+        }
         return getObjectTextArray(isSource ? delta.sourceList : delta.destList);
     }
     
