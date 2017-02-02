@@ -46,7 +46,6 @@ import com.cedarsoftware.util.io.JsonReader
 import com.cedarsoftware.util.io.JsonWriter
 import com.google.common.util.concurrent.AtomicDouble
 import groovy.transform.CompileStatic
-import net.spy.memcached.MemcachedClient
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
@@ -94,7 +93,6 @@ class NCubeController extends BaseController
     private static String inetHostname = null
     private static AtomicDouble processLoadPeak = new AtomicDouble(0.0d)
     private static AtomicDouble systemLoadPeak = new AtomicDouble(0.0d)
-    private MemcachedClient memcachedClient
 
     private static final ConcurrentMap<String, ConcurrentSkipListSet<String>> appCache = new ConcurrentHashMap<>()
     private static final ConcurrentMap<String, ConcurrentSkipListSet<String>> appVersions = new ConcurrentHashMap<>()
@@ -110,13 +108,6 @@ class NCubeController extends BaseController
     {
         System.err = new ThreadAwarePrintStreamErr()
         System.out = new ThreadAwarePrintStream()
-
-        String memcachedServers = SystemUtilities.getExternalVariable('NCE_MEMCACHED_SERVERS')
-        if (StringUtilities.isEmpty(memcachedServers))
-        {
-            memcachedServers = '127.0.0.1:11211'
-        }
-//        memcachedClient = new MemcachedClient(AddrUtil.getAddresses(memcachedServers))
     }
 
     protected static String getUserForDatabase()
@@ -1745,14 +1736,20 @@ class NCubeController extends BaseController
         }
     }
 
-    private static String getTestCauses(Throwable t)
+    /**
+     * Given an exception, get an HTML version of it.  This version is reversed in order,
+     * so that the root cause is first, and then the caller, and so on.
+     * @param t Throwable exception for which to obtain the HTML
+     * @return String version of the Throwable in HTML format.  Surrounded with pre-tag.
+     */
+    static String getTestCauses(Throwable t)
     {
         LinkedList<Map<String, Object>> stackTraces = new LinkedList<>()
 
         while (true)
         {
-            stackTraces.push([msg: t.getLocalizedMessage(), trace: t.getStackTrace()] as Map)
-            t = t.getCause()
+            stackTraces.push([msg: t.localizedMessage, trace: t.stackTrace] as Map)
+            t = t.cause
             if (t == null)
             {
                 break

@@ -78,12 +78,12 @@
         <version.log4j>2.5</version.log4j>
         <version.groovy>2.4.8</version.groovy>
         <version.junit>4.12</version.junit>
-        <version.spring>4.3.1.RELEASE</version.spring>
+        <version.spring>4.3.5.RELEASE</version.spring>
         <version.servlet>3.1.0</version.servlet>
         <version.tomcat>8.0.32</version.tomcat>
         <version.mysql>5.1.40</version.mysql>
         <version.tuckey>4.0.4</version.tuckey>
-        <version.spymemcached>2.12.1</version.spymemcached>
+        <!--<version.spymemcached>2.12.1</version.spymemcached>-->
         <version.plugin.assembly>2.6</version.plugin.assembly>
         <version.plugin.gcloud>2.0.9.111.v20160527</version.plugin.gcloud>
         <version.plugin.appengine>1.9.38</version.plugin.appengine>
@@ -272,11 +272,11 @@
 
     <dependencies>
 
-        <dependency>
-            <groupId>net.spy</groupId>
-            <artifactId>spymemcached</artifactId>
-            <version>${version.spymemcached}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>net.spy</groupId>-->
+            <!--<artifactId>spymemcached</artifactId>-->
+            <!--<version>${version.spymemcached}</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.tuckey</groupId>
@@ -398,6 +398,7 @@
         <!--<dependency>-->
             <!--<groupId>org.springframework.boot</groupId>-->
             <!--<artifactId>spring-boot-starter</artifactId>-->
+            <!--<version></version>-->
         <!--</dependency>-->
 
         <!--<dependency>-->
