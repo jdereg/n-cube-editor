@@ -67,7 +67,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			String title = showCellValues ? 'Utilized scope' : 'Utilized scope to load class without all traits'
 			getDetailsMap(sb, title, targetScope)
 		}
-		getDetailsMap(sb, 'Available scope', scope)
+		getDetailsMap(sb, 'Available scope', availableTargetScope)
 
 		//Fields
 		if (cellValuesLoaded)
@@ -179,15 +179,15 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	void retainUsedScope(VisualizerInfo visInfo, Map output)
 	{
 		Set<String> scopeCollector = new CaseInsensitiveSet<>()
-		scopeCollector.addAll(visInfo.requiredScopeKeys[targetCube.name])
-		scopeCollector.addAll(visInfo.optionalScopeKeys[targetCube.name])
+		scopeCollector.addAll(visInfo.scopeInfo.requiredScopeKeysByCube[targetCube.name])
+		scopeCollector.addAll(visInfo.scopeInfo.allOptionalScopeKeysByCube[targetCube.name])
 		scopeCollector << EFFECTIVE_VERSION_SCOPE_KEY
 
 		RuleInfo ruleInfo = NCube.getRuleInfo(output)
 		Set keysUsed = ruleInfo.getInputKeysUsed()
 		scopeCollector.addAll(keysUsed)
 
-		targetScope = new CaseInsensitiveMap(scope)
+		targetScope = new CaseInsensitiveMap(availableTargetScope)
 		cullScope(targetScope.keySet(), scopeCollector)
 	}
 
@@ -242,7 +242,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	protected String getLabel(String cubeName)
 	{
 		String scopeKey = getDotSuffix(cubeName)
-		return scope[scopeKey] ?: getCubeDisplayName(cubeName)
+		return availableTargetScope[scopeKey] ?: getCubeDisplayName(cubeName)
 	}
 
 	@Override
@@ -321,10 +321,10 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			Map output = [:]
 			if (targetCube.name.startsWith(RPM_ENUM))
 			{
-				helper.loadRpmClassFields(appId, RPM_ENUM, targetCube.name - RPM_ENUM_DOT, scope, targetTraits, showCellValues, output)
+				helper.loadRpmClassFields(appId, RPM_ENUM, targetCube.name - RPM_ENUM_DOT, availableTargetScope, targetTraits, showCellValues, output)
 			} else
 			{
-				helper.loadRpmClassFields(appId, RPM_CLASS, targetCube.name - RPM_CLASS_DOT, scope, targetTraits, showCellValues, output)
+				helper.loadRpmClassFields(appId, RPM_CLASS, targetCube.name - RPM_CLASS_DOT, availableTargetScope, targetTraits, showCellValues, output)
 			}
 			removeNotExistsFields()
 			addRequiredAndOptionalScopeKeys(visInfo)
@@ -356,7 +356,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 
 	private void handleUnboundAxes(VisualizerInfo visInfo, RuleInfo ruleInfo)
 	{
-		if (createUnboundAxesMaps(visInfo, ruleInfo))
+		if (addUnboundAxisToScopeInfo(visInfo, ruleInfo))
 		{
 			String cubeName = targetCube.name
 			String nodeLabel = getLabel(cubeName)
@@ -381,12 +381,14 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		}
 	}
 
-	private boolean createUnboundAxesMaps(VisualizerInfo visInfo, RuleInfo ruleInfo)
+	private boolean addUnboundAxisToScopeInfo(VisualizerInfo visInfo, RuleInfo ruleInfo)
 	{
+		boolean hasUnboundAxisToInclude
 		List unboundAxesList = ruleInfo.getUnboundAxesList()
 		if (unboundAxesList)
 		{
-			//Gather entries in unboundAxesList into maps keyed by unbound axis name.
+			//Gather entries in unboundAxesList into maps held in scopeInfo for
+			//graph as a whole and for this class.
 			unboundAxesList.each { MapEntry unboundAxis ->
 				String cubeName = unboundAxis.key as String
 				MapEntry axisEntry = unboundAxis.value as MapEntry
@@ -394,29 +396,13 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 				Object unBoundValue = axisEntry.value
 				if (includeScopeKey(visInfo, axisName))
 				{
-					Set<Object> values = visInfo.getOptionalScopeValues(cubeName, axisName)
-					addValuesForUnboundAxis(values, axisName, scopeInfo.columnValuesForUnboundAxes)
-					addValuesForUnboundAxis(values, axisName, visInfo.scopeInfo.columnValuesForUnboundAxes)
-
-					addValuesForUnboundAxis([unBoundValue], axisName, scopeInfo.unboundValuesForUnboundAxes)
-					addValuesForUnboundAxis([unBoundValue], axisName, visInfo.scopeInfo.unboundValuesForUnboundAxes)
-
-					addValuesForUnboundAxis([cubeName], axisName, scopeInfo.cubeNamesForUnboundAxes)
-					addValuesForUnboundAxis([cubeName], axisName, visInfo.scopeInfo.cubeNamesForUnboundAxes)
-
-					scopeInfo.axisNames << axisName
-					visInfo.scopeInfo.axisNames << axisName
+					visInfo.scopeInfo.addOptionalScope(appId, cubeName, axisName, unBoundValue)
+					scopeInfo.addOptionalScope(appId, cubeName, axisName, unBoundValue)
+					hasUnboundAxisToInclude = true
 				}
 			}
 		}
-		return scopeInfo.axisNames
-	}
-
-	private static addValuesForUnboundAxis(Collection valuesToAdd, String axisName, Map<String, Set> valuesMap)
-	{
-		Set values = valuesMap[axisName] ?: new LinkedHashSet()
-		values.addAll(valuesToAdd)
-		valuesMap[axisName] = values
+		return hasUnboundAxisToInclude
 	}
 
 	private boolean includeScopeKey(VisualizerInfo visInfo, String scopeKey)

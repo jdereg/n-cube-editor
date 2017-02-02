@@ -92,7 +92,7 @@ class RpmVisualizer extends Visualizer
 			visInfo.edges << relInfo.createEdge(visInfo.edges.size())
 		}
 
-		if (!visited.add(targetCubeName + relInfo.scope.toString()))
+		if (!visited.add(targetCubeName + relInfo.availableTargetScope.toString()))
 		{
 			return
 		}
@@ -105,7 +105,7 @@ class RpmVisualizer extends Visualizer
 				if (CLASS_TRAITS != targetFieldName)
 				{
 					String targetFieldRpmType = targetTraits[R_RPM_TYPE]
-					if (!getVisualizerHelper().isPrimitive(targetFieldRpmType))
+					if (!visualizerHelper.isPrimitive(targetFieldRpmType))
 					{
 						String nextTargetCubeName = ""
 						if (targetTraits.containsKey(V_ENUM))
@@ -149,7 +149,7 @@ class RpmVisualizer extends Visualizer
 
 		visInfo.edges << relInfo.createEdge(visInfo.edges.size())
 
-		if (!visited.add(targetCubeName + relInfo.scope.toString()))
+		if (!visited.add(targetCubeName + relInfo.availableTargetScope.toString()))
 		{
 			return
 		}
@@ -164,7 +164,7 @@ class RpmVisualizer extends Visualizer
 		NCube nextTargetCube = nextRelInfo.targetCube
 		if (nextTargetCube)
 		{
-			nextRelInfo.scope = getScopeRelativeToSource(nextTargetCube, rpmType, targetFieldName, relInfo.scope)
+			nextRelInfo.availableTargetScope = getScopeRelativeToSource(nextTargetCube, rpmType, targetFieldName, relInfo.availableTargetScope)
 			nextRelInfo.sourceFieldName = targetFieldName
 			nextRelInfo.sourceFieldRpmType = rpmType
 			nextRelInfo.sourceTraits = relInfo.targetTraits
@@ -281,20 +281,20 @@ class RpmVisualizer extends Visualizer
 	@Override
 	protected boolean hasMissingMinimumScope(VisualizerInfo visInfo, String startCubeName)
 	{
-		RpmVisualizerHelper helper = getVisualizerHelper()
+		RpmVisualizerHelper helper = visualizerHelper
 		RpmVisualizerInfo rpmVisInfo = (RpmVisualizerInfo) visInfo
 		defaultScopeEffectiveVersion = appId.version
 		defaultScopeDate = DATE_TIME_FORMAT.format(new Date())
 		Set<String> messages = visInfo.messages
 
 		boolean hasMissingScope = false
-		Map<String, Object> scope = rpmVisInfo.scope
+		Map<String, Object> scope = rpmVisInfo.scopeInfo.scope
 
 		if (NCubeManager.getCube(appId, startCubeName).getAxis(AXIS_TRAIT).findColumn(R_SCOPED_NAME))
 		{
 			String type = getTypeFromCubeName(startCubeName)
-			String scopeCubeName = startCubeName.replace(RPM_CLASS_DOT, RPM_SCOPE_CLASS_DOT) + DOT_TRAITS
-			Set<Object> requiredScopeValues = visInfo.getRequiredScopeValues(scopeCubeName, type)
+			//String scopeCubeName = startCubeName.replace(RPM_CLASS_DOT, RPM_SCOPE_CLASS_DOT) + DOT_TRAITS
+			Set<Object> requiredScopeValues = [] as Set // TODO: FIX    visInfo.getRequiredScopeValues(scopeCubeName, type)
 			String messageScopeValues = BREAK + helper.getRequiredScopeValueMessage(type, requiredScopeValues)
 			if (scope)
 			{
@@ -307,7 +307,7 @@ class RpmVisualizer extends Visualizer
 			{
 				hasMissingScope = true
 				Map<String, Object> defaultScope = getDefaultScope(type)
-				visInfo.scope = defaultScope
+				rpmVisInfo.scopeInfo.scope = defaultScope
 				String msg = helper.getMissingMinimumScopeMessage(defaultScope, messageScopeValues)
 				messages << msg
 			}
@@ -320,7 +320,7 @@ class RpmVisualizer extends Visualizer
 			else
 			{
 				hasMissingScope = false
-				visInfo.scope = getDefaultScope(null)
+				visInfo.scopeInfo.scope = getDefaultScope(null)
 			}
 		}
 		return hasMissingScope

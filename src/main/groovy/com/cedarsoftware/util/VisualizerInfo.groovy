@@ -1,8 +1,6 @@
 package com.cedarsoftware.util
 
 import com.cedarsoftware.ncube.ApplicationID
-import com.cedarsoftware.ncube.Axis
-import com.cedarsoftware.ncube.Column
 import com.cedarsoftware.ncube.NCube
 import com.cedarsoftware.ncube.NCubeManager
 import groovy.transform.CompileStatic
@@ -17,7 +15,6 @@ import static com.cedarsoftware.util.VisualizerConstants.*
 class VisualizerInfo
 {
     ApplicationID appId
-    Map<String, Object> scope
     List<Map<String, Object>> nodes = []
     List<Map<String, Object>> edges = []
 
@@ -33,10 +30,6 @@ class VisualizerInfo
     Set<String> availableGroupsAllLevels
     Set<String> messages
 
-    Map<String, Map<String, Set<Object>>> optionalScopeValues = new CaseInsensitiveMap()
-    Map<String, Map<String, Set<Object>>> requiredScopeValues = new CaseInsensitiveMap()
-    Map<String, Set<String>> requiredScopeKeys = [:]
-    Map<String, Set<String>> optionalScopeKeys = [:]
     VisualizerScopeInfo scopeInfo = new VisualizerScopeInfo()
 
     Map<String, Object> networkOverridesBasic
@@ -50,7 +43,7 @@ class VisualizerInfo
     VisualizerInfo(ApplicationID applicationID, Map options)
     {
         appId = applicationID
-        scope = options.scope as CaseInsensitiveMap
+        scopeInfo.scope = options.scope as CaseInsensitiveMap
         loadConfigurations(cubeType)
     }
 
@@ -61,8 +54,8 @@ class VisualizerInfo
         relInfoCount = 1
         messages = new LinkedHashSet()
         availableGroupsAllLevels = new LinkedHashSet()
-        this.scope = scope as CaseInsensitiveMap ?: new CaseInsensitiveMap<>()
         scopeInfo = new VisualizerScopeInfo()
+        scopeInfo.scope = scope as CaseInsensitiveMap ?: new CaseInsensitiveMap<>()
     }
 
     protected String getCubeType()
@@ -72,7 +65,7 @@ class VisualizerInfo
 
     boolean addMissingMinimumScope(String scopeKey, String value, String message, Set<String> messages)
     {
-        Map<String, Object> scope = scope
+        Map<String, Object> scope = scopeInfo.scope
         boolean missingScope
         if (scope.containsKey(scopeKey))
         {
@@ -140,41 +133,6 @@ class VisualizerInfo
     protected String getLoadCellValuesLabel()
     {
         'cell values'
-    }
-
-    Set<Object> getOptionalScopeValues( String cubeName, String scopeKey)
-    {
-        return getScopeValues(optionalScopeValues, cubeName, scopeKey)
-    }
-
-    Set<Object> getRequiredScopeValues(String cubeName, String scopeKey)
-    {
-        return getScopeValues(requiredScopeValues, cubeName, scopeKey)
-    }
-
-    Set<Object> getScopeValues( Map<String, Map<String, Set<Object>>> scopeValues, String cubeName, String scopeKey)
-    {
-        //The key to the map scopeValues is a scope key. The map contains a map of scope values by cube name.
-        Map<String, Set<Object>> scopeValuesForScopeKey = scopeValues[scopeKey] as Map ?: new CaseInsensitiveMap()
-        Set<Object> scopeValuesForCubeAndScopeKey = scopeValuesForScopeKey[cubeName] ?: getColumnValues(appId, cubeName, scopeKey)
-        scopeValuesForScopeKey[cubeName] = scopeValuesForCubeAndScopeKey
-        scopeValues[scopeKey] = scopeValuesForScopeKey
-        return scopeValuesForCubeAndScopeKey
-    }
-
-    protected static Set<Object> getColumnValues(ApplicationID applicationID, String cubeName, String axisName)
-    {
-        NCube cube = NCubeManager.getCube(applicationID, cubeName)
-        Set values = new LinkedHashSet()
-        Axis axis = cube?.getAxis(axisName)
-        if (axis)
-        {
-            for (Column column : axis.columnsWithoutDefault)
-            {
-                values.add(column.value)
-            }
-        }
-        return values
     }
 
     void convertToSingleMessage()

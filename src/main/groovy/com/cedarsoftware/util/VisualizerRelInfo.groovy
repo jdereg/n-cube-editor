@@ -19,7 +19,7 @@ class VisualizerRelInfo
 	ApplicationID appId
 
 	Set<String> notes = []
-	Map<String, Object> scope
+	Map<String, Object> availableTargetScope
 
 	long targetId
 	NCube targetCube
@@ -55,7 +55,7 @@ class VisualizerRelInfo
 		targetId = Long.valueOf(node.id as String)
 		targetLevel = Long.valueOf(node.level as String)
 		targetScope = node.scope as CaseInsensitiveMap
-		scope = node.availableScope as CaseInsensitiveMap
+		availableTargetScope = node.availableScope as CaseInsensitiveMap
 		showCellValuesLink = node.showCellValuesLink as boolean
 		showCellValues = node.showCellValues as boolean
 		cellValuesLoaded = node.cellValuesLoaded as boolean
@@ -70,7 +70,7 @@ class VisualizerRelInfo
 		{
 			Map<LongHashSet, Object> cellMap = targetCube.cellMap
 			cellMap.each { LongHashSet ids, Object noExecuteCell ->
-				Map<String, Object> coordinate = scope as CaseInsensitiveMap ?: new CaseInsensitiveMap()
+				Map<String, Object> coordinate = availableTargetScope as CaseInsensitiveMap ?: new CaseInsensitiveMap()
 				coordinate.putAll(targetCube.getCoordinateFromIds(ids))
 				VisualizerCellInfo visCellInfo = new VisualizerCellInfo(String.valueOf(targetId), coordinate)
 				try
@@ -93,18 +93,15 @@ class VisualizerRelInfo
 
 	Set<String> getRequiredScope()
 	{
-		return targetCube.getRequiredScope(scope, new CaseInsensitiveMap())
+		return targetCube.getRequiredScope(availableTargetScope, new CaseInsensitiveMap())
 	}
 
 	String getDetails(VisualizerInfo visInfo)
 	{
 		StringBuilder sb = new StringBuilder()
-		String targetCubeName = targetCube.name
 
 		getDetailsMap(sb, 'Scope', targetScope)
-		getDetailsMap(sb, 'Available scope', scope)
-		getDetailsSet(sb, 'Required scope keys', visInfo.requiredScopeKeys[targetCubeName])
-		getDetailsSet(sb, 'Optional scope keys', visInfo.optionalScopeKeys[targetCubeName])
+		getDetailsMap(sb, 'Available scope', availableTargetScope)
 		getDetailsSet(sb, 'Axes', targetCube.axisNames)
 
 		//Cell values
@@ -206,10 +203,10 @@ class VisualizerRelInfo
 	protected void addRequiredAndOptionalScopeKeys(VisualizerInfo visInfo)
 	{
 		String cubeName = targetCube.name
-		if (!visInfo.requiredScopeKeys.containsKey(cubeName))
+		if (!visInfo.scopeInfo.requiredScopeKeysByCube.containsKey(cubeName))
 		{
-			visInfo.requiredScopeKeys[cubeName] = requiredScope
-			visInfo.optionalScopeKeys[cubeName] = targetCube.getOptionalScope(scope, [:])
+			visInfo.scopeInfo.requiredScopeKeysByCube[cubeName] = requiredScope
+			visInfo.scopeInfo.allOptionalScopeKeysByCube[cubeName] = targetCube.getOptionalScope(availableTargetScope, new CaseInsensitiveMap())
 		}
 	}
 
@@ -241,7 +238,7 @@ class VisualizerRelInfo
 		node.cubeName = targetCubeName
 		node.sourceCubeName = sourceCubeName
 		node.scope = targetScope
-		node.availableScope = scope
+		node.availableScope = availableTargetScope
 		node.fromFieldName = sourceFieldName
 		node.sourceDescription = sourceCubeName ? sourceDescription : null
 		node.label = nodeLabelPrefix + getLabel(targetCubeName)

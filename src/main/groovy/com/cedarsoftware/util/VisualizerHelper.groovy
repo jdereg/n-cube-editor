@@ -17,7 +17,7 @@ class VisualizerHelper
 	static String handleUnboundAxes(VisualizerScopeInfo scopeInfo)
 	{
 		StringBuilder sb = new StringBuilder()
-		scopeInfo.axisNames.each{ String axisName ->
+		scopeInfo.optionalScopeAvailableValues.keySet().each{ String axisName ->
 			sb.append(BREAK + getOptionalScopeValueMessage(axisName, scopeInfo))
 		}
 		return sb.toString()
@@ -39,14 +39,14 @@ class VisualizerHelper
 
 	static String handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerInfo visInfo, VisualizerRelInfo relInfo, Set mandatoryScopeKeys)
 	{
-		Set<String> missingScope = findMissingScope(relInfo.scope, e.requiredKeys, mandatoryScopeKeys)
+		Set<String> missingScope = findMissingScope(relInfo.availableTargetScope, e.requiredKeys, mandatoryScopeKeys)
 		if (missingScope)
 		{
 			return getRequiredScopeValuesMessage(visInfo, missingScope, e.cubeName)
 		}
 		else
 		{
-			throw new IllegalStateException("InvalidCoordinateException thrown, but no missing scope keys found for ${relInfo.targetCube.name} and scope ${visInfo.scope.toString()}.", e)
+			throw new IllegalStateException("InvalidCoordinateException thrown, but no missing scope keys found for ${relInfo.targetCube.name} and scope ${visInfo.scopeInfo.scope.toString()}.", e)
 		}
 	}
 
@@ -69,7 +69,7 @@ class VisualizerHelper
 	{
 		StringBuilder message = new StringBuilder()
 		missingScope.each{ String scopeKey ->
-			Set<Object> requiredScopeValues = visInfo.getRequiredScopeValues(cubeName, scopeKey)
+			Set<Object> requiredScopeValues = visInfo.scopeInfo.requiredScopeAvailableValues[scopeKey]
 			message.append(BREAK + getRequiredScopeValueMessage(scopeKey, requiredScopeValues))
 		}
 		return message.toString()
@@ -77,11 +77,11 @@ class VisualizerHelper
 
 	static String getOptionalScopeValueMessage(String scopeKey, VisualizerScopeInfo scopeInfo)
 	{
-		Set<Object> scopeValues = scopeInfo.columnValuesForUnboundAxes[scopeKey]
-		Set<Object> unboundValues = scopeInfo.unboundValuesForUnboundAxes[scopeKey]
-		unboundValues.remove(null)
-		String defaultValueSuffix = unboundValues ? " (${unboundValues.join(COMMA_SPACE)} provided, but not found)" : ' (no value provided)'
-		String cubeNames = scopeInfo.cubeNamesForUnboundAxes[scopeKey].join(COMMA_SPACE)
+		Set<Object> scopeValues = scopeInfo.optionalScopeAvailableValues[scopeKey]
+		Set<Object> providedValues = scopeInfo.optionalScopeProvidedValues[scopeKey]
+		providedValues.remove(null)
+		String defaultValueSuffix = providedValues ? " (${providedValues.join(COMMA_SPACE)} provided, but not found)" : ' (no value provided)'
+		String cubeNames = scopeInfo.optionalScopeCubeNames[scopeKey].join(COMMA_SPACE)
 		String title = "The default for ${scopeKey} was utilized on ${cubeNames}"
 
 		StringBuilder sb = new StringBuilder()

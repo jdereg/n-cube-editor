@@ -121,11 +121,11 @@ class Visualizer
 
 	protected void handleUnboundAxes(VisualizerInfo visInfo)
 	{
-		if (visInfo.scopeInfo.axisNames)
+		if (visInfo.scopeInfo.optionalScopeAvailableValues)
 		{
 			StringBuilder sb = new StringBuilder('Since not all optional scope was provided or found, one or more defaults were used to load the graph.')
 			sb.append("${BREAK}")
-			sb.append(getVisualizerHelper().handleUnboundAxes(visInfo.scopeInfo))
+			sb.append(visualizerHelper.handleUnboundAxes(visInfo.scopeInfo))
 			visInfo.messages << sb.toString()
 		}
 	}
@@ -134,7 +134,7 @@ class Visualizer
 	{
 		relInfo.appId = appId
 		relInfo.targetCube = NCubeManager.getCube(appId, startCubeName)
-		relInfo.scope = new CaseInsensitiveMap(visInfo.scope)
+		relInfo.availableTargetScope = new CaseInsensitiveMap(visInfo.scopeInfo.scope)
 		relInfo.targetLevel = 1
 		relInfo.targetId = 1
 		relInfo.addRequiredAndOptionalScopeKeys(visInfo)
@@ -152,7 +152,7 @@ class Visualizer
 			visInfo.edges << relInfo.createEdge(visInfo.edges.size())
 		}
 
-		if (!visited.add(targetCubeName + relInfo.scope.toString()))
+		if (!visited.add(targetCubeName + relInfo.availableTargetScope.toString()))
 		{
 			return
 		}
@@ -184,8 +184,8 @@ class Visualizer
 				nextRelInfo.sourceId = relInfo.targetId
 				nextRelInfo.sourceFieldName = mapJoiner.join(coordinates)
 				nextRelInfo.targetScope = new CaseInsensitiveMap(coordinates)
-				nextRelInfo.scope = new CaseInsensitiveMap(relInfo.scope)
-				nextRelInfo.scope.putAll(coordinates)
+				nextRelInfo.availableTargetScope = new CaseInsensitiveMap(relInfo.availableTargetScope)
+				nextRelInfo.availableTargetScope.putAll(coordinates)
 				nextRelInfo.addRequiredAndOptionalScopeKeys(visInfo)
 				nextRelInfo.showCellValuesLink = true
 				stack.push(nextRelInfo)
