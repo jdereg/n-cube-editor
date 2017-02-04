@@ -2339,7 +2339,6 @@ var NCubeEditor2 = (function ($) {
         // Add click handler that opens clicked cube names
         $(element).find('a.nc-anc-url').on('click', function (e) {
             var link, result, msg;
-            nce.clearNote();
             link = this.innerHTML;
             if (!link.indexOf('http:') || !link.indexOf('https:') || !link.indexOf('file:')) {
                 window.open(link);
@@ -3436,7 +3435,6 @@ var NCubeEditor2 = (function ($) {
             markCubeModified();
             reload(true);
         } else {
-            nce.clearNote();
             nce.showNote('Error pasting cells:<hr class="hr-small"/>' + result.data);
         }
     }
@@ -4110,7 +4108,7 @@ var NCubeEditor2 = (function ($) {
         }
         lowerAxisName = axis.name.toLowerCase();
         if (_hiddenColumns.hasOwnProperty(lowerAxisName)) {
-            nce.showNote('Hidden column selections for axis ' + axis.name + ' removed.', 'Note', TWO_SECOND_TIMEOUOT);
+            nce.showNote('Hidden column selections for axis ' + axis.name + ' removed.', 'Note', TWO_SECOND_TIMEOUT);
             delete _hiddenColumns[lowerAxisName];
             storeHiddenColumns();
         }
@@ -4357,7 +4355,7 @@ var NCubeEditor2 = (function ($) {
         });
         len = columnIds.length;
         if (len === axis.columns.length) {
-            nce.showNote('Please select at least one column to show.', 'Note', TWO_SECOND_TIMEOUOT);
+            nce.showNote('Please select at least one column to show.', 'Note', TWO_SECOND_TIMEOUT);
             return;
         }
         delete _hiddenColumns[lowerAxisName];
@@ -4638,7 +4636,7 @@ var NCubeEditor2 = (function ($) {
             lowerAxisName = axisName.toLowerCase();
             callUpdateMetaPropertiesForDefaultCubeView(true);
             if (_hiddenColumns.hasOwnProperty(lowerAxisName)) {
-                nce.showNote('Hidden column selections for axis ' + axisName + ' removed.', 'Note', TWO_SECOND_TIMEOUOT);
+                nce.showNote('Hidden column selections for axis ' + axisName + ' removed.', 'Note', TWO_SECOND_TIMEOUT);
                 delete _hiddenColumns[lowerAxisName];
                 storeHiddenColumns();
             }

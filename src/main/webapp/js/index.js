@@ -33,8 +33,6 @@ var NCE = (function ($) {
     var _selectedVersion = localStorage[SELECTED_VERSION];
     var _selectedBranch;
     var _selectedStatus = localStorage[SELECTED_STATUS] || STATUS.SNAPSHOT;
-    var _noteId = null;
-    var _noteWrapper = null;
     var _activeTabViewType = localStorage[ACTIVE_TAB_VIEW_TYPE];
     var _selectedCubeInfo = localStorage[SELECTED_CUBE_INFO];
     var _defaultTab = null;
@@ -76,6 +74,7 @@ var NCE = (function ($) {
     var _batchUpdateAxisReferencesTable = $('#batchUpdateAxisReferencesTable');
     var _batchUpdateAxisReferencesUpdate = $('#batchUpdateAxisReferencesUpdate');
     var _batchUpdateAxisReferencesToggle = $('#batchUpdateAxisReferencesToggle');
+    var _batchUpdateAxisReferencesRemoveTransform = $('#batchUpdateAxisReferencesRemoveTransform');
     var _batchUpdateAxisReferencesData = [];
     var _batchUpdateAxisReferencesApp = $('#batchUpdateAxisReferencesApp');
     var _batchUpdateAxisReferencesVersion = $('#batchUpdateAxisReferencesVersion');
@@ -1036,7 +1035,6 @@ var NCE = (function ($) {
     
     function onViewTypeClick(e, anc, cubeInfo) {
         var ci2, cia2, tabIdx, isCtrlKey, li, img;
-        clearNote();
         li = anc.parent().parent().parent();
         setActiveTabViewType(anc.data('pageid'));
         ci2 = buildCubeInfo(cubeInfo[CUBE_INFO.APP], cubeInfo[CUBE_INFO.VERSION], cubeInfo[CUBE_INFO.STATUS], cubeInfo[CUBE_INFO.BRANCH], cubeInfo[CUBE_INFO.NAME], getActiveTabViewType());
@@ -1851,10 +1849,10 @@ var NCE = (function ($) {
             if (rightResult.status && rightResult.data.length) {
                 rightDto = rightResult.data[0];
             } else {
-                showNote('Unable to load cube ' + rightCube, 'Global Comparator Error', TWO_SECOND_TIMEOUOT);
+                showNote('Unable to load cube ' + rightCube, 'Global Comparator Error', TWO_SECOND_TIMEOUT);
             }
         } else {
-            showNote('Right compare info not set!', 'Global Comparator Error', TWO_SECOND_TIMEOUOT);
+            showNote('Right compare info not set!', 'Global Comparator Error', TWO_SECOND_TIMEOUT);
             return;
         }
 
@@ -1864,10 +1862,10 @@ var NCE = (function ($) {
             if (leftResult.status && leftResult.data.length) {
                 leftDto = leftResult.data[0];
             } else {
-                showNote('Unable to load cube ' + leftCube, 'Global Comparator Error', TWO_SECOND_TIMEOUOT);
+                showNote('Unable to load cube ' + leftCube, 'Global Comparator Error', TWO_SECOND_TIMEOUT);
             }
         } else {
-            showNote('Left compare info not set!', 'Global Comparator Error', TWO_SECOND_TIMEOUOT);
+            showNote('Left compare info not set!', 'Global Comparator Error', TWO_SECOND_TIMEOUT);
             return;
         }
 
@@ -1875,7 +1873,7 @@ var NCE = (function ($) {
             title = [leftApp, leftVersion, leftBranch, leftDto.name].join('-') + ' vs ' + [rightApp, rightVersion, rightBranch, rightDto.name].join('-');
             diffCubes(rightDto, leftDto, title, appIdFrom(leftDto.app, leftDto.version, leftDto.status, leftDto.branch));
         } else {
-            showNote('Unable to load cubes for compare!', 'Global Comparator Error', TWO_SECOND_TIMEOUOT);
+            showNote('Unable to load cubes for compare!', 'Global Comparator Error', TWO_SECOND_TIMEOUT);
         }
     }
 
@@ -1971,11 +1969,19 @@ var NCE = (function ($) {
         var i, len, isDest, refAxData, html, app, version, cube, axis;
         findBatchUpdateAxisReferencesRows().remove();
         isDest = isBatchUpdateAxisReferencesDestinationToggled();
-        _batchUpdateAxisReferencesCurrAxisHeader[0].innerHTML = isDest ? 'Current Destination Axis' : 'Current Transform Axis';
-        _batchUpdateAxisReferencesNewAxisHeader[0].innerHTML = isDest ? 'New Destination Axis' : 'New Transform Axis';
-        _batchUpdateAxisReferencesAxisMethodNameColumnHeader[0].innerHTML = isDest ? 'Axis Name' : 'Method Name';
-        html = '';
+        if (isDest) {
+            _batchUpdateAxisReferencesCurrAxisHeader[0].innerHTML = 'Current Destination Axis';
+            _batchUpdateAxisReferencesNewAxisHeader[0].innerHTML = 'New Destination Axis';
+            _batchUpdateAxisReferencesAxisMethodNameColumnHeader[0].innerHTML = 'Axis Name';
+            _batchUpdateAxisReferencesRemoveTransform.hide();
+        } else {
+            _batchUpdateAxisReferencesCurrAxisHeader[0].innerHTML = 'Current Transform Axis';
+            _batchUpdateAxisReferencesNewAxisHeader[0].innerHTML = 'New Transform Axis';
+            _batchUpdateAxisReferencesAxisMethodNameColumnHeader[0].innerHTML = 'Method Name';
+            _batchUpdateAxisReferencesRemoveTransform.show();
+        }
 
+        html = '';
         for (i = 0, len = _batchUpdateAxisReferencesData.length; i < len; i++) {
             refAxData = _batchUpdateAxisReferencesData[i];
             if (isDest) {
@@ -2003,8 +2009,8 @@ var NCE = (function ($) {
         _batchUpdateAxisReferencesTable.append(html);
     }
 
-    function batchUpdateAxisReferencesUpdate() {
-        var checkedIdx, checkedLen, refAxIdx, refAx, result, row;
+    function getUpdateReferenceAxes(removeTransform) {
+        var checkedIdx, checkedLen, refAxIdx, refAx;
         var refAxes = [];
         var allRows = findBatchUpdateAxisReferencesRows();
         var checked = allRows.has('input:checked');
@@ -2022,7 +2028,12 @@ var NCE = (function ($) {
             refAxIdx = allRows.index(checked[checkedIdx]);
             refAx = null;
             refAx = _batchUpdateAxisReferencesData[refAxIdx];
-            if (newAppVal !== '') {
+            if (removeTransform) {
+                refAx[appProp] = null;
+                refAx[versionProp] = null;
+                refAx[cubeNameProp] = null;
+                refAx[axisNameProp] = null;
+            } else if (newAppVal !== '') {
                 refAx[appProp] = newAppVal;
                 if (newVersionVal !== '') {
                     refAx[versionProp] = newVersionVal;
@@ -2036,16 +2047,47 @@ var NCE = (function ($) {
             }
             refAxes.push(refAx);
         }
+        return refAxes;
+    }
+
+    function batchUpdateAxisReferencesUpdate(removeTransform) {
+        var result, len;
+        var refAxes = getUpdateReferenceAxes(removeTransform);
+        len = refAxes.length;
+        clearNote();
+        if (!len) {
+            showNote('No reference axes selected!', null, TWO_SECOND_TIMEOUT);
+            return;
+        }
         result = call(CONTROLLER + CONTROLLER_METHOD.UPDATE_REFERENCE_AXES, [refAxes]);
         if (!result.status) {
             showNote('Unable to update reference axes:<hr class="hr-small"/>' + result.data);
             return;
         }
-        showNote(checkedLen + ' ' + (checkedLen === 1 ? 'axis' : 'axes') + ' updated', '', TWO_SECOND_TIMEOUOT);
-        for (checkedIdx = 0; checkedIdx < checkedLen; checkedIdx++) {
+        showNote(len + ' ' + (len === 1 ? 'axis' : 'axes') + ' updated', '', TWO_SECOND_TIMEOUT);
+        updateBatchReferenceAxisList(removeTransform);
+        selectNone();
+        buildTabs(true);
+    }
+
+    function updateBatchReferenceAxisList(removeTransform) {
+        var checkedIdx, checkedLen, row;
+        var allRows = findBatchUpdateAxisReferencesRows();
+        var checked = allRows.has('input:checked');
+        var newAppVal = _batchUpdateAxisReferencesApp.val();
+        var newVersionVal = _batchUpdateAxisReferencesVersion.val();
+        var newCubeNameVal = _batchUpdateAxisReferencesCubeName.val();
+        var newAxisNameVal = _batchUpdateAxisReferencesAxisName.val();
+
+        for (checkedIdx = 0, checkedLen = checked.length; checkedIdx < checkedLen; checkedIdx++) {
             row = null;
             row = $(checked[checkedIdx]);
-            if (newAppVal !== '') {
+            if (removeTransform) {
+                row.find('td.app')[0].innerHTML = '';
+                row.find('td.version')[0].innerHTML = '';
+                row.find('td.cubeName')[0].innerHTML = '';
+                row.find('td.axisName')[0].innerHTML = '';
+            } else if (newAppVal !== '') {
                 row.find('td.app')[0].innerHTML = newAppVal;
                 if (newVersionVal !== '') {
                     row.find('td.version')[0].innerHTML = newVersionVal;
@@ -2058,8 +2100,6 @@ var NCE = (function ($) {
                 }
             }
         }
-        selectNone();
-        buildTabs(true);
     }
 
     function checkPermissions(appId, resource, action) {
@@ -2546,7 +2586,6 @@ var NCE = (function ($) {
 
     function loadVersions() {
         var result, arr, versions;
-        clearNote();
         if (!_selectedApp) {
             showNote('Unable to load versions, no n-cube App selected.');
             return;
@@ -2584,7 +2623,6 @@ var NCE = (function ($) {
     function loadAppNames() {
         var result;
         var apps = [];
-        clearNote();
         result = call(CONTROLLER + CONTROLLER_METHOD.GET_APP_NAMES, [_selectedStatus, _selectedBranch]);
         if (result.status) {
             apps = null;
@@ -2605,7 +2643,6 @@ var NCE = (function ($) {
             return false;
         }
 
-        clearNote();
         $('#newCubeAppName').val(_selectedApp);
         $('#newCubeStatus').val('SNAPSHOT');
         $('#newCubeVersion').val(_selectedVersion);
@@ -2656,7 +2693,6 @@ var NCE = (function ($) {
 
     function deleteCube() {
         var cubeLinks, i, len, cubeName, html;
-        clearNote();
         if (!_selectedApp || !_selectedVersion || !_selectedStatus) {
             showNote('Need to have an application, version, and status selected first.');
             return;
@@ -2764,7 +2800,6 @@ var NCE = (function ($) {
 
     function restoreCube() {
         var ul, result;
-        clearNote();
         if (!_selectedApp || !_selectedVersion || !_selectedStatus) {
             showNote('Need to have an application, version, and status selected first.');
             return;
@@ -2822,7 +2857,6 @@ var NCE = (function ($) {
 
     function revisionHistory(ignoreVersion) {
         var appId = getSelectedTabAppId();
-        clearNote();
         _revisionHistoryList.empty();
         _revisionHistoryLabel[0].textContent = 'Revision History for ' + _selectedCubeName;
         showNote('Loading...');
@@ -2887,7 +2921,6 @@ var NCE = (function ($) {
             _revisionHistoryList.find('a.anc-json').on('click', function () {
                 onRevisionViewClick($(this), true);
             });
-            clearNote();
             _revisionHistoryModal.modal();
         } else {
             showNote('Error fetching revision history (' + appId.version + ', ' + appId.status + '):<hr class="hr-small"/>' + result.data);
@@ -2940,7 +2973,7 @@ var NCE = (function ($) {
         var versions = revs.versions;
 
         if (revIds.length !== 2) {
-            showNote('Must select exactly 2 for comparison', 'Note', TWO_SECOND_TIMEOUOT);
+            showNote('Must select exactly 2 for comparison', 'Note', TWO_SECOND_TIMEOUT);
             return;
         }
         
@@ -2977,7 +3010,7 @@ var NCE = (function ($) {
             note = 'Must select only 1 revision to promote.';
         }
         if (note) {
-            showNote(note, 'Note', TWO_SECOND_TIMEOUOT);
+            showNote(note, 'Note', TWO_SECOND_TIMEOUT);
             return;
         }
 
@@ -3028,7 +3061,6 @@ var NCE = (function ($) {
     }
 
     function dupeCube() {
-        clearNote();
         if (!_selectedApp || !_selectedVersion || !_selectedCubeName || !_selectedStatus) {
             showNote('No n-cube selected. Nothing to duplicate.');
             return;
@@ -3089,7 +3121,6 @@ var NCE = (function ($) {
 
     function showRefsFromCube() {
         var result, cubeNames, i, len, html;
-        clearNote();
         _showRefsFromLabel[0].textContent = 'Outbound refs of: ' + _selectedCubeName;
         _refsFromCubeList.empty();
         _showRefsFromCubeModal.modal();
@@ -3112,7 +3143,6 @@ var NCE = (function ($) {
 
     function showReqScope() {
         var result, scopeKeys, i, len, html;
-        clearNote();
         _showReqScopeLabel[0].textContent = "Scope for '" + _selectedCubeName + "'";
         _reqScopeList.empty();
         _showReqScopeModal.modal();
@@ -3171,7 +3201,6 @@ var NCE = (function ($) {
 
     function releaseCubes() {
         if (!isReleasePending) {
-            clearNote();
             if (_selectedBranch !== head) {
                 showNote('HEAD branch must be selected to release a version.');
                 return;
@@ -3335,11 +3364,8 @@ var NCE = (function ($) {
 
     ///////////////////////////////////////////   END RELEASE PROCESS   ////////////////////////////////////////////////
 
-    function changeVersion()
-    {
-        clearNote();
-        if (!ensureModifiable('Version cannot be changed.'))
-        {
+    function changeVersion() {
+        if (!ensureModifiable('Version cannot be changed.')) {
             return;
         }
 
@@ -3365,7 +3391,6 @@ var NCE = (function ($) {
     }
 
     function createSnapshotFromRelease() {
-        clearNote();
         if (_selectedStatus !== STATUS.RELEASE) {
             showNote('Must select a released version to copy.');
             return;
@@ -3453,7 +3478,6 @@ var NCE = (function ($) {
 
     function ensureModifiable(operation, overrideAppId) {
         var appId = overrideAppId || getSelectedTabAppId() || getAppId();
-        clearNote();
         if (!operation) {
             operation = '';
         }
@@ -3496,7 +3520,6 @@ var NCE = (function ($) {
             showNote('Unable to fetch server statistics:<hr class="hr-small"/>' + result.data);
             return;
         }
-        clearNote();
         displayMap(result.data.serverStats, DISPLAY_MAP_TITLE.SERVER_STATS);
     }
 
@@ -3506,7 +3529,6 @@ var NCE = (function ($) {
             showNote('Unable to fetch HTTP headers:<hr class="hr-small"/>' + result.data);
             return;
         }
-        clearNote();
         displayMap(result.data, DISPLAY_MAP_TITLE.HTTP_HEADERS);
     }
 
@@ -3525,7 +3547,8 @@ var NCE = (function ($) {
 
         msg = '<dl class="dl-horizontal">' + msg;
         msg += '</dl>';
-        showNote(msg, title);
+        clearNotes({noteClass: 'sysmeta'});
+        showNote(msg, title, null, 'sysmeta');
     }
 
     // ======================================== Everything to do with Branching ========================================
@@ -3598,6 +3621,9 @@ var NCE = (function ($) {
         _batchUpdateAxisReferencesUpdate.on('click', function() {
             batchUpdateAxisReferencesUpdate();
         });
+        _batchUpdateAxisReferencesRemoveTransform.on('click', function() {
+            batchUpdateAxisReferencesUpdate(true);
+        });
         _batchUpdateAxisReferencesToggle.on('change', function() {
             buildBatchUpdateAxisReferencesTable();
             if (_batchUpdateAxisReferencesCubeName.val()) {
@@ -3616,9 +3642,11 @@ var NCE = (function ($) {
     }
 
     function showActiveBranch() {
-        var branchNames = getBranchNames();
-        if (branchNames.indexOf(_selectedBranch) === -1) {
+        if (getBranchNames().indexOf(_selectedBranch) > -1) {
+            addToVisitedBranchesList(appIdFrom(_selectedApp, _selectedVersion, _selectedStatus, _selectedBranch));
+        } else {
             saveSelectedBranch(head);
+            changeBranch(head);
         }
         _branchMenu[0].innerHTML = '<button class="btn-sm btn-primary">&nbsp;' + _selectedBranch + '&nbsp;<b class="caret"></b></button>';
     }
@@ -3640,7 +3668,6 @@ var NCE = (function ($) {
 
     function selectBranch() {
         var branchNames, listHtml, i, len, name;
-        clearNote();
         _newBranchName.val('');
         _branchNameWarning.hide();
         branchNames = getBranchNames();
@@ -3664,7 +3691,6 @@ var NCE = (function ($) {
         var appId;
         var branchName = _newBranchName.val();
         var validName = /^[a-zA-Z_][0-9a-zA-Z_.-]*$/i;
-        clearNote();
         if (!branchName || !validName.test(branchName) || head.toLowerCase() == branchName.toLowerCase()) {
             _branchNameWarning.show();
             return;
@@ -3679,9 +3705,8 @@ var NCE = (function ($) {
         }
 
         setTimeout(function() {
-            var result = call("ncubeController.createBranch", [appId]);
+            var result = call(CONTROLLER + CONTROLLER_METHOD.CREATE_BRANCH, [appId]);
             if (!result.status) {
-                clearNote();
                 showNote('Unable to create branch:<hr class="hr-small"/>' + result.data);
                 return;
             }
@@ -3706,11 +3731,9 @@ var NCE = (function ($) {
             loadNCubes();
             runSearch();
             buildMenu();
-            clearNote();
             buildBranchQuickSelectMenu();
         }, PROGRESS_DELAY);
-        clearNote();
-        showNote('Changing branch to: ' + branchName, 'Please wait...');
+        showNote('Changing branch to: ' + branchName, 'Please wait...', ONE_SECOND_TIMEOUT);
     }
 
     function compareUpdateBranch(branchName, noNote) {
@@ -3743,7 +3766,7 @@ var NCE = (function ($) {
             if (noNote) {
                 _branchCompareUpdateModal.modal('hide');
             } else {
-                showNote('No changes detected.', '', TWO_SECOND_TIMEOUOT);
+                showNote('No changes detected.', '', TWO_SECOND_TIMEOUT);
             }
             return;
         }
@@ -3769,7 +3792,7 @@ var NCE = (function ($) {
         var inputClass = options.inputClass;
         ul.empty();
         ul.append(buildHtmlListForCompare(branchChanges, options));
-        ul.find('a.compare').on('click', function() {
+        ul.find('a.anc-compare').on('click', function() {
             var checkbox = $(this).parent().parent().find('.' + inputClass);
             var ul = $(this).parent().parent().parent().parent();
             var idx = ul.find('.' + inputClass).index(checkbox);
@@ -3910,12 +3933,12 @@ var NCE = (function ($) {
         showNote('Updating selected cubes...', 'Please wait...');
         setTimeout(function() {
             var result;
+            clearNote();
             if (isFromTabMenu) {
                 result = call(CONTROLLER + CONTROLLER_METHOD.UPDATE_CUBE_FROM_HEAD, [appId, cubeDtos[0].name]);
             } else {
                 result = call(CONTROLLER + CONTROLLER_METHOD.UPDATE_BRANCH, [appId, cubeDtos]);
             }
-            clearNote();
             if (!result.status) {
                 showNote('Unable to update ' + (isFromTabMenu ? 'cube' : 'branch') + ':<hr class="hr-small"/>' + result.data);
                 return;
@@ -3937,7 +3960,7 @@ var NCE = (function ($) {
     }
 
     function buildHtmlListForCompare(branchChanges, options) {
-        var i, len, infoDto, prevChangeType, changeType, displayType;
+        var i, len, infoDto, prevChangeType, changeType, displayType, shouldCompare;
         var html = '';
         var inputClass = options.inputClass;
         for (i = 0, len = branchChanges.length; i < len; i++) {
@@ -3958,17 +3981,18 @@ var NCE = (function ($) {
             html += '<div class="container-fluid">';
 
             if (options.hasOwnProperty('compare')) {
-                html += '<label style="padding:0;margin:0 10px 0 0;">';
-                html += '<a href="#" class="compare"><kbd>Compare</kbd></a>';
+                shouldCompare = [CHANGETYPE.CREATED,CHANGETYPE.DELETED,CHANGETYPE.RESTORED].indexOf(displayType) === -1;
+                html += '<label class="compare-label">';
+                html += shouldCompare ? '<a href="#" class="anc-compare"><kbd>Compare</kbd></a>' : '<kbd class="space-grey">Compare</kbd>';
                 html += '</label>';
             }
             if (options.hasOwnProperty('html')) {
-                html += '<label style="padding:0;margin:0 10px 0 0;">';
+                html += '<label class="html-label">';
                 html += '<a href="#" class="anc-html" data-cube-id="' + infoDto.id + '" data-rev-id="' + infoDto.revision + '" data-cube-name="' + infoDto.name + '"><kbd>HTML</kbd></a>';
                 html += '</label>';
             }
             if (options.hasOwnProperty('json')) {
-                html += '<label style="padding:0;margin:0 10px 0 0;">';
+                html += '<label class="json-label">';
                 html += '<a href="#" class="anc-json" data-cube-id="' + infoDto.id + '" data-rev-id="' + infoDto.revision + '" data-cube-name="' + infoDto.name + '"><kbd>JSON</kbd></a>';
                 html += '</label>';
             }
@@ -4039,7 +4063,7 @@ var NCE = (function ($) {
         branchChanges.sort(sortBranchChanges);
 
         _commitModal.prop('branchChanges', branchChanges);
-        buildUlForCompare(_commitRollbackList, head, branchChanges, {inputClass:'commitCheck', compare:true, action: action});
+        buildUlForCompare(_commitRollbackList, head, branchChanges, {inputClass:'commitCheck', compare:true, html:true, json:true, action: action});
         _commitModal.modal('show');
     }
 
@@ -4137,7 +4161,7 @@ var NCE = (function ($) {
             var appId, name, result;
             appId = getSelectedTabAppId();
             name = changedCube.name;
-            result = call("ncubeController.rollbackBranch", [appId, [name]]);
+            result = call(CONTROLLER + CONTROLLER_METHOD.ROLLBACK_BRANCH, [appId, [name]]);
             clearNote();
 
             if (!result.status) {
@@ -4204,7 +4228,6 @@ var NCE = (function ($) {
     }
 
     function copyBranch() {
-        clearNote();
         $('#copyBranchAppName').val(_selectedApp);
         $('#copyBranchStatus').val(STATUS.SNAPSHOT);
         $('#copyBranchVersion').val(_selectedVersion);
@@ -4258,7 +4281,6 @@ var NCE = (function ($) {
         var result;
         var appId = getAppId();
         $('#deleteBranchModal').modal('hide');
-        clearNote();
 
         result = call(CONTROLLER + CONTROLLER_METHOD.DELETE_BRANCH, [appId]);
         if (result.status) {
@@ -4273,7 +4295,7 @@ var NCE = (function ($) {
     function getAllSelectedMineTheirs(ul) {
         var i, len, results, branchChanges, inputs;
         if (!ul.find('input:checked').length) {
-            showNote('No cubes selected!', 'Note', TWO_SECOND_TIMEOUOT);
+            showNote('No cubes selected!', 'Note', TWO_SECOND_TIMEOUT);
             return null;
         }
         branchChanges = ul.closest('.modal').prop('branchChanges');
@@ -4348,7 +4370,6 @@ var NCE = (function ($) {
     
     function diffCubes(receiverDto, transmitterDto, title, appId) {
         var leftRightName = { receiver: '', transmitter: '' };
-        clearNote();
         callWithSave(CONTROLLER + CONTROLLER_METHOD.FETCH_JSON_BRANCH_DIFFS, [receiverDto, transmitterDto], {callback:descriptiveDiffCallback});
         if (transmitterDto.branch === receiverDto.branch) {
             addTextToLeftRightNames(transmitterDto.app, receiverDto.app, leftRightName);
@@ -4371,7 +4392,6 @@ var NCE = (function ($) {
     }
 
     function diffCubeRevs(receiverId, transmitterId, diffOptions) {
-        clearNote();
         callWithSave(CONTROLLER + CONTROLLER_METHOD.FETCH_JSON_REV_DIFFS, [receiverId, transmitterId], {callback:descriptiveDiffCallback});
         setupDiff(diffOptions);
     }
@@ -4627,12 +4647,12 @@ var NCE = (function ($) {
     function loop() {
         setInterval(function() {
             var now = Date.now();
-            if (now - _searchLastKeyTime > PROGRESS_DELAY && _searchKeyPressed) {
+            if (now - _searchLastKeyTime > CUBE_SEARCH_TIMEOUT && _searchKeyPressed) {
                 _searchKeyPressed = false;
                 saveCubeSearchOptions();
                 runSearch();
             }
-        }, PROGRESS_DELAY);
+        }, CUBE_SEARCH_TIMEOUT);
     }
 
     function createHeartBeatTransferObj() {
@@ -4651,45 +4671,58 @@ var NCE = (function ($) {
         }, MINUTE_TIMEOUT);
     }
 
-    function showNote(msg, title, millis) {
-        _noteId = $.gritter.add({
+    function showNote(msg, title, millis, noteClass) {
+        var noteId = $.gritter.add({
             title: (title || 'Note'),
             text: msg,
             image: './img/cube-logo.png',
             sticky: !millis,
             append: false,
-            time: (millis || 0)
+            time: (millis || 0),
+            class_name: noteClass || 'none'
         });
-        addNoteListeners();
-        return _noteId;
+        addNoteListeners(noteId);
+        return noteId;
     }
 
-    function addNoteListeners() {
-        _noteWrapper = $.gritter.noticeWrapper();
-        if (!_noteWrapper.hasClass(HAS_EVENT)) {
-            _noteWrapper.on('change click', function (e) {
+    function addNoteListeners(noteId) {
+        var noteDiv = $('#gritter-item-' + noteId);
+        if (!noteDiv.hasClass(HAS_EVENT)) {
+            noteDiv.addClass(HAS_EVENT);
+            noteDiv.on('change click', function (e) {
                 e.preventDefault();
                 onNoteEvent(e);
             });
-            _noteWrapper.addClass(HAS_EVENT)
         }
      }
 
-    function clearNote() {
-        if (_noteId) {
-            $.gritter.remove(_noteId);
-            _noteId = null;
+    function clearNote(noteId) {
+        if (noteId) {
+            $.gritter.remove(noteId);
+        } else {
+            clearNotes({noteClass:'none'});
         }
     }
 
-    function clearNotes(idList){
-        var id;
-        while(idList.length) {
-            id = idList.pop();
-            $.gritter.remove(id);
-            if (id === _noteId){
-                _noteId = null;
+    // valid options:
+    // noteIds: clears notes based on gritter object id
+    // noteClass: based on class of notes
+    function clearNotes(options){
+        var i, len, notes, note, isById;
+        if (options) {
+            if (options.hasOwnProperty('noteIds')) {
+                notes = options.noteIds;
+                isById = true;
+            } else if (options.hasOwnProperty('noteClass')) {
+                notes = $('.gritter-item-wrapper.' + options.noteClass);
+                isById = false;
             }
+            for (i = 0, len = notes.length; i < len; i++) {
+                note = notes[i];
+                $.gritter.remove(isById ? note : $(note).data('gritterId'));
+            }
+        } else {
+            $.gritter.removeAll();
         }
     }
     

@@ -246,6 +246,12 @@ class NCubeController extends BaseController
         return formatCube(ncube, options)
     }
 
+    NCube getCube(ApplicationID appId, String cubeName)
+    {
+        appId = addTenant(appId)
+        return nCubeService.getCube(appId, cubeName)
+    }
+
     // TODO: This needs to be externalized (loaded via Grapes)
     Map<String, Object> getVisualizerJson(ApplicationID appId, Map options)
     {

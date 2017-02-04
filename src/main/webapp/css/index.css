@@ -654,3 +654,17 @@ a.section-all:hover, a.section-none:hover {
     color: #999;
     margin-left: 10px;
 }
+
+.compare-label {
+    width:65px;
+}
+.html-label {
+    width: 45px;
+}
+.json-label {
+    width: 46px;
+}
+
+.space-grey {
+    color: #a5adb0;
+}

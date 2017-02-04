@@ -26,9 +26,10 @@ var MOD_CUBES_WINDOW = NCE_PREFIX + 'MOD_CUBES_WINDOW';
 
 var PROGRESS_DELAY = 300;
 var ONE_SECOND_TIMEOUT = 1000;
-var TWO_SECOND_TIMEOUOT = 2000;
+var TWO_SECOND_TIMEOUT = 2000;
 var TEN_SECOND_TIMEOUT = 10000;
 var MINUTE_TIMEOUT = 60000;
+var CUBE_SEARCH_TIMEOUT = ONE_SECOND_TIMEOUT;
 //noinspection MagicNumberJS
 var MODAL_TOO_FAR_LEFT = -250;
 //noinspection MagicNumberJS
@@ -248,6 +249,7 @@ var CONTROLLER_METHOD = {
     COMMIT_CUBE: 'commitCube',
     COPY_BRANCH: 'copyBranch',
     COPY_CELLS: 'copyCells',
+    CREATE_BRANCH: 'createBranch',
     DELETE_AXIS: 'deleteAxis',
     DELETE_BRANCH: 'deleteBranch',
     DELETE_CUBES: 'deleteCubes',

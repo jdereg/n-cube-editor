@@ -491,7 +491,7 @@ var Visualizer = (function ($) {
      }
 
     function loadCellValues(node, note) {
-        _nce.clearNotes(_noteIdList);
+        _nce.clearNotes({noteIds: _noteIdList});
         setTimeout(function () {loadCellValuesFromServer(node);}, PROGRESS_DELAY);
         _nce.showNote(note);
     }
@@ -563,7 +563,7 @@ var Visualizer = (function ($) {
             _dataLoadStart = performance.now();
             $("#dataLoadStatus").val('loading');
             $("#dataLoadDuration").val(DOT_DOT_DOT);
-            _nce.clearNotes(_noteIdList);
+            _nce.clearNotes({noteIds: _noteIdList});
             setTimeout(function () {
                 loadFromServer();
             }, PROGRESS_DELAY);
@@ -607,7 +607,7 @@ var Visualizer = (function ($) {
 
 
         result = _nce.call('ncubeController.getVisualizerJson', [_nce.getSelectedTabAppId(), options]);
-        _nce.clearNotes(_noteIdList);
+        _nce.clearNotes({noteIds: _noteIdList});
         if (!result.status) {
             _nce.showNote(result.data);
              _visualizerContent.hide();
