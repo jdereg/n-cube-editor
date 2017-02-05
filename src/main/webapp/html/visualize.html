@@ -32,21 +32,19 @@
 
                 <div id="scope-info">
 
-                    <div class="inline-block">
-                        <label>Scope: </label>
-                    </div>
                     <div id="scope-div" class="inline-block">
                         <div class="input-group input-group-sm col-width-large" title="Scope used to load graph data from n-cube definitions">
                             <input id="scope" type="text" placeholder="Add scope..." >
                         </div>
                     </div>
-                </div>
+                    <div id="scopeButton-div" class="inline-block">
+                        <div class="input-group input-group-sm">
+                            <button id="scopeButton" class="btn btn-sm"></button>
+                        </div>
+                    </div>
+               </div>
 
                 <div id="visualizer-info">
-
-                    <div class="inline-block">
-                        <label>Levels: </label>
-                    </div>
                     <div id="selectedLevel-div" class="inline-block">
                         <div class="input-group input-group-sm" title="Show nodes up to and including this level of depth in the graph">
                             <select id="selectedLevel-list" class="form-control">
@@ -55,11 +53,11 @@
                         </div>
                     </div>
 
-                    <div id="levelCounts-div" class="inline-block">
+                    <div id="levelCounts-div" class="inline-block" title="The number of nodes displaying at the current level">
                         <span id="levelCounts" class="badge">Loading node counts at current level...</span>
                     </div>
 
-                    <div id="totalCounts-div" class="inline-block">
+                    <div id="totalCounts-div" class="inline-block" title="The total number of nodes available in the graph. Selected level and activated groups determine how many nodes display." >
                         <span id="totalCounts" class="badge">Loading total node counts...</span>
                     </div>
 
@@ -82,9 +80,6 @@
                     </div>
 
                     <div>
-                        <div class="inline-block">
-                            <label>Groups: </label>
-                        </div>
                         <div id="groups-div" class="inline-block" title="Show/hide group in the graph">
                             <div id="groups" class="btn-group btn-group-sm" data-toggle="buttons">Loading groups... </div>
                             <div class="select-all pull-right">

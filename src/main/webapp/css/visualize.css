@@ -148,6 +148,22 @@ h3{
     border: none;
 }
 
+#scopeButton
+{
+    background-image: url('../img/scope 100x37.png');
+    cursor:pointer;
+    width: 100px;
+    height: 37px;
+    border: none;
+    outline: none;
+    box-shadow: inset 0 6px 14px rgba(0,0,0,.70);
+}
+
+#scopeButton.active {
+    box-shadow: none;
+    border: none;
+}
+
 #networkOptionsSection
 {
     display:none;

@@ -53,6 +53,7 @@ var Visualizer = (function ($) {
     var _nodeDetails = null;
     var _layout = null;
     var _scopeInput = null;
+    var _scopeButton = null;
     var _findNode = null;
     var STATUS_SUCCESS = 'success';
     var STATUS_MISSING_START_SCOPE = 'missingStartScope';
@@ -63,6 +64,7 @@ var Visualizer = (function ($) {
     var DOT_DOT_DOT = '...';
     var NA = 'n/a';
     var NO_GROUPS_SELECTED = 'NO GROUPS SELECTED';
+    var LEVEL_PREFIX = 'Level ';
 
     //Network layout parameters
     var _hierarchical = false;
@@ -123,11 +125,13 @@ var Visualizer = (function ($) {
             _nodeVisualizer = $('#nodeVisualizer');
             _nodeDetails = $('#nodeDetails');
             _scopeInput = $('#scope');
+            _scopeButton = $('#scopeButton');
             _findNode = $('#findNode');
             _networkOptionsSection = $('#networkOptionsSection');
 
              $('#selectedLevel-list').on('change', function () {
-                _selectedLevel = Number($('#selectedLevel-list').val());
+                 var selectedLevelString = $('#selectedLevel-list').val().substring(LEVEL_PREFIX.length)
+                _selectedLevel = Number(selectedLevelString);
                 saveToLocalStorage(_selectedLevel, SELECTED_LEVEL);
                 reload();
             });
@@ -151,6 +155,18 @@ var Visualizer = (function ($) {
             _scopeInput.on('change', function () {
                 _scope = buildScopeFromText(_scopeInput.val());
                 scopeChange();
+            });
+
+            $('#scopeButton').click(function () {
+                var button = $('#scopeButton');
+                button.toggleClass('active');
+                _scopeButton = button.hasClass('active');
+                if (_scopeButton){
+                    _noteIdList.push(_nce.showNote('show scope toast'));
+                }
+                else{
+                    _nce.clearNotes(_noteIdList);
+                }
             });
 
             _findNode.on('change', function () {
@@ -491,7 +507,7 @@ var Visualizer = (function ($) {
      }
 
     function loadCellValues(node, note) {
-        _nce.clearNotes({noteIds: _noteIdList});
+        _nce.clearNotes(_noteIdList);
         setTimeout(function () {loadCellValuesFromServer(node);}, PROGRESS_DELAY);
         _nce.showNote(note);
     }
@@ -563,7 +579,7 @@ var Visualizer = (function ($) {
             _dataLoadStart = performance.now();
             $("#dataLoadStatus").val('loading');
             $("#dataLoadDuration").val(DOT_DOT_DOT);
-            _nce.clearNotes({noteIds: _noteIdList});
+            _nce.clearNotes(_noteIdList);
             setTimeout(function () {
                 loadFromServer();
             }, PROGRESS_DELAY);
@@ -607,7 +623,7 @@ var Visualizer = (function ($) {
 
 
         result = _nce.call('ncubeController.getVisualizerJson', [_nce.getSelectedTabAppId(), options]);
-        _nce.clearNotes({noteIds: _noteIdList});
+        _nce.clearNotes(_noteIdList);
         if (!result.status) {
             _nce.showNote(result.data);
              _visualizerContent.hide();
@@ -681,6 +697,12 @@ var Visualizer = (function ($) {
         var scope = getScopeString();
         _scopeInput.val(scope);
         _scopeInput.prop('title', scope);
+
+        $('#scopeButton-div').prop('title', scope);
+        var button = $('#scopeButton');
+        button.addClass('active');
+        _scopeButton = true;
+        _noteIdList.push(_nce.showNote('show scope toast'));
     }
 
     function loadGroupsView() {
@@ -829,7 +851,7 @@ var Visualizer = (function ($) {
         var nodesDisplayingAtLevelCount = _network.body.data.nodes.length;
         var nodesAtLevelLabel = 1 === nodesDisplayingAtLevelCount ? 'node' : 'nodes';
 
-        $('#levelCounts')[0].textContent = nodesDisplayingAtLevelCount  + ' ' + nodesAtLevelLabel + ' of ' + _countNodesAtLevel + ' displaying at current level';
+        $('#levelCounts')[0].textContent = nodesDisplayingAtLevelCount  + ' ' + nodesAtLevelLabel + ' of ' + _countNodesAtLevel + ' at current level';
         $('#totalCounts')[0].textContent = totalNodeCount + ' ' + nodeCountLabel + ' total over ' +  maxLevel + ' ' + maxLevelLabel ;
     }
 
@@ -842,11 +864,10 @@ var Visualizer = (function ($) {
         for (j = 1; j <= _visInfo.maxLevel; j++)
         {
             option = $('<option/>');
-            option[0].textContent = j.toString();
+            option[0].textContent = LEVEL_PREFIX + j.toString();
             select.append(option);
         }
-
-        select.val('' + _selectedLevel);
+        select.val(LEVEL_PREFIX + _selectedLevel);
     }
 
     function getVisNetworkHeight() {

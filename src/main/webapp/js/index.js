@@ -33,6 +33,8 @@ var NCE = (function ($) {
     var _selectedVersion = localStorage[SELECTED_VERSION];
     var _selectedBranch;
     var _selectedStatus = localStorage[SELECTED_STATUS] || STATUS.SNAPSHOT;
+    var _noteId = null;
+    var _noteWrapper = null;
     var _activeTabViewType = localStorage[ACTIVE_TAB_VIEW_TYPE];
     var _selectedCubeInfo = localStorage[SELECTED_CUBE_INFO];
     var _defaultTab = null;
@@ -4671,58 +4673,45 @@ var NCE = (function ($) {
         }, MINUTE_TIMEOUT);
     }
 
-    function showNote(msg, title, millis, noteClass) {
-        var noteId = $.gritter.add({
+    function showNote(msg, title, millis) {
+        _noteId = $.gritter.add({
             title: (title || 'Note'),
             text: msg,
             image: './img/cube-logo.png',
             sticky: !millis,
             append: false,
-            time: (millis || 0),
-            class_name: noteClass || 'none'
+            time: (millis || 0)
         });
-        addNoteListeners(noteId);
-        return noteId;
+        addNoteListeners();
+        return _noteId;
     }
 
-    function addNoteListeners(noteId) {
-        var noteDiv = $('#gritter-item-' + noteId);
-        if (!noteDiv.hasClass(HAS_EVENT)) {
-            noteDiv.addClass(HAS_EVENT);
-            noteDiv.on('change click', function (e) {
+    function addNoteListeners() {
+        _noteWrapper = $.gritter.noticeWrapper();
+        if (!_noteWrapper.hasClass(HAS_EVENT)) {
+            _noteWrapper.on('change click', function (e) {
                 e.preventDefault();
                 onNoteEvent(e);
             });
-        }
-     }
-
-    function clearNote(noteId) {
-        if (noteId) {
-            $.gritter.remove(noteId);
-        } else {
-            clearNotes({noteClass:'none'});
+            _noteWrapper.addClass(HAS_EVENT)
         }
     }
 
-    // valid options:
-    // noteIds: clears notes based on gritter object id
-    // noteClass: based on class of notes
-    function clearNotes(options){
-        var i, len, notes, note, isById;
-        if (options) {
-            if (options.hasOwnProperty('noteIds')) {
-                notes = options.noteIds;
-                isById = true;
-            } else if (options.hasOwnProperty('noteClass')) {
-                notes = $('.gritter-item-wrapper.' + options.noteClass);
-                isById = false;
+    function clearNote() {
+        if (_noteId) {
+            $.gritter.remove(_noteId);
+            _noteId = null;
+        }
+    }
+
+    function clearNotes(idList){
+        var id;
+        while(idList.length) {
+            id = idList.pop();
+            $.gritter.remove(id);
+            if (id === _noteId){
+                _noteId = null;
             }
-            for (i = 0, len = notes.length; i < len; i++) {
-                note = notes[i];
-                $.gritter.remove(isById ? note : $(note).data('gritterId'));
-            }
-        } else {
-            $.gritter.removeAll();
         }
     }
     

@@ -55,6 +55,7 @@ class VisualizerInfo
 
     protected void init(Map scope)
     {
+        scopeInfo.scope = scope ?: new CaseInsensitiveMap()
         maxLevel = 1
         nodeCount = 1
         relInfoCount = 1

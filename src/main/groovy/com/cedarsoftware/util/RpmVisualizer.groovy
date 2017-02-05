@@ -53,7 +53,7 @@ class RpmVisualizer extends Visualizer
 		{
 			visInfo = new RpmVisualizerInfo(appId, options)
 		}
-		visInfo.init(options.scope as Map)
+		visInfo.init(options.scope as CaseInsensitiveMap)
 		return visInfo
 	}
 
