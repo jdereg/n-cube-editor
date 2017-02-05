@@ -21,11 +21,6 @@ class RpmVisualizerInfo extends VisualizerInfo
         super(applicationID)
     }
 
-    RpmVisualizerInfo(ApplicationID applicationID, Map options)
-    {
-        super(applicationID, options)
-    }
-
     @Override
     protected String getCubeType()
     {

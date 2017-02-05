@@ -36,6 +36,9 @@ class VisualizerInfo
     Map<String, Object> networkOverridesFull
     Map<String, Object> networkOverridesTopNode
 
+    Map<String, Set<String>> requiredScopeKeysByCube = [:]
+    Map<String, Set<String>> allOptionalScopeKeysByCube = [:]
+
     Map<String, List<String>> typesToAddMap = [:]
 
     VisualizerInfo(){}
@@ -44,18 +47,12 @@ class VisualizerInfo
     {
         appId = applicationID
         scopeInfo = new VisualizerScopeInfo(appId)
-    }
-
-    VisualizerInfo(ApplicationID applicationID, Map options)
-    {
-        appId = applicationID
-        scopeInfo = new VisualizerScopeInfo(appId, options.scope as CaseInsensitiveMap)
         loadConfigurations(cubeType)
     }
 
     protected void init(Map scope)
     {
-        scopeInfo.scope = scope ?: new CaseInsensitiveMap()
+        scopeInfo = new VisualizerScopeInfo(appId, scope)
         maxLevel = 1
         nodeCount = 1
         relInfoCount = 1

@@ -98,7 +98,7 @@ class Visualizer
 		VisualizerInfo visInfo = options.visInfo as VisualizerInfo
 		if (!visInfo || visInfo.class.name != this.class.name)
 		{
-			visInfo = new VisualizerInfo(appId, options)
+			visInfo = new VisualizerInfo(appId)
 		}
 		visInfo.init(options.scope as CaseInsensitiveMap)
 		return visInfo

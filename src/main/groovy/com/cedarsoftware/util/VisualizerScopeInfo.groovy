@@ -28,9 +28,6 @@ class VisualizerScopeInfo
 	Map<String, Set<String>> requiredScopeCubeNames = new CaseInsensitiveMap()
 	Set<String>  requiredScopeKeySet = new CaseInsensitiveSet()
 
-	Map<String, Set<String>> requiredScopeKeysByCube = [:]
-	Map<String, Set<String>> allOptionalScopeKeysByCube = [:]
-
 	StringBuilder requiredScopeMessage = new StringBuilder()
 	StringBuilder optionalScopeMessage = new StringBuilder()
 

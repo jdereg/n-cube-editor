@@ -184,8 +184,8 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	void retainUsedScope(VisualizerInfo visInfo, Map output)
 	{
 		Set<String> scopeCollector = new CaseInsensitiveSet<>()
-		scopeCollector.addAll(visInfo.scopeInfo.requiredScopeKeysByCube[targetCube.name])
-		scopeCollector.addAll(visInfo.scopeInfo.allOptionalScopeKeysByCube[targetCube.name])
+		scopeCollector.addAll(visInfo.requiredScopeKeysByCube[targetCube.name])
+		scopeCollector.addAll(visInfo.allOptionalScopeKeysByCube[targetCube.name])
 		scopeCollector << EFFECTIVE_VERSION_SCOPE_KEY
 
 		RuleInfo ruleInfo = NCube.getRuleInfo(output)

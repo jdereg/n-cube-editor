@@ -210,10 +210,10 @@ class VisualizerRelInfo
 	protected void addRequiredAndOptionalScopeKeys(VisualizerInfo visInfo)
 	{
 		String cubeName = targetCube.name
-		if (!visInfo.scopeInfo.requiredScopeKeysByCube.containsKey(cubeName))
+		if (!visInfo.requiredScopeKeysByCube.containsKey(cubeName))
 		{
-			visInfo.scopeInfo.requiredScopeKeysByCube[cubeName] = requiredScope
-			visInfo.scopeInfo.allOptionalScopeKeysByCube[cubeName] = targetCube.getOptionalScope(availableTargetScope, new CaseInsensitiveMap())
+			visInfo.requiredScopeKeysByCube[cubeName] = requiredScope
+			visInfo.allOptionalScopeKeysByCube[cubeName] = targetCube.getOptionalScope(availableTargetScope, new CaseInsensitiveMap())
 		}
 	}
 
