@@ -16,6 +16,11 @@ class RpmVisualizerInfo extends VisualizerInfo
 {
     RpmVisualizerInfo(){}
 
+    RpmVisualizerInfo(ApplicationID applicationID)
+    {
+        super(applicationID)
+    }
+
     RpmVisualizerInfo(ApplicationID applicationID, Map options)
     {
         super(applicationID, options)

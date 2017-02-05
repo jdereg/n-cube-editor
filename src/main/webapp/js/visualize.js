@@ -982,7 +982,7 @@ var Visualizer = (function ($) {
                 _selectedLevel = maxLevel;
             }
         }
-        _scope = visInfo.scope;
+        _scope = visInfo.scopeInfo.scope;
 
         _visInfo = visInfo;
 

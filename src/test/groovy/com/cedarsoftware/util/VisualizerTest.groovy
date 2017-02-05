@@ -606,11 +606,9 @@ class VisualizerTest{
 
      private VisualizerInfo getVisInfoForShowCellValues()
     {
-        VisualizerInfo visInfo = new VisualizerInfo()
+        VisualizerInfo visInfo = new VisualizerInfo(appId)
         visInfo.allGroupsKeys = ['NCUBE', 'RULE_NCUBE', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = ''
-        visInfo.scopeInfo.scope = new CaseInsensitiveMap()
-        visInfo.appId = appId
         visInfo.availableGroupsAllLevels = [] as Set
         return visInfo
     }
@@ -947,11 +945,11 @@ class VisualizerTest{
         Map relInfoScope = [dummyRelInfoKey: 'dummyValue'] as CaseInsensitiveMap
         NCube cube = new NCube('dummyCube')
         InvalidCoordinateException e = new InvalidCoordinateException('InvalidCoordinateException', null, null, relInfoScope.keySet())
-        VisualizerInfo visInfo = new VisualizerInfo()
+        VisualizerInfo visInfo = new VisualizerInfo(appId)
         visInfo.scopeInfo.scope = new CaseInsensitiveMap(visInfoScope)
-        VisualizerRelInfo relInfo = new VisualizerRelInfo()
+        VisualizerRelInfo relInfo = new VisualizerRelInfo(appId)
         relInfo.targetCube = cube
-        relInfo.scopeInfo.scope = new CaseInsensitiveMap(relInfoScope)
+        relInfo.availableTargetScope = new CaseInsensitiveMap(relInfoScope)
         try
         {
             VisualizerHelper.handleInvalidCoordinateException(e, visInfo, relInfo, [] as Set)

@@ -30,7 +30,7 @@ class VisualizerInfo
     Set<String> availableGroupsAllLevels
     Set<String> messages
 
-    VisualizerScopeInfo scopeInfo = new VisualizerScopeInfo()
+    VisualizerScopeInfo scopeInfo
 
     Map<String, Object> networkOverridesBasic
     Map<String, Object> networkOverridesFull
@@ -40,10 +40,16 @@ class VisualizerInfo
 
     VisualizerInfo(){}
 
+    VisualizerInfo(ApplicationID applicationID)
+    {
+        appId = applicationID
+        scopeInfo = new VisualizerScopeInfo(appId)
+    }
+
     VisualizerInfo(ApplicationID applicationID, Map options)
     {
         appId = applicationID
-        scopeInfo.scope = options.scope as CaseInsensitiveMap
+        scopeInfo = new VisualizerScopeInfo(appId, options.scope as CaseInsensitiveMap)
         loadConfigurations(cubeType)
     }
 
@@ -54,8 +60,6 @@ class VisualizerInfo
         relInfoCount = 1
         messages = new LinkedHashSet()
         availableGroupsAllLevels = new LinkedHashSet()
-        scopeInfo = new VisualizerScopeInfo()
-        scopeInfo.scope = scope as CaseInsensitiveMap ?: new CaseInsensitiveMap<>()
     }
 
     protected String getCubeType()

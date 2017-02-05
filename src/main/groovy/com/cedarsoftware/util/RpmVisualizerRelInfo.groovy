@@ -24,6 +24,11 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 
 	RpmVisualizerRelInfo() {}
 
+	RpmVisualizerRelInfo(ApplicationID appId)
+	{
+		super(appId)
+	}
+
 	RpmVisualizerRelInfo(ApplicationID appId, Map node)
 	{
 		super(appId, node)
@@ -396,8 +401,8 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 				Object unBoundValue = axisEntry.value
 				if (includeScopeKey(visInfo, axisName))
 				{
-					visInfo.scopeInfo.addOptionalScope(appId, cubeName, axisName, unBoundValue)
-					scopeInfo.addOptionalScope(appId, cubeName, axisName, unBoundValue)
+					visInfo.scopeInfo.addOptionalScope(cubeName, axisName, unBoundValue)
+					scopeInfo.addOptionalScope(cubeName, axisName, unBoundValue)
 					hasUnboundAxisToInclude = true
 				}
 			}

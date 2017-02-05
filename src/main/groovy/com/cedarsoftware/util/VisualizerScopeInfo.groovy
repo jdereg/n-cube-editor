@@ -15,6 +15,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class VisualizerScopeInfo
 {
+	ApplicationID appId
 	Map<String, Object> scope
 
 	Map<String, Set<Object>> optionalScopeAvailableValues = new CaseInsensitiveMap()
@@ -33,33 +34,49 @@ class VisualizerScopeInfo
 	StringBuilder requiredScopeMessage = new StringBuilder()
 	StringBuilder optionalScopeMessage = new StringBuilder()
 
+	VisualizerScopeInfo(){}
 
-	void addOptionalScope(ApplicationID appId, String cubeName, String scopeKey, Object providedValue)
+	VisualizerScopeInfo(ApplicationID applicationID, Map<String, Object> scopeMap = null)
 	{
-		addOptionalScopeValues(appId, cubeName, scopeKey, optionalScopeAvailableValues)
+		appId = applicationID
+		scope = scopeMap as CaseInsensitiveMap ?: new CaseInsensitiveMap()
+	}
+
+	Set<Object> addOptionalScope(String cubeName, String scopeKey, Object providedValue)
+	{
+		addOptionalScopeValues(cubeName, scopeKey, optionalScopeAvailableValues)
 		addValue(scopeKey, optionalScopeCubeNames, cubeName)
 		addValue(scopeKey, optionalScopeProvidedValues, providedValue)
+		return optionalScopeAvailableValues[scopeKey]
 	}
 
-	void addRequiredScope(ApplicationID appId, String scopeKey, String cubeName,  Object providedValue)
+	Set<Object> addRequiredScope(String scopeKey, String cubeName,  Object providedValue)
 	{
-		addRequiredScopeValues(appId, cubeName, scopeKey, requiredScopeAvailableValues)
+		addRequiredScopeValues(cubeName, scopeKey, requiredScopeAvailableValues)
 		addValue(scopeKey, requiredScopeCubeNames, cubeName)
 		addValue(scopeKey, requiredScopeProvidedValues, providedValue)
+		return requiredScopeAvailableValues[scopeKey]
 	}
 
-	private static void addOptionalScopeValues(ApplicationID appId, String cubeName, String scopeKey, Map scopeInfoMap)
+	private void addOptionalScopeValues(String cubeName, String scopeKey, Map scopeInfoMap)
 	{
 		Set<Object> scopeValues = scopeInfoMap[scopeKey] as Set ?: new LinkedHashSet()
-		scopeValues.addAll(getInScopeColumnValues(appId, cubeName, scopeKey))
+		scopeValues.addAll(getInScopeColumnValues(cubeName, scopeKey))
 		scopeInfoMap[scopeKey] = scopeValues
 	}
 
-	private static void addRequiredScopeValues(ApplicationID appId, String cubeName, String scopeKey, Map scopeInfoMap)
+	private void addRequiredScopeValues(String cubeName, String scopeKey, Map scopeInfoMap)
 	{
-		Set scopeValues = scopeInfoMap[scopeKey] as Set ?: new LinkedHashSet()
-		Set scopeValuesThisCube = getInScopeColumnValues(appId, cubeName, scopeKey)
-		scopeInfoMap[scopeKey] = scopeValues.intersect(scopeValuesThisCube) as Set
+		Set scopeValuesThisCube = getInScopeColumnValues(cubeName, scopeKey)
+		if (scopeInfoMap.containsKey(scopeKey))
+		{
+			Set scopeValues = scopeInfoMap[scopeKey] as Set
+			scopeInfoMap[scopeKey] = scopeValues.intersect(scopeValuesThisCube) as Set
+		}
+		else
+		{
+			scopeInfoMap[scopeKey] = scopeValuesThisCube
+		}
 	}
 
 	private static void addValue(String scopeKey, Map scopeInfoMap, Object valueToAdd)
@@ -69,10 +86,10 @@ class VisualizerScopeInfo
 		scopeInfoMap[scopeKey] = values
 	}
 
-	private static Set<Object> getInScopeColumnValues(ApplicationID applicationID, String cubeName, String axisName)
+	private Set<Object> getInScopeColumnValues(String cubeName, String axisName)
 	{
 		//TODO: Rework this to get only "in scope" column values
-		NCube cube = NCubeManager.getCube(applicationID, cubeName)
+		NCube cube = NCubeManager.getCube(appId, cubeName)
 		Set values = new LinkedHashSet()
 		Axis axis = cube?.getAxis(axisName)
 		if (axis)

@@ -42,7 +42,7 @@ class VisualizerHelper
 		Set<String> missingScope = findMissingScope(relInfo.availableTargetScope, e.requiredKeys, mandatoryScopeKeys)
 		if (missingScope)
 		{
-			return getRequiredScopeValuesMessage(visInfo, missingScope, e.cubeName)
+			return getRequiredScopeValuesMessage(visInfo, missingScope, e.cubeName) //TODO: add provided value
 		}
 		else
 		{
@@ -69,7 +69,7 @@ class VisualizerHelper
 	{
 		StringBuilder message = new StringBuilder()
 		missingScope.each{ String scopeKey ->
-			Set<Object> requiredScopeValues = visInfo.scopeInfo.requiredScopeAvailableValues[scopeKey]
+			Set<Object> requiredScopeValues = visInfo.scopeInfo.addRequiredScope(scopeKey, cubeName,  null)  //TODO: add provided value
 			message.append(BREAK + getRequiredScopeValueMessage(scopeKey, requiredScopeValues))
 		}
 		return message.toString()
@@ -79,8 +79,13 @@ class VisualizerHelper
 	{
 		Set<Object> scopeValues = scopeInfo.optionalScopeAvailableValues[scopeKey]
 		Set<Object> providedValues = scopeInfo.optionalScopeProvidedValues[scopeKey]
-		providedValues.remove(null)
-		String defaultValueSuffix = providedValues ? " (${providedValues.join(COMMA_SPACE)} provided, but not found)" : ' (no value provided)'
+		String defaultValueSuffix
+		if (providedValues)
+		{
+			providedValues.remove(null)
+		}
+		defaultValueSuffix = providedValues ? " (${providedValues.join(COMMA_SPACE)} provided, but not found)" : ' (no value provided)'
+
 		String cubeNames = scopeInfo.optionalScopeCubeNames[scopeKey].join(COMMA_SPACE)
 		String title = "The default for ${scopeKey} was utilized on ${cubeNames}"
 

@@ -37,7 +37,7 @@ class VisualizerRelInfo
 	boolean showCellValues
 
 	List<VisualizerCellInfo> cellInfo
-	VisualizerScopeInfo scopeInfo = new VisualizerScopeInfo()
+	VisualizerScopeInfo scopeInfo
 
 	List<String> typesToAdd
 
@@ -45,9 +45,16 @@ class VisualizerRelInfo
 
 	VisualizerRelInfo() {}
 
+	VisualizerRelInfo(ApplicationID applicationId)
+	{
+		appId = applicationId
+		scopeInfo = new VisualizerScopeInfo(appId)
+	}
+
 	VisualizerRelInfo(ApplicationID applicationId, Map node)
 	{
 		appId  = applicationId
+		scopeInfo = new VisualizerScopeInfo(appId)
 		targetCube = NCubeManager.getCube(appId, node.cubeName as String)
 		String sourceCubeName = node.sourceCubeName as String
 		sourceCube = sourceCubeName ? NCubeManager.getCube(appId, sourceCubeName) : null

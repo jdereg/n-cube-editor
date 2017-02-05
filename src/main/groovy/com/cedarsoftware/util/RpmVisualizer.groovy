@@ -159,7 +159,7 @@ class RpmVisualizer extends Visualizer
 
 	private RpmVisualizerRelInfo addToStack(RpmVisualizerInfo visInfo, RpmVisualizerRelInfo relInfo, String nextTargetCubeName, String rpmType, String targetFieldName)
 	{
-		RpmVisualizerRelInfo nextRelInfo = new RpmVisualizerRelInfo()
+		RpmVisualizerRelInfo nextRelInfo = new RpmVisualizerRelInfo(appId)
 		super.addToStack(visInfo, relInfo, nextRelInfo, nextTargetCubeName)
 		NCube nextTargetCube = nextRelInfo.targetCube
 		if (nextTargetCube)
@@ -176,7 +176,7 @@ class RpmVisualizer extends Visualizer
 	@Override
 	protected VisualizerRelInfo getVisualizerRelInfo()
 	{
-		return new RpmVisualizerRelInfo()
+		return new RpmVisualizerRelInfo(appId)
 	}
 
 	private boolean canLoadTraitsForTarget(RpmVisualizerRelInfo relInfo)
@@ -293,8 +293,9 @@ class RpmVisualizer extends Visualizer
 		if (NCubeManager.getCube(appId, startCubeName).getAxis(AXIS_TRAIT).findColumn(R_SCOPED_NAME))
 		{
 			String type = getTypeFromCubeName(startCubeName)
-			//String scopeCubeName = startCubeName.replace(RPM_CLASS_DOT, RPM_SCOPE_CLASS_DOT) + DOT_TRAITS
-			Set<Object> requiredScopeValues = [] as Set // TODO: FIX    visInfo.getRequiredScopeValues(scopeCubeName, type)
+			String providedTypeValue = scope ? scope.type : null
+			String scopeCubeName = startCubeName.replace(RPM_CLASS_DOT, RPM_SCOPE_CLASS_DOT) + DOT_TRAITS
+			Set<Object> requiredScopeValues =  visInfo.scopeInfo.addRequiredScope(type, scopeCubeName,  providedTypeValue)
 			String messageScopeValues = BREAK + helper.getRequiredScopeValueMessage(type, requiredScopeValues)
 			if (scope)
 			{

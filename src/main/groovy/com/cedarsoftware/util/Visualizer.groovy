@@ -79,7 +79,6 @@ class Visualizer
 	protected static Map getCellValues(VisualizerRelInfo relInfo, Map options)
 	{
 		VisualizerInfo visInfo = options.visInfo as VisualizerInfo
-		visInfo.scopeInfo = new VisualizerScopeInfo()
 		visInfo.messages = new LinkedHashSet()
 		Map node = options.node as Map
 
@@ -132,7 +131,6 @@ class Visualizer
 
 	protected void loadFirstVisualizerRelInfo(VisualizerInfo visInfo, VisualizerRelInfo relInfo, String startCubeName)
 	{
-		relInfo.appId = appId
 		relInfo.targetCube = NCubeManager.getCube(appId, startCubeName)
 		relInfo.availableTargetScope = new CaseInsensitiveMap(visInfo.scopeInfo.scope)
 		relInfo.targetLevel = 1
@@ -198,7 +196,7 @@ class Visualizer
 
 	protected VisualizerRelInfo getVisualizerRelInfo()
 	{
-		return new VisualizerRelInfo()
+		return new VisualizerRelInfo(appId)
 	}
 
 	protected VisualizerHelper getVisualizerHelper()
