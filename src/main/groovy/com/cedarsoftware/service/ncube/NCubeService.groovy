@@ -428,10 +428,10 @@ class NCubeService
         return NCubeManager.updateTestData(appId, cubeName, tests)
     }
 
-    NCube getCube(ApplicationID appId, String name)
+    NCube getCube(ApplicationID appId, String name, boolean quiet = false)
     {
         NCube cube = NCubeManager.getCube(appId, name)
-        if (cube == null)
+        if (cube == null && !quiet)
         {
             throw new IllegalArgumentException("Unable to load cube: " + name + " for app: " + appId)
         }

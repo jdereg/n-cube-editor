@@ -249,7 +249,7 @@ class NCubeController extends BaseController
     NCube getCube(ApplicationID appId, String cubeName)
     {
         appId = addTenant(appId)
-        return nCubeService.getCube(appId, cubeName)
+        return nCubeService.getCube(appId, cubeName, true)
     }
 
     // TODO: This needs to be externalized (loaded via Grapes)
