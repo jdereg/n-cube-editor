@@ -27,6 +27,38 @@ class RpmVisualizerInfo extends VisualizerInfo
         return CUBE_TYPE_RPM
     }
 
+    protected boolean addMissingMinimumScope(String scopeKey, String defaultValue, String startCubeName)
+    {
+        Map<String, Object> scope = scopeInfo.scope
+        boolean missingScope
+        if (scope.containsKey(scopeKey))
+        {
+            if (!scope[scopeKey])
+            {
+                missingScope = true
+            }
+        } else
+        {
+            missingScope = true
+        }
+
+        if (missingScope)
+        {
+            if (defaultValue)
+            {
+                scope[scopeKey] = defaultValue
+            }
+            else
+            {
+                String scopeCubeName = startCubeName.replace(RPM_CLASS_DOT, RPM_SCOPE_CLASS_DOT) + DOT_TRAITS
+                scopeInfo.addMissingRequiredScope(scopeKey, scopeCubeName, null, false)
+            }
+        }
+        allRequiredScopeKeys << scopeKey
+        return missingScope
+    }
+
+
     @Override
     List getTypesToAdd(String group)
     {

@@ -37,7 +37,6 @@ class VisualizerRelInfo
 	boolean showCellValues
 
 	List<VisualizerCellInfo> cellInfo
-	VisualizerScopeInfo scopeInfo
 
 	List<String> typesToAdd
 
@@ -48,13 +47,11 @@ class VisualizerRelInfo
 	VisualizerRelInfo(ApplicationID applicationId)
 	{
 		appId = applicationId
-		scopeInfo = new VisualizerScopeInfo(appId)
 	}
 
 	VisualizerRelInfo(ApplicationID applicationId, Map node)
 	{
 		appId  = applicationId
-		scopeInfo = new VisualizerScopeInfo(appId)
 		targetCube = NCubeManager.getCube(appId, node.cubeName as String)
 		String sourceCubeName = node.sourceCubeName as String
 		sourceCube = sourceCubeName ? NCubeManager.getCube(appId, sourceCubeName) : null
@@ -213,6 +210,7 @@ class VisualizerRelInfo
 		if (!visInfo.requiredScopeKeysByCube.containsKey(cubeName))
 		{
 			visInfo.requiredScopeKeysByCube[cubeName] = requiredScope
+			visInfo.allRequiredScopeKeys.addAll(requiredScope)
 			visInfo.allOptionalScopeKeysByCube[cubeName] = targetCube.getOptionalScope(availableTargetScope, new CaseInsensitiveMap())
 		}
 	}
@@ -264,6 +262,12 @@ class VisualizerRelInfo
 		visInfo.maxLevel = maxLevel < targetLevel ? targetLevel : maxLevel
 		visInfo.nodeCount += 1
 		return node
+	}
+
+
+	protected boolean includeUnboundScopeKey(VisualizerInfo visInfo, String scopeKey)
+	{
+		return true
 	}
 
 	protected String getLabel(String cubeName)

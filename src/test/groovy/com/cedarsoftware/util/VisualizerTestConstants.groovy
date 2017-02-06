@@ -11,7 +11,7 @@ class VisualizerTestConstants
 {
 	public static final String ADDITIONAL_SCOPE_REQUIRED_FOR = 'Additional scope required for '
 	public static final String UNABLE_TO_LOAD = 'Unable to load '
-	public static final String SCOPE_VALUE_NOT_FOUND = 'Scope value not found for '
+	public static final String REQUIRED_SCOPE_VALUE_NOT_FOUND = 'Required scope value not found for '
 	public static final String OPTIONAL_SCOPE_AVAILABLE_TO_LOAD = 'Since not all optional scope was provided or found, one or more defaults were used to load '
 	public static final String ADDITIONAL_SCOPE_REQUIRED_TO_LOAD = 'Additional scope is required to load '
 	public static final String SCOPE_VALUES_ADDED_FOR_REQUIRED_KEYS = 'The scope for the following scope keys was added since required. The default scope values may be changed as desired.'

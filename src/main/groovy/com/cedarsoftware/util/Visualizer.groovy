@@ -42,18 +42,17 @@ class Visualizer
 
 		if (!isValidStartCube(visInfo, startCubeName))
 		{
-			visInfo.convertToSingleMessage()
 			return [status: STATUS_INVALID_START_CUBE, visInfo: visInfo]
 		}
 
 		if (hasMissingMinimumScope(visInfo, startCubeName))
 		{
-			visInfo.convertToSingleMessage()
+			createScopePrompt(visInfo)
 			return [status: STATUS_MISSING_START_SCOPE, visInfo: visInfo]
 		}
 
 		getVisualization(visInfo, startCubeName)
-
+		createScopePrompt(visInfo)
 		visInfo.convertToSingleMessage()
 		return [status: STATUS_SUCCESS, visInfo: visInfo]
 	}
@@ -114,19 +113,34 @@ class Visualizer
 		{
 			processCube(visInfo, stack.pop())
 		}
-
-		handleUnboundAxes(visInfo)
 	}
 
-	protected void handleUnboundAxes(VisualizerInfo visInfo)
+	protected void createScopePrompt(VisualizerInfo visInfo)
 	{
-		if (visInfo.scopeInfo.optionalScopeAvailableValues)
+		VisualizerScopeInfo scopeInfo = visInfo.scopeInfo
+
+		Set<String> missingRequiredScopeKeys = new CaseInsensitiveSet(scopeInfo.missingRequiredScopeAvailableValues.keySet())
+		Set<String> unboundScopeKeys =  new CaseInsensitiveSet(scopeInfo.unboundScopeAvailableValues.keySet())
+		Set<String> okScopeKeys = new CaseInsensitiveSet(scopeInfo.scope.keySet())
+		okScopeKeys.removeAll(missingRequiredScopeKeys)
+		okScopeKeys.removeAll(unboundScopeKeys)
+
+		StringBuilder sb = new StringBuilder()
+		if (scopeInfo.missingRequiredScopeAvailableValues)
 		{
-			StringBuilder sb = new StringBuilder('Since not all optional scope was provided or found, one or more defaults were used to load the graph.')
-			sb.append("${BREAK}")
-			sb.append(visualizerHelper.handleUnboundAxes(visInfo.scopeInfo))
-			visInfo.messages << sb.toString()
+			sb.append(visualizerHelper.getRequiredScopeMessage(scopeInfo))
+
 		}
+		if (scopeInfo.unboundScopeAvailableValues)
+		{
+			sb.append(visualizerHelper.getUnboundScopeMessage(scopeInfo))
+		}
+
+		if (okScopeKeys)
+		{
+			sb.append(visualizerHelper.getOkScopeMessage(visInfo, scopeInfo, okScopeKeys))
+		}
+		scopeInfo.scopeMessage = sb.toString()
 	}
 
 	protected void loadFirstVisualizerRelInfo(VisualizerInfo visInfo, VisualizerRelInfo relInfo, String startCubeName)

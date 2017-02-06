@@ -33,6 +33,7 @@ var Visualizer = (function ($) {
     var _nodes = [];
     var _edges = [];
     var _scope = null;
+    var _scopeMessage = null;
     var _keepCurrentScope = false;
     var _selectedGroups = null;
     var _availableGroupsAtLevel = null;
@@ -52,7 +53,6 @@ var Visualizer = (function ($) {
     var _nodeAddTypes = null;
     var _nodeDetails = null;
     var _layout = null;
-    var _scopeInput = null;
     var _scopeButton = null;
     var _findNode = null;
     var STATUS_SUCCESS = 'success';
@@ -124,7 +124,6 @@ var Visualizer = (function ($) {
             _nodeAddTypes = $('#nodeAddTypes');
             _nodeVisualizer = $('#nodeVisualizer');
             _nodeDetails = $('#nodeDetails');
-            _scopeInput = $('#scope');
             _scopeButton = $('#scopeButton');
             _findNode = $('#findNode');
             _networkOptionsSection = $('#networkOptionsSection');
@@ -152,17 +151,12 @@ var Visualizer = (function ($) {
                 //updateNetworkOptions();
             });
 
-            _scopeInput.on('change', function () {
-                _scope = buildScopeFromText(_scopeInput.val());
-                scopeChange();
-            });
-
             $('#scopeButton').click(function () {
                 var button = $('#scopeButton');
                 button.toggleClass('active');
                 _scopeButton = button.hasClass('active');
                 if (_scopeButton){
-                    _noteIdList.push(_nce.showNote('show scope toast'));
+                    _noteIdList.push(_nce.showNote(_scopeMessage));
                 }
                 else{
                     _nce.clearNotes(_noteIdList);
@@ -478,25 +472,6 @@ var Visualizer = (function ($) {
         load();
     }
 
-  
-    function buildScopeFromText(scopeString) {
-        var parts, part, key, value, i, iLen;
-        var newScope = {};
-        newScope['@type'] = _scope['@type'];
-        if (scopeString) {
-            parts = scopeString.split(',');
-            for ( i = 0, iLen = parts.length; i < iLen; i++) {
-                part = parts[i].split(':');
-                key = part[0].trim();
-                value = part[1];
-                if (value) {
-                    newScope[key] = value.trim();
-                }
-            }
-         }
-        return newScope;
-    }
-
     function reload() {
         updateNetworkData();
         loadSelectedLevelListView();
@@ -547,8 +522,8 @@ var Visualizer = (function ($) {
 
     function displayMessages(messages){
         var j, jLen, items;
-        if (messages) {
-            items = messages['@items'];
+        items = messages['@items'];
+        if (items) {
             for (j = 0, jLen = items.length; j < jLen; j++) {
                 _noteIdList.push(_nce.showNote(items[j]));
             }
@@ -694,15 +669,11 @@ var Visualizer = (function ($) {
     }
 
     function loadScopeView() {
-        var scope = getScopeString();
-        _scopeInput.val(scope);
-        _scopeInput.prop('title', scope);
-
-        $('#scopeButton-div').prop('title', scope);
+        $('#scopeButton-div').prop('title', getScopeString());
         var button = $('#scopeButton');
         button.addClass('active');
         _scopeButton = true;
-        _noteIdList.push(_nce.showNote('show scope toast'));
+        _noteIdList.push(_nce.showNote(_scopeMessage));
     }
 
     function loadGroupsView() {
@@ -1004,6 +975,7 @@ var Visualizer = (function ($) {
             }
         }
         _scope = visInfo.scopeInfo.scope;
+        _scopeMessage = visInfo.scopeInfo.scopeMessage;
 
         _visInfo = visInfo;
 

@@ -4,7 +4,6 @@ import com.cedarsoftware.ncube.ApplicationID
 import com.cedarsoftware.ncube.NCube
 import com.cedarsoftware.ncube.NCubeManager
 import groovy.transform.CompileStatic
-
 import static com.cedarsoftware.util.VisualizerConstants.*
 
 /**
@@ -38,6 +37,7 @@ class VisualizerInfo
 
     Map<String, Set<String>> requiredScopeKeysByCube = [:]
     Map<String, Set<String>> allOptionalScopeKeysByCube = [:]
+    Set<String> allRequiredScopeKeys = new CaseInsensitiveSet()
 
     Map<String, List<String>> typesToAddMap = [:]
 
@@ -63,34 +63,6 @@ class VisualizerInfo
     protected String getCubeType()
     {
         return CUBE_TYPE_DEFAULT
-    }
-
-    boolean addMissingMinimumScope(String scopeKey, String value, String message, Set<String> messages)
-    {
-        Map<String, Object> scope = scopeInfo.scope
-        boolean missingScope
-        if (scope.containsKey(scopeKey))
-        {
-            if (!scope[scopeKey])
-            {
-                missingScope = true
-            }
-        }
-        else
-        {
-            missingScope = true
-        }
-
-        if (missingScope)
-        {
-            message = message ?: "Scope for ${scopeKey} was added since required. The scope value may be changed as desired."
-            messages << message
-            if (value)
-            {
-                scope[scopeKey] = value
-            }
-        }
-        return missingScope
     }
 
     NCube loadConfigurations(String cubeType)
@@ -139,6 +111,9 @@ class VisualizerInfo
 
     void convertToSingleMessage()
     {
-        messages = messages ? [messages.join(DOUBLE_BREAK)] as Set : null
+        if (messages)
+        {
+            messages = [messages.join(DOUBLE_BREAK)] as Set
+        }
     }
 }

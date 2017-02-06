@@ -243,6 +243,25 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		return node
 	}
 
+
+	@Override
+	protected boolean includeUnboundScopeKey(VisualizerInfo visInfo, String scopeKey)
+	{
+		//For the starting cube of the graph (top node) keep all unbound axis keys. For all other
+		//classes (which all have a sourceCube), remove any keys that are "derived" scope keys,
+		//i.e. keys that the visualizer adds to the scope as it processes through the graph
+		//(keys like product, risk, coverage, sourceProduct, sourceRisk, sourceCoverage, etc.).
+		if (sourceCube)
+		{
+			String strippedKey = scopeKey.replaceFirst('source', '')
+			if (visInfo.allGroupsKeys.contains(strippedKey))
+			{
+				return false
+			}
+		}
+		return true
+	}
+
 	@Override
 	protected String getLabel(String cubeName)
 	{
@@ -334,7 +353,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			removeNotExistsFields()
 			addRequiredAndOptionalScopeKeys(visInfo)
 			retainUsedScope(visInfo, output)
-			handleUnboundAxes(visInfo, targetCube.getRuleInfo(output))
+			handleUnboundScope(visInfo, targetCube.getRuleInfo(output))
 			cellValuesLoaded = true
 			showCellValuesLink = true
 		}
@@ -353,126 +372,48 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			}
 			else
 			{
-				handleException(t, visInfo)
+				handleException(t)
 			}
 		}
 		return true
 	}
 
-	private void handleUnboundAxes(VisualizerInfo visInfo, RuleInfo ruleInfo)
+	private void handleUnboundScope(VisualizerInfo visInfo, RuleInfo ruleInfo)
 	{
-		if (addUnboundAxisToScopeInfo(visInfo, ruleInfo))
+		String unboundScopeMessage = helper.handleUnboundScope(visInfo, this, ruleInfo)
+		if (unboundScopeMessage)
 		{
-			String cubeName = targetCube.name
-			String nodeLabel = getLabel(cubeName)
-			StringBuilder sb = new StringBuilder('Since not all optional scope was provided or found, one or more defaults were used to load ')
-			if (cubeName.startsWith(RPM_CLASS_DOT))
-			{
-				String cubeDisplayName = getCubeDisplayName(cubeName)
-				sb.append("${nodeLabel} of type ${cubeDisplayName}${sourceMessage}.")
-			}
-			else if (cubeName.startsWith(RPM_ENUM_DOT))
-			{
-				String cubeTitle = cubeDetailsTitle1.replace('Valid', 'valid')
-				sb.append("${cubeTitle}.")
-			}
-			else
-			{
-				sb.append("${cubeName} for ${nodeLabel}${sourceMessage}.")
-			}
-			sb.append("${BREAK}")
-			sb.append(helper.handleUnboundAxes(scopeInfo))
-			notes << sb.toString()
+			notes << unboundScopeMessage
 		}
-	}
-
-	private boolean addUnboundAxisToScopeInfo(VisualizerInfo visInfo, RuleInfo ruleInfo)
-	{
-		boolean hasUnboundAxisToInclude
-		List unboundAxesList = ruleInfo.getUnboundAxesList()
-		if (unboundAxesList)
-		{
-			//Gather entries in unboundAxesList into maps held in scopeInfo for
-			//graph as a whole and for this class.
-			unboundAxesList.each { MapEntry unboundAxis ->
-				String cubeName = unboundAxis.key as String
-				MapEntry axisEntry = unboundAxis.value as MapEntry
-				String axisName = axisEntry.key as String
-				Object unBoundValue = axisEntry.value
-				if (includeScopeKey(visInfo, axisName))
-				{
-					visInfo.scopeInfo.addOptionalScope(cubeName, axisName, unBoundValue)
-					scopeInfo.addOptionalScope(cubeName, axisName, unBoundValue)
-					hasUnboundAxisToInclude = true
-				}
-			}
-		}
-		return hasUnboundAxisToInclude
-	}
-
-	private boolean includeScopeKey(VisualizerInfo visInfo, String scopeKey)
-	{
-		//For the starting class of the graph (top node) keep all unbound axis keys. For all other
-		//classes (which all have a sourceCube), remove any keys that are "derived" scope keys,
-		//i.e. keys that the visualizer adds to the scope as it processes through the graph
-		//(keys like product, risk, coverage, sourceProduct, sourceRisk, sourceCoverage, etc.).
-		if (sourceCube)
-		{
-			String strippedKey = scopeKey.replaceFirst('source', '')
-			if (visInfo.allGroupsKeys.contains(strippedKey))
-			{
-				return false
-			}
-		}
-		return true
 	}
 
 	private void handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerInfo visInfo)
 	{
-		StringBuilder mb = new StringBuilder()
 		String scopeKey = e.axisName
 		Object value = e.value ?: 'null'
 		String targetMsg = ''
-		mb.append("The scope value ${value} for scope key ${scopeKey} cannot be found on axis ${scopeKey} in ${getCubeDisplayName(e.cubeName)} for ${getLabel(targetCube.name)}${sourceMessage}.")
-		mb.append(BREAK + helper.handleCoordinateNotFoundException(e, visInfo, targetMsg))
-		String msg = mb.toString()
+		StringBuilder sb = new StringBuilder("The scope value ${value} for required scope key ${scopeKey} cannot be found.")
+		sb.append(helper.handleCoordinateNotFoundException(e, visInfo, targetMsg))
+		String msg = sb.toString()
 		notes << msg
-		visInfo.messages << msg
-		nodeLabelPrefix = 'Scope value not found for '
+		nodeLabelPrefix = 'Required scope value not found for '
 		targetTraits = new CaseInsensitiveMap()
 	}
 
 	private void handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerInfo visInfo)
 	{
-		String cubeName = e.cubeName
-		String nodeLabel = getLabel(targetCube.name)
-		StringBuilder sb = new StringBuilder('Additional scope is required to load ')
-		if (cubeName.startsWith(RPM_CLASS_DOT))
-		{
-			sb.append("${nodeLabel}${sourceMessage}. ")
-		}
-		else if (cubeName.startsWith(RPM_ENUM_DOT))
-		{
-			sb.append("${cubeDetailsTitle1}. ")
-		}
-		else
-		{
-			sb.append("${cubeName} for ${nodeLabel}${sourceMessage}. ")
-		}
-		sb.append(BREAK + helper.handleInvalidCoordinateException(e, visInfo, this, MANDATORY_SCOPE_KEYS))
+		StringBuilder sb = new StringBuilder("Additional scope is required for scope keys: ")
+		sb.append(helper.handleInvalidCoordinateException(e, visInfo, this, MANDATORY_SCOPE_KEYS))
 		String msg = sb.toString()
 		notes << msg
-		visInfo.messages << msg
 		nodeLabelPrefix = 'Additional scope required for '
 		targetTraits = new CaseInsensitiveMap()
 	}
 
-	private void handleException(Throwable e, VisualizerInfo visInfo)
+	private void handleException(Throwable e)
 	{
 		String targetMsg = "${getLabel(targetCube.name)}${sourceMessage}"
-		String reason = helper.handleException(e, targetMsg)
-		notes << reason
-		visInfo.messages << reason
+		notes << helper.handleException(e, targetMsg)
 		nodeLabelPrefix = "Unable to load "
 		targetTraits = new CaseInsensitiveMap()
 	}
