@@ -2656,7 +2656,7 @@ var NCubeEditor2 = (function ($) {
         }
         appId = nce.getSelectedTabAppId();
         resource = cubeName;
-        if (axisName !== undefined) {
+        if (axisName !== undefined && axisName != null) {
             resource += '/' + axisName;
         }
         canUpdate = nce.checkPermissions(appId, resource, PERMISSION_ACTION.UPDATE);

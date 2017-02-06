@@ -29,6 +29,7 @@
     word-wrap: break-word;
 }
 .gritter-drag {
+    display: none;
     position: absolute;
     top: 5px;
     right: 35px;
@@ -36,8 +37,7 @@
     width: 30px;
     height: 30px;
     text-indent: -9999em;
-    background: url(../img/glyphicons-halflings-white.png) no-repeat -245px -103px;
-    background-size: 50vw;
+    background: url(../img/gritter-move.png) no-repeat top left;
 }
 .gritter-close {
     display:none;
