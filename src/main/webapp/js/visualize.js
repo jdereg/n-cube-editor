@@ -29,7 +29,7 @@ var Visualizer = (function ($) {
     var _loadedCubeName = null;
     var _loadedAppId = null;
     var _loadedVisInfoType = null;
-    var _okToLoadFromServer = true;
+    var _okToLoadGraph = true;
     var _nodes = [];
     var _edges = [];
     var _scope = null;
@@ -58,13 +58,14 @@ var Visualizer = (function ($) {
     var STATUS_SUCCESS = 'success';
     var STATUS_MISSING_START_SCOPE = 'missingStartScope';
     var UNSPECIFIED = 'UNSPECIFIED';
-    var _noteIdList = [];
     var COMPLETE = 'complete';
     var ITERATING = 'iterating...';
     var DOT_DOT_DOT = '...';
     var NA = 'n/a';
     var NO_GROUPS_SELECTED = 'NO GROUPS SELECTED';
     var LEVEL_PREFIX = 'Level ';
+    var STICKY_SCOPE_MESSAGE = 'STICKY_SCOPE_MESSAGE';
+    var SCOPE_IMAGE = {src: './img/scope.png', width: '65px', height: '20px'};
 
     //Network layout parameters
     var _hierarchical = false;
@@ -145,7 +146,7 @@ var Visualizer = (function ($) {
                 //have a defined level. Attempted short-term fix in setLevelOnNetworkNodes() method, but it's not enough.
                 //TODO: Keep investigating, submit question and possibly a bug fix to visjs.
                 $('#hierarchical').prop('checked', false);
-                _nce.showNote('Hierarchical mode is currently not available', null, null, 'visualizer');
+                _nce.showNote('Hierarchical mode is currently not available');
                 //_hierarchical = this.checked;
                 //saveToLocalStorage(_hierarchical, HIERARCHICAL);
                 //updateNetworkOptions();
@@ -153,14 +154,15 @@ var Visualizer = (function ($) {
 
             $('#scopeButton').click(function () {
                 var button = $('#scopeButton');
-                button.toggleClass('active');
-                _scopeButton = button.hasClass('active');
-                if (_scopeButton){
-                    _noteIdList.push(_nce.showNote(_scopeMessage));
+                if (_nce.hasNote(STICKY_SCOPE_MESSAGE)){
+                    _nce.clearNotes(STICKY_SCOPE_MESSAGE);
+                    button.removeClass('active');
                 }
                 else{
-                    _nce.clearNotes(_noteIdList);
+                    _nce.showNote(_scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, SCOPE_IMAGE);
+                    button.addClass('active');
                 }
+                _scopeButton = button.hasClass('active');
             });
 
             _findNode.on('change', function () {
@@ -174,7 +176,7 @@ var Visualizer = (function ($) {
                         }
                     });
                     if (0 === nodes.length) {
-                        _nce.showNote(nodeLabel + ' not found', null, null, 'visualizer');
+                        _nce.showNote(nodeLabel + ' not found');
                     }
                     else if (1 === nodes.length) {
                         nodeId = nodes[0].id;
@@ -195,7 +197,7 @@ var Visualizer = (function ($) {
                             note += '<li><a class="findNode" id="' + node.id +  '" href="#">'  + linkText + '</a></li>';
                         }
                         note += '</ul></pre>';
-                        _nce.showNote(note, null, null, 'visualizer');
+                        _nce.showNote(note);
                     }
                 }
                 _findNode.val('');
@@ -226,7 +228,7 @@ var Visualizer = (function ($) {
     }
 
     function missingScopeInput(target) {
-        var key = target.title;
+        var key = target.id;
         if (key) {
             _scope[key] = target.value;
             scopeChange();
@@ -235,7 +237,7 @@ var Visualizer = (function ($) {
 
     function missingScopeSelect(target) {
         var id, scopeParts, key, value;
-        id = target.selectedOptions[0].title;
+        id = target.selectedOptions[0].id;
         if (id) {
             scopeParts = id.split(':');
             key = scopeParts[0];
@@ -321,7 +323,7 @@ var Visualizer = (function ($) {
         else
         {
             errorMessage = 'Invalid state encountered while updating network options for parameter ' + inputOption.attr('id') + '.';
-            _nce.showNote(errorMessage, null, null, 'visualizer');
+            _nce.showNote(errorMessage);
             throw new Error(errorMessage);
         }
     }
@@ -482,9 +484,9 @@ var Visualizer = (function ($) {
      }
 
     function loadCellValues(node, note) {
-        _nce.clearNotes(_noteIdList);
+        _nce.clearNotes(STICKY_SCOPE_MESSAGE);
         setTimeout(function () {loadCellValuesFromServer(node);}, PROGRESS_DELAY);
-        _nce.showNote(note, null, null, 'visualizer');
+        _nce.showNote(note);
     }
 
     function loadCellValuesFromServer(node)
@@ -499,7 +501,7 @@ var Visualizer = (function ($) {
         result = _nce.call('ncubeController.getVisualizerCellValues', [_nce.getSelectedTabAppId(), options]);
         _nce.clearNote();
         if (false === result.status) {
-            _nce.showNote('Failed to load ' + _visInfo.loadCellValuesLabel + ': ' + TWO_LINE_BREAKS + result.data, null, null, 'visualizer');
+            _nce.showNote('Failed to load ' + _visInfo.loadCellValuesLabel + ': ' + TWO_LINE_BREAKS + result.data);
             return node;
         }
 
@@ -507,15 +509,15 @@ var Visualizer = (function ($) {
 
         if (STATUS_SUCCESS === json.status) {
             displayMessages(json.visInfo.messages);
-            node = json.visInfo.nodes['@items'][0];
-            loadDataForNode(node)
+            loadDataForNode(json.visInfo);
+            loadScopeView() ;
         }
         else {
             message = json.message;
             if (null !== json.stackTrace) {
-                message = message + TWO_LINE_BREAKS + json.stackTrace
+                message = message + TWO_LINE_BREAKS + json.stackTrace;
             }
-            _nce.showNote('Failed to load ' + _visInfo.loadCellValuesLabel +  ': ' + TWO_LINE_BREAKS + message, null, null, 'visualizer');
+            _nce.showNote('Failed to load ' + _visInfo.loadCellValuesLabel +  ': ' + TWO_LINE_BREAKS + message);
         }
         return node;
     }
@@ -525,13 +527,14 @@ var Visualizer = (function ($) {
         items = messages['@items'];
         if (items) {
             for (j = 0, jLen = items.length; j < jLen; j++) {
-                _noteIdList.push(_nce.showNote(items[j], null, null, 'visualizer'));
+                _nce.showNote(items[j]);
             }
         }
     }
 
-    function loadDataForNode(node){
-        var dataSetNode;
+    function loadDataForNode(visInfo){
+        var node, dataSetNode;
+        node = visInfo.nodes['@items'][0];
         dataSetNode = _nodeDataSet.get(node.id);
         dataSetNode.details = node.details;
         dataSetNode.showCellValuesLink = node.showCellValuesLink;
@@ -546,31 +549,36 @@ var Visualizer = (function ($) {
         _nodeAddTypes = $('#nodeAddTypes');
         _nodeCellValues[0].innerHTML = '';
         _nodeCellValues.append(createCellValuesLink(node));
+
+        _scope = visInfo.scopeInfo.scope;
+        _scopeMessage = visInfo.scopeInfo.scopeMessage;
+
+        _visInfo = visInfo;
     }
 
     function load() {
-        if (_okToLoadFromServer) {
-            _okToLoadFromServer = false;
+        if (_okToLoadGraph) {
+            _okToLoadGraph = false;
             _dataLoadStart = performance.now();
             $("#dataLoadStatus").val('loading');
             $("#dataLoadDuration").val(DOT_DOT_DOT);
-            _nce.clearNotes(_noteIdList);
+            _nce.clearNotes(STICKY_SCOPE_MESSAGE);
             setTimeout(function () {
-                loadFromServer();
+                loadGraph();
             }, PROGRESS_DELAY);
-            _noteIdList.push(_nce.showNote('Loading data...', null, null, 'visualizer'));
+            _nce.showNote('Loading data...');
         }
     }
 
-    function loadFromServer() {
+    function loadGraph() {
         var options, result, json, message;
         clearVisLayoutEast();
         destroyNetwork();
 
         if (!_nce.getSelectedCubeName()) {
              _visualizerContent.hide();
-            _nce.showNote('Failed to load visualizer: ' + TWO_LINE_BREAKS + 'No cube selected.', null, null, 'visualizer');
-            _okToLoadFromServer = true;
+            _nce.showNote('Failed to load visualizer: ' + TWO_LINE_BREAKS + 'No cube selected.');
+            _okToLoadGraph = true;
             return;
         }
 
@@ -598,11 +606,11 @@ var Visualizer = (function ($) {
 
 
         result = _nce.call('ncubeController.getVisualizerJson', [_nce.getSelectedTabAppId(), options]);
-        _nce.clearNotes(_noteIdList);
+        _nce.clearNote();
         if (!result.status) {
-            _nce.showNote(result.data, null, null, 'visualizer');
+            _nce.showNote(result.data);
              _visualizerContent.hide();
-            _okToLoadFromServer = true;
+            _okToLoadGraph = true;
             return;
         }
 
@@ -610,7 +618,7 @@ var Visualizer = (function ($) {
 
         if (json.status === STATUS_SUCCESS) {
             displayMessages(json.visInfo.messages);
-            loadData(json.visInfo, json.status);
+            loadGraphData(json.visInfo, json.status);
             initNetwork();
             loadSelectedLevelListView();
             saveAllToLocalStorage();
@@ -624,7 +632,7 @@ var Visualizer = (function ($) {
         }
         else if (STATUS_MISSING_START_SCOPE === json.status) {
             displayMessages(json.visInfo.messages);
-            loadData(json.visInfo, json.status);
+            loadGraphData(json.visInfo, json.status);
             saveAllToLocalStorage();
             loadScopeView();
             _visualizerContent.show();
@@ -638,11 +646,11 @@ var Visualizer = (function ($) {
             if (null !== json.stackTrace) {
                 message = message + TWO_LINE_BREAKS + json.stackTrace
             }
-            _nce.showNote('Failed to load visualizer: ' + TWO_LINE_BREAKS + message, null, null, 'visualizer');
+            _nce.showNote('Failed to load visualizer: ' + TWO_LINE_BREAKS + message);
         }
         $("#dataLoadStatus").val(COMPLETE);
         $("#dataLoadDuration").val(Math.round(performance.now() - _dataLoadStart));
-        _okToLoadFromServer = true;
+        _okToLoadGraph = true;
     }
 
      function appIdMatch(appIdA, appIdB)
@@ -673,7 +681,7 @@ var Visualizer = (function ($) {
         var button = $('#scopeButton');
         button.addClass('active');
         _scopeButton = true;
-        _noteIdList.push(_nce.showNote(_scopeMessage));
+        _nce.showNote(_scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, SCOPE_IMAGE);
     }
 
     function loadGroupsView() {
@@ -940,7 +948,7 @@ var Visualizer = (function ($) {
         _edgeDataSet.add(edgesToAddBack);
     }
 
-    function loadData(visInfo, status)
+    function loadGraphData(visInfo, status)
     {
         var nodes, edges, maxLevel;
 
@@ -1118,7 +1126,7 @@ var Visualizer = (function ($) {
             $("#stabilizationStatus").val(DOT_DOT_DOT);
             $("#stabilizationIterations").val(DOT_DOT_DOT);
             $("#stabilizationDuration").val(DOT_DOT_DOT);
-            _noteIdList.push(_nce.showNote('Stabilizing network...', null, null, 'visualizer'));
+            _nce.showNote('Stabilizing network...');
         }
         else if (_fullStabilizationAfterBasic) {
             _stabilizationStart = performance.now();
@@ -1132,7 +1140,7 @@ var Visualizer = (function ($) {
             $("#stabilizationStatus").val(ITERATING);
             $("#stabilizationIterations").val(DOT_DOT_DOT);
             $("#stabilizationDuration").val(DOT_DOT_DOT);
-            _noteIdList.push(_nce.showNote('Stabilizing network...', null, null, 'visualizer'));
+            _nce.showNote('Stabilizing network...');
         }
     }
 
@@ -1163,7 +1171,7 @@ var Visualizer = (function ($) {
     function stabilizationComplete(iterations){
         _nce.clearNote();
         if (_tempNote) {
-            _nce.showNote(_tempNote, 'Note', 5000, 'visualizer');
+            _nce.showNote(_tempNote, 'Note', 5000);
         }
         _tempNote = null;
         $("#stabilizationStatus").val(COMPLETE);
@@ -1342,7 +1350,7 @@ var Visualizer = (function ($) {
             a.html(typesToAdd[i]);
             a.click(function (e) {
                 e.preventDefault();
-                _nce.showNote('Add ' + this.innerHTML + ' is not yet implemented.', null, null, 'visualizer');
+                _nce.showNote('Add ' + this.innerHTML + ' is not yet implemented.');
             });
             li.append(a);
             ul.append(li);

@@ -116,6 +116,8 @@ var GLYPHICONS = {
     OPTION_VERTICAL: 'glyphicon-option-vertical'
 };
 
+var CUBE_IMAGE = {src: './img/cube-logo.png', width: '32px', height: '32px'};
+
 var TAB_OVERFLOW_TEXT_PADDING = 70;
 var TAB_WIDTH = 217;
 var COORDINATE_BAR_SCROLL_AMOUNT = 40;

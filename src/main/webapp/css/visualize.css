@@ -10,12 +10,6 @@ div.inline-block {
     padding:0
 }
 
-#scope-info{
-    color:black;
-    background:#D1C5B7;
-    padding:0;
-}
-
 #scope {
     width: 100%;
 }
@@ -150,18 +144,13 @@ h3{
 
 #scopeButton
 {
-    background-image: url('../img/scope 100x37.png');
+    background-image: url('../img/scope.png');
     cursor:pointer;
-    width: 100px;
-    height: 37px;
+    width: 65px;
+    height: 20px;
     border: none;
     outline: none;
-    box-shadow: inset 0 6px 14px rgba(0,0,0,.70);
-}
-
-#scopeButton.active {
     box-shadow: none;
-    border: none;
 }
 
 #networkOptionsSection

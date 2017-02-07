@@ -149,7 +149,15 @@
                 this._custom_timer = time_alive;
             }
 
-            var image_str = (image != '') ? '<img src="' + image + '" class="gritter-image" />' : '';
+
+            if (image != ''){
+                var imageWidth = image.width ? ' width="' + image.width + '"' : '';
+                var imageHeight = image.height ? ' height="' + image.height + '"' : '';
+                var image_str = '<img src="' + image.src + '"' + imageWidth + imageHeight + ' class="gritter-image" />';
+            }
+            else{
+                image_str = '';
+            }
 
             // String replacements on the template
             title = title ? this._str_replace('[[title]]', title, this._tpl_title) : '';
