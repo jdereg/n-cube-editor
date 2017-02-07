@@ -16,46 +16,6 @@ import static com.cedarsoftware.util.VisualizerConstants.*
 @CompileStatic
 class VisualizerHelper
 {
-	static String getOkScopeMessage(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, Set<String> okScopeKeys)
-	{
-		StringBuilder sb = new StringBuilder()
-		okScopeKeys.each{ String scopeKey ->
-			String messagesSuffix = visInfo.allRequiredScopeKeys.contains(scopeKey) ? 'Required' : 'Optional'
-			sb.append(BREAK + getOkScopeMessage(scopeKey, scopeInfo, messagesSuffix))
-		}
-		return sb.toString()
-	}
-
-	static String getOkScopeMessage(String scopeKey, VisualizerScopeInfo scopeInfo, String messagesSuffix)
-	{
-		Object scopeValue = scopeInfo.scope[scopeKey]
-		String title = "${messagesSuffix} scope key ${scopeKey} with value ${scopeValue}"
-		StringBuilder sb = new StringBuilder()
-		sb.append("""<div title="${title}" class="input-group input-group-sm">""")
-		sb.append("${messagesSuffix} scope key ${scopeKey}:${BREAK}")
-		sb.append("""<input class="${DETAILS_CLASS_SCOPE_INPUT}" id="${scopeKey}" style="color: black;" type="text" value="${scopeValue}" />""")
-		sb.append('</div>')
-		return sb.toString()
-	}
-
-	static String getUnboundScopeMessage(VisualizerScopeInfo scopeInfo)
-	{
-		StringBuilder sb = new StringBuilder()
-		scopeInfo.unboundScopeAvailableValues.keySet().each{ String axisName ->
-			sb.append(BREAK + getUnboundScopeMessage(axisName, scopeInfo))
-		}
-		return sb.toString()
-	}
-
-	static String getRequiredScopeMessage(VisualizerScopeInfo scopeInfo)
-	{
-		StringBuilder sb = new StringBuilder()
-		scopeInfo.missingRequiredScopeAvailableValues.keySet().each{ String axisName ->
-			sb.append(BREAK + getRequiredScopeMessage(axisName, scopeInfo))
-		}
-		return sb.toString()
-	}
-
 	static String handleUnboundScope(VisualizerInfo visInfo, VisualizerRelInfo relInfo, RuleInfo ruleInfo)
 	{
 		StringBuilder sb = new StringBuilder()
@@ -86,9 +46,9 @@ class VisualizerHelper
 		thisUnboundScopeAvailableValues.keySet().each{ String axisName ->
 			Set<Object> providedValues = thisUnboundScopeProvidedValues[axisName]
 			Set<String> cubeNames = thisUnboundScopeCubeNames[axisName]
-			sb.append("A default was used for scope key ${axisName} on ${cubeNames.join(COMMA_SPACE)} since ")
+			sb.append("A default was used for scope key ${axisName} since ")
 			providedValues ? sb.append("the following values were provided, but not found: ${providedValues.join(COMMA_SPACE)}.") : sb.append('"no values were provided.')
-			sb.append(BREAK)
+			cubeNames ? sb.append("${BREAK}Cubes where the default was utilized for this key: ${cubeNames.join(COMMA_SPACE)}.") : sb.append('')
 		}
 		return sb.toString()
 	}
@@ -141,91 +101,11 @@ class VisualizerHelper
 		return e
 	}
 
-	static String getRequiredScopeMessage(String scopeKey, VisualizerScopeInfo scopeInfo)
-	{
-		Set<Object> scopeValues = scopeInfo.missingRequiredScopeAvailableValues[scopeKey]
-		Set<Object> providedValues = scopeInfo.missingRequiredScopeProvidedValues[scopeKey]
-		Set<String> cubeNames = scopeInfo.missingRequiredScopeCubeNames[scopeKey]
-		providedValues.remove(null)
-		cubeNames.remove(null)
-
-		String messageSuffix = providedValues ? " (${providedValues.join(COMMA_SPACE)} provided, but not found)" : ''
-		String title = cubeNames ? "The scope for ${scopeKey} is required on ${cubeNames.join(COMMA_SPACE)}" : "The scope for ${scopeKey} is required."
-
-		StringBuilder sb = new StringBuilder()
-		sb.append("""<div title="${title}" class="input-group input-group-sm">""")
-		if (scopeValues)
-		{
-			String selectTag = """<select class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_SCOPE_SELECT}">"""
-			sb.append("A scope value is required for ${scopeKey}${messageSuffix}:${BREAK}")
-			sb.append(selectTag)
-			sb.append('<option>Select...</option>')
-			scopeValues.each {
-				String value = it.toString()
-				sb.append("""<option id="${scopeKey}: ${value}">${value}</option>""")
-			}
-			sb.append('</select>')
-		}
-		else
-		{
-			sb.append("A scope value must be entered for ${scopeKey}${messageSuffix}:${BREAK}")
-			sb.append("""<input class="${DETAILS_CLASS_SCOPE_INPUT}" id="${scopeKey}" style="color: black;" type="text" placeholder="Enter value..." >""")
-		}
-		sb.append('</div>')
-		return sb.toString()
-	}
-
-	static String getUnboundScopeMessage(String scopeKey, VisualizerScopeInfo scopeInfo)
-	{
-		Set<Object> scopeValues = scopeInfo.unboundScopeAvailableValues[scopeKey]
-		Set<Object> providedValues = scopeInfo.unboundScopeProvidedValues[scopeKey]
-		Set<String> cubeNames = scopeInfo.unboundScopeCubeNames[scopeKey]
-		providedValues.remove(null)
-		cubeNames.remove(null)
-
-		String messageSuffix = providedValues ? " (${providedValues.join(COMMA_SPACE)} provided, but not found)" : ''
-		String title = cubeNames ? "The default for ${scopeKey} was utilized on ${cubeNames.join(COMMA_SPACE)}." : "The default for ${scopeKey} was utilized"
-
-		StringBuilder sb = new StringBuilder()
-		sb.append("""<div title="${title}" class="input-group input-group-sm">""")
-		String selectTag = """<select class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_SCOPE_SELECT}">"""
-		if (scopeValues)
-		{
-			sb.append("A different scope value may be supplied for ${scopeKey}${messageSuffix}:${BREAK}")
-			sb.append(selectTag)
-			sb.append("<option>Default</option>")
-
-			scopeValues.each {
-				String value = it.toString()
-				sb.append("""<option id="${scopeKey}: ${value}">${value}</option>""")
-			}
-		}
-		else
-		{
-			sb.append("Default is the only option for ${scopeKey}${messageSuffix}:${BREAK}")
-			sb.append(selectTag)
-			sb.append("<option>Default</option>")
-		}
-		sb.append('</select>')
-		sb.append('</div>')
-		return sb.toString()
-	}
-
-
 	private static Set<String> findMissingScope(Map<String, Object> scope, Set<String> requiredKeys, Set mandatoryScopeKeys)
 	{
 		return requiredKeys.findAll { String scopeKey ->
 			!mandatoryScopeKeys.contains(scopeKey) && (scope == null || !scope.containsKey(scopeKey))
 		}
-	}
-
-	protected static String getMissingMinimumScopeMessage(Map<String, Object> scope, String messageScopeValues)
-	{
-		"""\
-The scope for the following scope keys was added since required. The default scope values may be changed as desired. \
-${DOUBLE_BREAK}${INDENT}${scope.keySet().join(COMMA_SPACE)}\
-${BREAK} \
-${messageScopeValues}"""
 	}
 
 	static String getExceptionMessage(Throwable t, Throwable e, String targetMsg)

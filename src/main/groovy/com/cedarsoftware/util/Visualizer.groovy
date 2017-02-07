@@ -47,12 +47,12 @@ class Visualizer
 
 		if (hasMissingMinimumScope(visInfo, startCubeName))
 		{
-			createScopePrompt(visInfo)
+			visInfo.scopeInfo.createScopePrompt()
 			return [status: STATUS_MISSING_START_SCOPE, visInfo: visInfo]
 		}
 
 		getVisualization(visInfo, startCubeName)
-		createScopePrompt(visInfo)
+		visInfo.scopeInfo.createScopePrompt()
 		visInfo.convertToSingleMessage()
 		return [status: STATUS_SUCCESS, visInfo: visInfo]
 	}
@@ -75,7 +75,7 @@ class Visualizer
 		return getCellValues(relInfo, options)
 	}
 
-	protected static Map getCellValues(VisualizerRelInfo relInfo, Map options)
+	protected Map getCellValues(VisualizerRelInfo relInfo, Map options)
 	{
 		VisualizerInfo visInfo = options.visInfo as VisualizerInfo
 		visInfo.messages = new LinkedHashSet()
@@ -88,6 +88,7 @@ class Visualizer
 		boolean showCellValues = relInfo.showCellValues
 		node.showCellValues = showCellValues
 		visInfo.nodes = [node]
+		visInfo.scopeInfo.createScopePrompt()
 		visInfo.convertToSingleMessage()
 		return [status: STATUS_SUCCESS, visInfo: visInfo]
 	}
@@ -113,36 +114,6 @@ class Visualizer
 		{
 			processCube(visInfo, stack.pop())
 		}
-	}
-
-	protected void createScopePrompt(VisualizerInfo visInfo)
-	{
-		VisualizerScopeInfo scopeInfo = visInfo.scopeInfo
-
-		Set<String> missingRequiredScopeKeys = new CaseInsensitiveSet(scopeInfo.missingRequiredScopeAvailableValues.keySet())
-		Set<String> unboundScopeKeys =  new CaseInsensitiveSet(scopeInfo.unboundScopeAvailableValues.keySet())
-		Set<String> okScopeKeys = new CaseInsensitiveSet(scopeInfo.scope.keySet())
-		okScopeKeys.removeAll(missingRequiredScopeKeys)
-		okScopeKeys.removeAll(unboundScopeKeys)
-
-		StringBuilder sb = new StringBuilder()
-		if (scopeInfo.missingRequiredScopeAvailableValues)
-		{
-			sb.append(visualizerHelper.getRequiredScopeMessage(scopeInfo))
-
-		}
-		if (scopeInfo.unboundScopeAvailableValues)
-		{
-			sb.append(visualizerHelper.getUnboundScopeMessage(scopeInfo))
-		}
-
-		if (okScopeKeys)
-		{
-			sb.append(visualizerHelper.getOkScopeMessage(visInfo, scopeInfo, okScopeKeys))
-		}
-
-		sb.append("""${DOUBLE_BREAK}<a href="#" class="scopeReset">Reset scope</a>""")
-		scopeInfo.scopeMessage = sb.toString()
 	}
 
 	protected void loadFirstVisualizerRelInfo(VisualizerInfo visInfo, VisualizerRelInfo relInfo, String startCubeName)

@@ -14,8 +14,6 @@ import static com.cedarsoftware.util.RpmVisualizerConstants.*
 @CompileStatic
 class RpmVisualizerInfo extends VisualizerInfo
 {
-    RpmVisualizerInfo(){}
-
     RpmVisualizerInfo(ApplicationID applicationID)
     {
         super(applicationID)
@@ -54,7 +52,7 @@ class RpmVisualizerInfo extends VisualizerInfo
                 scopeInfo.addMissingRequiredScope(scopeKey, scopeCubeName, null, false)
             }
         }
-        allRequiredScopeKeys << scopeKey
+        scopeInfo.allRequiredScopeKeys << scopeKey
         return missingScope
     }
 

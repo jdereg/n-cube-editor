@@ -37,7 +37,6 @@ class VisualizerInfo
 
     Map<String, Set<String>> requiredScopeKeysByCube = [:]
     Map<String, Set<String>> allOptionalScopeKeysByCube = [:]
-    Set<String> allRequiredScopeKeys = new CaseInsensitiveSet()
 
     Map<String, List<String>> typesToAddMap = [:]
 

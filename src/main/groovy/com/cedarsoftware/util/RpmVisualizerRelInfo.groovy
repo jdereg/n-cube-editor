@@ -22,8 +22,6 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	Map<String, Map<String, Object>> sourceTraits
 	Map<String, Map<String, Object>> targetTraits
 
-	RpmVisualizerRelInfo() {}
-
 	RpmVisualizerRelInfo(ApplicationID appId)
 	{
 		super(appId)
@@ -48,22 +46,24 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	String getDetails(VisualizerInfo visInfo)
 	{
 		StringBuilder sb = new StringBuilder()
-		String notesLabel = "<b>Note: </b>"
+		String notesLabel = "<b>Notes</b>"
 
 		if (!cellValuesLoaded)
 		{
 			sb.append("<b>*** Unable to load fields and traits for ${getLabel(targetCube.name)}</b>${DOUBLE_BREAK}")
-			notesLabel = "<b>Reason: </b>"
+			notesLabel = "<b>Reason</b>"
 		}
 
 		//Notes
 		if (notes)
 		{
+			sb.append("<pre><ul>")
 			sb.append(notesLabel)
 			notes.each { String note ->
-				sb.append("${note} ")
+				sb.append("<li>${note}</li>")
 			}
-			sb.append("${DOUBLE_BREAK}")
+			sb.append("</ul></pre>")
+			sb.append("${BREAK}")
 		}
 
 		//Scope
