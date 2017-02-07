@@ -140,6 +140,8 @@ class Visualizer
 		{
 			sb.append(visualizerHelper.getOkScopeMessage(visInfo, scopeInfo, okScopeKeys))
 		}
+
+		sb.append("""${DOUBLE_BREAK}<a href="#" class="scopeReset">Reset scope</a>""")
 		scopeInfo.scopeMessage = sb.toString()
 	}
 

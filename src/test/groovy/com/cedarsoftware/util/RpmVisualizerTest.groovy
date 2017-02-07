@@ -1071,7 +1071,7 @@ class RpmVisualizerTest
         //TODO:
         //assert message.contains("${ADDITIONAL_SCOPE_REQUIRED_TO_LOAD}party.ProfitCenter, the target of partyrole.BasePartyRole.Parties.")
         //assert message.contains('A scope value must be entered manually for dummyRequiredScopeKey since there are no values to choose from: ')
-        assert message.contains("""<input class="missingScopeInput" id="dummyRequiredScopeKey" style="color: black;" type="text" placeholder="Enter value..." ></div>""")
+        assert message.contains("""<input class="scopeInput" id="dummyRequiredScopeKey" style="color: black;" type="text" placeholder="Enter value..." ></div>""")
     }
 
 
@@ -1214,7 +1214,7 @@ class RpmVisualizerTest
             assert message.contains("${ADDITIONAL_SCOPE_REQUIRED_TO_LOAD}FCoverage, the target of Risk.Coverages.")
             assert message.contains("${ADDITIONAL_SCOPE_REQUIRED_TO_LOAD}ACoverage, the target of Risk.Coverages.")
             assert message.contains('A scope value must be entered manually for dummyRequiredScopeKey since there are no values to choose from: ')
-            assert message.contains("""<input class="missingScopeInput" title="dummyRequiredScopeKey" style="color: black;" type="text" placeholder="Enter value..." ></div>""")
+            assert message.contains("""<input class="scopeInput" title="dummyRequiredScopeKey" style="color: black;" type="text" placeholder="Enter value..." ></div>""")
 
             Map node = nodes.find {Map node ->  "${ADDITIONAL_SCOPE_REQUIRED_FOR}FCoverage".toString() == node.label}
             assert 'Coverage' == node.title
@@ -1228,7 +1228,7 @@ class RpmVisualizerTest
             assert nodeDetails.contains(DETAILS_LABEL_REASON)
             assert nodeDetails.contains("${ADDITIONAL_SCOPE_REQUIRED_TO_LOAD}FCoverage, the target of Risk.Coverages.")
             assert nodeDetails.contains('A scope value must be entered manually for dummyRequiredScopeKey since there are no values to choose from: ')
-            assert nodeDetails.contains("""<input class="missingScopeInput" title="dummyRequiredScopeKey" style="color: black;" type="text" placeholder="Enter value..." ></div>""")
+            assert nodeDetails.contains("""<input class="scopeInput" title="dummyRequiredScopeKey" style="color: black;" type="text" placeholder="Enter value..." ></div>""")
             assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
             assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
             assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)

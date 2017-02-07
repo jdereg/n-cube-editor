@@ -216,18 +216,26 @@ var Visualizer = (function ($) {
 
     function onNoteEvent(e) {
         var target = e.target;
-        if (e.type === 'change' && target.className.indexOf('missingScopeSelect') > -1) {
-            missingScopeSelect(target);
+        if (e.type === 'change' && target.className.indexOf('scopeSelect') > -1) {
+            scopeSelectEvent(target);
         }
-        else if (e.type === 'change' && target.className.indexOf('missingScopeInput') > -1) {
-            missingScopeInput(target);
+        else if (e.type === 'change' && target.className.indexOf('scopeInput') > -1) {
+            scopeInputEvent(target);
+        }
+        else if (e.type === 'click' && target.className.indexOf('scopeReset') > -1) {
+            scopeResetEvent();
         }
         else if (e.type === 'click' && target.className.indexOf('findNode') > -1) {
             findNode(target);
         }
     }
 
-    function missingScopeInput(target) {
+    function scopeResetEvent() {
+        _scope = null;
+        scopeChange();
+    }
+
+    function scopeInputEvent(target) {
         var key = target.id;
         if (key) {
             _scope[key] = target.value;
@@ -235,7 +243,7 @@ var Visualizer = (function ($) {
         }
     }
 
-    function missingScopeSelect(target) {
+    function scopeSelectEvent(target) {
         var id, scopeParts, key, value;
         id = target.selectedOptions[0].id;
         if (id) {
@@ -1247,17 +1255,17 @@ var Visualizer = (function ($) {
         {
             _nodeDetails.change(function (e) {
                 target = e.target;
-                if (target.className.indexOf('missingScopeSelect') > -1) {
-                    missingScopeSelect(target);
+                if (target.className.indexOf('scopeSelect') > -1) {
+                    scopeSelect(target);
                 }
-                else if (target.className.indexOf('missingScopeInput') > -1) {
-                    missingScopeInput(target);
+                else if (target.className.indexOf('scopeInput') > -1) {
+                    scopeInput(target);
                 }
             });
             _nodeDetails.click(function (e) {
                 e.preventDefault();
                 target = e.target;
-                if (target.className.indexOf('missingScope') === -1) {
+                if (target.className.indexOf('scope') === -1) {
                     executeCell(target);
                 }
             });

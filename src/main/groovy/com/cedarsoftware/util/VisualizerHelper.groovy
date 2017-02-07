@@ -33,7 +33,7 @@ class VisualizerHelper
 		StringBuilder sb = new StringBuilder()
 		sb.append("""<div title="${title}" class="input-group input-group-sm">""")
 		sb.append("${messagesSuffix} scope key ${scopeKey}:${BREAK}")
-		sb.append("""<input class="${DETAILS_CLASS_MISSING_SCOPE_INPUT}" id="${scopeKey}" style="color: black;" type="text" value="${scopeValue}" />""")
+		sb.append("""<input class="${DETAILS_CLASS_SCOPE_INPUT}" id="${scopeKey}" style="color: black;" type="text" value="${scopeValue}" />""")
 		sb.append('</div>')
 		return sb.toString()
 	}
@@ -156,7 +156,7 @@ class VisualizerHelper
 		sb.append("""<div title="${title}" class="input-group input-group-sm">""")
 		if (scopeValues)
 		{
-			String selectTag = """<select class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_MISSING_SCOPE_SELECT}">"""
+			String selectTag = """<select class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_SCOPE_SELECT}">"""
 			sb.append("A scope value is required for ${scopeKey}${messageSuffix}:${BREAK}")
 			sb.append(selectTag)
 			sb.append('<option>Select...</option>')
@@ -169,7 +169,7 @@ class VisualizerHelper
 		else
 		{
 			sb.append("A scope value must be entered for ${scopeKey}${messageSuffix}:${BREAK}")
-			sb.append("""<input class="${DETAILS_CLASS_MISSING_SCOPE_INPUT}" id="${scopeKey}" style="color: black;" type="text" placeholder="Enter value..." >""")
+			sb.append("""<input class="${DETAILS_CLASS_SCOPE_INPUT}" id="${scopeKey}" style="color: black;" type="text" placeholder="Enter value..." >""")
 		}
 		sb.append('</div>')
 		return sb.toString()
@@ -188,7 +188,7 @@ class VisualizerHelper
 
 		StringBuilder sb = new StringBuilder()
 		sb.append("""<div title="${title}" class="input-group input-group-sm">""")
-		String selectTag = """<select class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_MISSING_SCOPE_SELECT}">"""
+		String selectTag = """<select class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_SCOPE_SELECT}">"""
 		if (scopeValues)
 		{
 			sb.append("A different scope value may be supplied for ${scopeKey}${messageSuffix}:${BREAK}")
