@@ -736,7 +736,7 @@ var NCE = (function ($) {
                         .tab('show');
                 }
 
-                if (cubeInfo !== _selectedCubeInfo) {
+                if (getCubeInfoKey(cubeInfo) !== getCubeInfoKey(_selectedCubeInfo)) {
                     selectTab(cubeInfo);
                     saveState();
                 }
@@ -1207,7 +1207,7 @@ var NCE = (function ($) {
                                     removeTab(cubeInfo);
                                 } else {
                                     makeCubeInfoActive(cubeInfo);
-                                    buildTabs();
+                                    buildTabs(true, cubeInfo);
                                 }
                             })
                     )

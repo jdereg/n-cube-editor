@@ -3908,8 +3908,12 @@ var NCubeEditor2 = (function ($) {
     }
 
     function editColCopy() {
-        var clipData, i, len, inputs;
-        inputs = $('.editColCheckBox:checked');
+        var clipData, i, len, inputs, checkedInputs;
+        inputs = $('.editColCheckBox');
+        checkedInputs = inputs.filter(':checked');
+        if (checkedInputs.length) {
+            inputs = checkedInputs;
+        }
         clipData = '';
         for (i = 0, len = inputs.length; i < len; i++ ) {
             clipData += $(inputs[i]).parent().parent().find('input[type="text"]').val();
