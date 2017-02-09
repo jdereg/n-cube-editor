@@ -230,12 +230,15 @@ class NCubeService
         args[ReferenceAxisLoader.REF_BRANCH] = refAppId.branch
         args[ReferenceAxisLoader.REF_CUBE_NAME] = refCubeName  // cube name of the holder of the referring (pointing) axis
         args[ReferenceAxisLoader.REF_AXIS_NAME] = refAxisName    // axis name of the referring axis (the variable that you had missing earlier)
-        args[ReferenceAxisLoader.TRANSFORM_APP] = transformAppId?.app	// Notice no target tenant.  User MUST stay within TENENT boundary
-        args[ReferenceAxisLoader.TRANSFORM_VERSION] = transformAppId?.version
-        args[ReferenceAxisLoader.TRANSFORM_STATUS] = transformAppId?.status
-        args[ReferenceAxisLoader.TRANSFORM_BRANCH] = transformAppId?.branch
-        args[ReferenceAxisLoader.TRANSFORM_CUBE_NAME] = transformCubeName
-        args[ReferenceAxisLoader.TRANSFORM_METHOD_NAME] = transformMethodName
+        if (transformAppId?.app)
+        {
+            args[ReferenceAxisLoader.TRANSFORM_APP] = transformAppId.app // Notice no target tenant.  User MUST stay within TENENT boundary
+            args[ReferenceAxisLoader.TRANSFORM_VERSION] = transformAppId.version
+            args[ReferenceAxisLoader.TRANSFORM_STATUS] = transformAppId.status
+            args[ReferenceAxisLoader.TRANSFORM_BRANCH] = transformAppId.branch
+            args[ReferenceAxisLoader.TRANSFORM_CUBE_NAME] = transformCubeName
+            args[ReferenceAxisLoader.TRANSFORM_METHOD_NAME] = transformMethodName
+        }
         ReferenceAxisLoader refAxisLoader = new ReferenceAxisLoader(cubeName, axisName, args)
 
         Axis axis = new Axis(axisName, maxId + 1, true, refAxisLoader)
