@@ -27,6 +27,8 @@ class VisualizerCellInfo
 	protected Joiner.MapJoiner mapJoiner = Joiner.on(", ").withKeyValueSeparator(": ")
 	VisualizerHelper helper = new VisualizerHelper()
 
+	VisualizerCellInfo(){}
+
 	VisualizerCellInfo(String nodeId, Map<String, Object> coordinate)
 	{
 		this.coordinate = coordinate

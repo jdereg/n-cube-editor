@@ -14,6 +14,8 @@ import static com.cedarsoftware.util.RpmVisualizerConstants.*
 @CompileStatic
 class RpmVisualizerInfo extends VisualizerInfo
 {
+    RpmVisualizerInfo(){}
+
     RpmVisualizerInfo(ApplicationID applicationID)
     {
         super(applicationID)

@@ -12,7 +12,7 @@ import static com.cedarsoftware.util.VisualizerConstants.COMMA_SPACE
 import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_FORM_CONTROL
 import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_SCOPE_INPUT
 import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_SCOPE_SELECT
-
+import static com.cedarsoftware.util.VisualizerConstants.DOUBLE_BREAK
 import static com.cedarsoftware.util.VisualizerConstants.SPACE
 
 
@@ -36,12 +36,31 @@ class VisualizerScopeInfo
 
 	Set<String> allRequiredScopeKeys = new CaseInsensitiveSet()
 
+	Map<String, Set<Object>> scopeAvailableValues = new CaseInsensitiveMap()
+	Map<String, Set<Object>> optionalScopeAvailableValues = new CaseInsensitiveMap()
+
+
 	String scopeMessage
+
+	VisualizerScopeInfo(){}
 
 	VisualizerScopeInfo(ApplicationID applicationID, Map<String, Object> scopeMap = null)
 	{
 		appId = applicationID
 		scope = scopeMap as CaseInsensitiveMap ?: new CaseInsensitiveMap()
+	}
+
+	void finish()
+	{
+		scopeAvailableValues.putAll(unboundScopeAvailableValues)
+		unboundScopeAvailableValues = new CaseInsensitiveMap()
+		unboundScopeProvidedValues = new CaseInsensitiveMap()
+		unboundScopeCubeNames = new CaseInsensitiveMap()
+
+		scopeAvailableValues.putAll(missingRequiredScopeAvailableValues)
+		missingRequiredScopeAvailableValues = new CaseInsensitiveMap()
+		missingRequiredScopeProvidedValues = new CaseInsensitiveMap()
+		missingRequiredScopeCubeNames = new CaseInsensitiveMap()
 	}
 
 	Set<Object> addMissingRequiredScope(String scopeKey, String cubeName, Object providedValue, boolean skipAvailableScopeValues = false)
@@ -122,23 +141,25 @@ class VisualizerScopeInfo
 		Set<String> okRequiredScopeKeys = okScopeKeys.intersect(allRequiredScopeKeys)
 		okScopeKeys.removeAll(okRequiredScopeKeys)
 
-		StringBuilder sb = new StringBuilder()
+		StringBuilder sb = new StringBuilder("${BREAK}")
 		if (missingRequiredScopeAvailableValues || okRequiredScopeKeys)
 		{
-			sb.append("${BREAK}<b>Required scope</b>")
+			sb.append("<b>Required scope</b>")
+			sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
 			sb.append(getOkScopeMessages(okRequiredScopeKeys))
 			sb.append(requiredScopeMessage)
-			sb.append('<hr style="border-top: 1px solid #aaa;margin:8px">')
+			sb.append("${DOUBLE_BREAK}")
 		}
 		if (unboundScopeAvailableValues || okScopeKeys)
 		{
-			sb.append("${BREAK}<b>Optional scope</b>")
+			sb.append("<b>Optional scope</b>")
+			sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
+			//sb.append("<pre>")
 			sb.append(getOkScopeMessages(okScopeKeys ))
 			sb.append(unboundScopeMessage)
-			sb.append('<hr style="border-top: 1px solid #aaa;margin:8px">')
+			sb.append("${DOUBLE_BREAK}")
 		}
-		sb.append('<hr style="border-top: 1px solid #aaa;margin:8px">')
-		sb.append("""${BREAK}<a href="#" class="scopeReset">Reset scope</a>""")
+		sb.append("""<a href="#" class="scopeReset">Reset scope</a>""")
 		scopeMessage = sb.toString()
 	}
 
@@ -146,7 +167,7 @@ class VisualizerScopeInfo
 	{
 		StringBuilder sb = new StringBuilder()
 		unboundScopeAvailableValues.keySet().each{ String scopeKey ->
-			sb.append(getScopeMessage(scopeKey, false))
+			sb.append(getScopeMessage(scopeKey, true))
 		}
 		return sb
 	}
@@ -155,7 +176,7 @@ class VisualizerScopeInfo
 	{
 		StringBuilder sb = new StringBuilder()
 		missingRequiredScopeAvailableValues.keySet().each{ String scopeKey ->
-			sb.append(getScopeMessage(scopeKey, true))
+			sb.append(getScopeMessage(scopeKey, false))
 		}
 		return sb
 	}
@@ -174,53 +195,54 @@ class VisualizerScopeInfo
 		StringBuilder sb = new StringBuilder(BREAK)
 		Object scopeValue = scope[scopeKey]
 		String title = "Scope key ${scopeKey} with value ${scopeValue}"
-		sb.append("""<div title="${title}" class="input-group input-group-sm">""")
-		sb.append("<b>${scopeKey}</b>:${SPACE}")
+		sb.append("""<div class="row" >""")
+		sb.append("""<div class="col-md-4" align="right"><b>${scopeKey}:</b></div>""")
+		sb.append("""<div class="col-md-8">""")
+		sb.append("""<div class="input-group input-group-sm" title="${title}">""")
 		sb.append("""<input class="${DETAILS_CLASS_SCOPE_INPUT}" id="${scopeKey}" style="color: black;" type="text" value="${scopeValue}" />""")
-		sb.append('</div>')
+		sb.append("""</div>""")
+		sb.append("""</div>""")
+		sb.append("""</div>""")
 		return sb
 	}
 
-	StringBuilder getScopeMessage(String scopeKey, boolean requiredScope)
+	StringBuilder getScopeMessage(String scopeKey, boolean optionalScope)
 	{
 		StringBuilder sb = new StringBuilder(BREAK)
 		Set<Object> scopeValues
 		Set<Object> providedValues
 		Set<String> cubeNames
 		String divTitle
-		String inputTitle
-		String inputValue
-		boolean inputDisabled
+		String selectValue
 
-		if (requiredScope)
-		{
-			scopeValues = missingRequiredScopeAvailableValues[scopeKey]
-			providedValues = missingRequiredScopeProvidedValues[scopeKey]
-			cubeNames =  missingRequiredScopeCubeNames[scopeKey]
-			divTitle = cubeNames ? "The scope for ${scopeKey} is required on ${cubeNames.join(COMMA_SPACE)}" : "The scope for ${scopeKey} is required."
-			inputTitle = '"A scope value must be provided.'
-			inputValue = null
-			inputDisabled = false
-		}
-		else
+		if (optionalScope)
 		{
 			scopeValues = unboundScopeAvailableValues[scopeKey]
 			providedValues = unboundScopeProvidedValues[scopeKey]
 			cubeNames = unboundScopeCubeNames[scopeKey]
 			divTitle = cubeNames ? "The default for ${scopeKey} was utilized on ${cubeNames.join(COMMA_SPACE)}." : "The default for ${scopeKey} was utilized."
-			inputTitle = '"Default is the only value available.'
-			inputValue = 'Default'
-			inputDisabled = true
+			selectValue = 'Default'
+		}
+		else
+		{
+			scopeValues = missingRequiredScopeAvailableValues[scopeKey]
+			providedValues = missingRequiredScopeProvidedValues[scopeKey]
+			cubeNames =  missingRequiredScopeCubeNames[scopeKey]
+			divTitle = cubeNames ? "The scope for ${scopeKey} is required on ${cubeNames.join(COMMA_SPACE)}" : "The scope for ${scopeKey} is required."
+			selectValue = 'Select...'
 		}
 
 		providedValues.remove(null)
 		cubeNames.remove(null)
 		String messageSuffix = providedValues ? " ${providedValues.join(COMMA_SPACE)} provided, but not found." : ''
-		sb.append("""<div title="${divTitle}" class="input-group input-group-sm">""")
-		if (scopeValues)
+		sb.append("""<div class="row" >""")
+		sb.append("""<div class="col-md-4" align="right"><b>${scopeKey}:</b></div>""")
+		sb.append("""<div class="col-md-8">""")
+		sb.append("""<div class="input-group input-group-sm" title="${divTitle}">""")
+		if (scopeValues || optionalScope)
 		{
-			sb.append("""<b>${scopeKey}</b>:${SPACE}")<select class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_SCOPE_SELECT}">${messageSuffix}""")
-			sb.append('<option>Select...</option>')
+			sb.append("""<select class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_SCOPE_SELECT}">""")
+			sb.append("""<option>${selectValue}</option>""")
 			scopeValues.each {
 				String value = it.toString()
 				sb.append("""<option id="${scopeKey}: ${value}">${value}</option>""")
@@ -229,11 +251,19 @@ class VisualizerScopeInfo
 		}
 		else
 		{
-			String disabled = inputDisabled ? 'disabled' : ''
-			String value = inputValue ? 'value="${inputValue}"' : ''
-			sb.append("""<b>${scopeKey}</b>:${SPACE}")<input class="${DETAILS_CLASS_SCOPE_INPUT}" title="${inputTitle}" id="${scopeKey}" style="color: black;" type="text" placeholder="Enter value..." ${disabled} ${value}>${messageSuffix}""")
+            sb.append("""<input class="${DETAILS_CLASS_SCOPE_INPUT}" title="'A scope value must be provided." id="${scopeKey}" style="color: black;" type="text" placeholder="Enter value...">""")
 		}
-		sb.append('</div>')
+		sb.append("""</div>""")
+		sb.append("""</div>""")
+		sb.append("""</div>""")
+
+		if (messageSuffix)
+		{
+			sb.append("""<div class="row" >""")
+			sb.append("""<div class="col-md-4">${SPACE}</div>""")
+			sb.append("""<div class="col-md-8">${messageSuffix}</div>""")
+			sb.append("""</div>""")
+		}
 		return sb
 	}
 }

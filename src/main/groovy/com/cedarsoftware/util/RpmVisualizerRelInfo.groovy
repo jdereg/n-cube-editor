@@ -22,6 +22,8 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	Map<String, Map<String, Object>> sourceTraits
 	Map<String, Map<String, Object>> targetTraits
 
+	RpmVisualizerRelInfo(){}
+
 	RpmVisualizerRelInfo(ApplicationID appId)
 	{
 		super(appId)
