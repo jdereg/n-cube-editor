@@ -922,19 +922,19 @@ class VisualizerTest{
         CoordinateNotFoundException e = new CoordinateNotFoundException('CoordinateNotFoundException', null, null, null, null)
         VisualizerInfo visInfo = new VisualizerInfo()
         String targetMsg = 'dummy1'
-        String message = VisualizerHelper.handleCoordinateNotFoundException(e, visInfo, targetMsg)
+        String message = VisualizerHelper.handleCoordinateNotFoundException(e, visInfo)
         checkExceptionMessage(message, targetMsg)
 
         //No cube name
         targetMsg = 'dummy2'
         e = new CoordinateNotFoundException('CoordinateNotFoundException', null, null, 'dummyAxis', null)
-        message = VisualizerHelper.handleCoordinateNotFoundException(e, visInfo, targetMsg)
+        message = VisualizerHelper.handleCoordinateNotFoundException(e, visInfo)
         checkExceptionMessage(message, targetMsg)
 
         //No axis name
         targetMsg = 'dummy3'
         e = new CoordinateNotFoundException('CoordinateNotFoundException', 'dummyCube', null, null, null)
-        message = VisualizerHelper.handleCoordinateNotFoundException(e, visInfo, targetMsg)
+        message = VisualizerHelper.handleCoordinateNotFoundException(e, visInfo)
         checkExceptionMessage(message, targetMsg)
     }
 
