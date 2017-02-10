@@ -47,6 +47,7 @@ class RpmVisualizerInfo extends VisualizerInfo
             if (defaultValue)
             {
                 scope[scopeKey] = defaultValue
+                scopeInfo.addRequiredStartScope(scopeKey, null, defaultValue, true)
             }
             else
             {
@@ -54,7 +55,6 @@ class RpmVisualizerInfo extends VisualizerInfo
                 scopeInfo.addRequiredStartScope(scopeKey, scopeCubeName, null, false)
             }
         }
-        scopeInfo.allRequiredScopeKeys << scopeKey
         return missingScope
     }
 

@@ -209,7 +209,6 @@ class VisualizerRelInfo
 		String cubeName = targetCube.name
 		if (!visInfo.requiredScopeKeysByCube.containsKey(cubeName))
 		{
-			visInfo.scopeInfo.allRequiredScopeKeys.addAll(requiredScope)
 			visInfo.requiredScopeKeysByCube[cubeName] = requiredScope
 			visInfo.allOptionalScopeKeysByCube[cubeName] = targetCube.getOptionalScope(availableTargetScope, new CaseInsensitiveMap())
 		}
@@ -275,7 +274,7 @@ class VisualizerRelInfo
 		cubeName
 	}
 
-	static String getCubeDisplayName(String cubeName)
+	String getCubeDisplayName(String cubeName)
 	{
 		return cubeName
 	}

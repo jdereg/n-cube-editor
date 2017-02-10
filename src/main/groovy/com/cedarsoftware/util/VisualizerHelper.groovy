@@ -35,7 +35,9 @@ class VisualizerHelper
 				if (relInfo.includeUnboundScopeKey(visInfo, axisName))
 				{
 					Set<Object> availableValues = scopeInfo.addOptionalGraphScope(cubeName, axisName, unBoundValue)
-					scopeInfo.addValue(axisName, nodeAvailableValues, availableValues)
+					availableValues.each{Object availableValue ->
+						scopeInfo.addValue(axisName, nodeAvailableValues, availableValue)
+					}
 					scopeInfo.addValue(axisName, nodeProvidedValues, unBoundValue)
 					scopeInfo.addValue(axisName, nodeCubeNames, cubeName)
 				}
@@ -85,10 +87,10 @@ class VisualizerHelper
 	private static StringBuilder getAdditionalRequiredNodeScopeMessage(VisualizerScopeInfo scopeInfo, String scopeKey, String providedValue, String cubeName)
 	{
 		StringBuilder sb = new StringBuilder()
-		Set<Object> availableValues = scopeInfo.addOptionalGraphScope(scopeKey, cubeName, providedValue)
+		Set<Object> availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey, providedValue)
 		String title1 = "Additional scope for ${scopeKey} is required to load this node."
 		String title2 = " The scope is required by ${cubeName}."
-		return sb.append(scopeInfo.getScopeMessage(scopeKey, availableValues, false, title1 + title2, providedValue))
+		return sb.append(scopeInfo.getScopeMessage(scopeKey, availableValues, title1 + title2, providedValue))
 	}
 
 	static String handleException(Throwable e)

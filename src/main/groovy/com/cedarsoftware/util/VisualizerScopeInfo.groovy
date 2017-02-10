@@ -34,18 +34,15 @@ class VisualizerScopeInfo
 	Map<String, Set<Object>> optionalGraphScopeProvidedValues = new CaseInsensitiveMap()
 	Map<String, Set<String>> optionalGraphScopeCubeNames = new CaseInsensitiveMap()
 
-	Set<String> allRequiredScopeKeys = new CaseInsensitiveSet()
-
 	String scopeMessage
 	String startCubeDisplayName
 
 	VisualizerScopeInfo(){}
 
-	VisualizerScopeInfo(ApplicationID applicationID, String startCubeName,  Map<String, Object> scopeMap = null)
+	VisualizerScopeInfo(ApplicationID applicationID, Map<String, Object> scopeMap = null)
 	{
 		appId = applicationID
 		scope = scopeMap as CaseInsensitiveMap ?: new CaseInsensitiveMap()
-		startCubeDisplayName = VisualizerRelInfo.getCubeDisplayName(startCubeName)
 	}
 
 	Set<Object> addRequiredStartScope(String scopeKey, String cubeName, Object providedValue, boolean skipAvailableScopeValues = false)
@@ -111,7 +108,7 @@ class VisualizerScopeInfo
 		Axis axis = cube?.getAxis(axisName)
 		if (axis)
 		{
-			for (Column column : axis.columnsWithoutDefault)
+			for (Column column : axis.columns)
 			{
 				values.add(column.value)
 			}
@@ -121,12 +118,6 @@ class VisualizerScopeInfo
 
 	void createScopePrompt()
 	{
-		Set<String> okScopeKeys = new CaseInsensitiveSet(scope.keySet())
-		okScopeKeys.removeAll(requiredStartScopeAvailableValues.keySet())
-		okScopeKeys.removeAll(optionalGraphScopeAvailableValues.keySet())
-		Set<String> okRequiredScopeKeys = okScopeKeys.intersect(allRequiredScopeKeys)
-		okScopeKeys.removeAll(okRequiredScopeKeys)
-
 		StringBuilder sb = new StringBuilder("${BREAK}")
 		if (requiredStartScopeAvailableValues)
 		{
@@ -135,7 +126,7 @@ class VisualizerScopeInfo
 			sb.append(requiredStartScopeMessage)
 			sb.append("${DOUBLE_BREAK}")
 		}
-		if (optionalGraphScopeAvailableValues || okScopeKeys)
+		if (optionalGraphScopeAvailableValues)
 		{
 			sb.append("<b>Optional scope in graph</b>")
 			sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
@@ -155,7 +146,7 @@ class VisualizerScopeInfo
 			String title1 = "The scope for ${scopeKey} is optional to load the top level node, but may be required for other nodes in the graph."
 			String title2 = cubeNames ? " The scope is used on ${cubeNames.join(COMMA_SPACE)}." : ''
 			String providedValue = scope.scopeKey as String
-			sb.append(getScopeMessage(scopeKey, optionalGraphScopeAvailableValues[scopeKey], true, title1 + title2, providedValue))
+			sb.append(getScopeMessage(scopeKey, optionalGraphScopeAvailableValues[scopeKey], title1 + title2, providedValue))
 		}
 		return sb
 	}
@@ -166,10 +157,10 @@ class VisualizerScopeInfo
 		requiredStartScopeAvailableValues.keySet().each{ String scopeKey ->
 			Set<String> cubeNames =  requiredStartScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
-			String providedValue = scope.scopeKey as String
+			String providedValue = scope[scopeKey] as String
 			String title1 = "The scope for ${scopeKey} is required to load the top level node."
 			String title2 = cubeNames ? " The scope is required by ${cubeNames.join(COMMA_SPACE)}." : ''
-			sb.append(getScopeMessage(scopeKey, requiredStartScopeAvailableValues[scopeKey], false, title1 + title2, providedValue))
+			sb.append(getScopeMessage(scopeKey, requiredStartScopeAvailableValues[scopeKey], title1 + title2, providedValue))
 		}
 		return sb
 	}
@@ -184,16 +175,17 @@ class VisualizerScopeInfo
 			Set<String> cubeNames = nodeCubeNames[axisName]
 			String title1 = "The scope for ${axisName} is optional to load this node."
 			String title2 = cubeNames ? " The scope is used on ${cubeNames.join(COMMA_SPACE)}." : ''
-			sb.append(getScopeMessage(axisName, nodeAvailableValues[axisName], true, title1 + title2, providedValue))
+			sb.append(getScopeMessage(axisName, nodeAvailableValues[axisName], title1 + title2, providedValue))
 		}
 		return sb
 	}
 
-	static StringBuilder getScopeMessage(String scopeKey, Set<Object> scopeValues, boolean optionalScope, String title, String providedValue)
+	static StringBuilder getScopeMessage(String scopeKey, Set<Object> scopeValues, String title, String providedValue)
 	{
 		StringBuilder sb = new StringBuilder(BREAK)
-		String selectValue = optionalScope ? 'Default' : 'Select...'
-		String selected = ''
+		boolean optionalScope = scopeValues.contains(null)
+		String nullValueOptionLabel = optionalScope ? 'Default' : 'Select...'
+		boolean noMatch = true
 
 		sb.append("""<div class="row" >""")
 		sb.append("""<div class="col-md-4" align="right"><b>${scopeKey}:</b></div>""")
@@ -202,23 +194,32 @@ class VisualizerScopeInfo
 		if (scopeValues || optionalScope)
 		{
 			sb.append("""<select class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_SCOPE_SELECT}">""")
-			sb.append("""<option>${selectValue}</option>""")
+			sb.append("""<option id="${scopeKey}: null">${nullValueOptionLabel}</option>""")
 			scopeValues.each {
-				String value = it.toString()
-				selected = value == providedValue ? 'selected' : selected
-				sb.append("""<option id="${scopeKey}: ${value}" ${selected}>${value}</option>""")
+				if (it)
+				{
+					String scopeValue = it as String
+					String selected = ''
+					if (scopeValue == providedValue){
+						noMatch = false
+						selected = 'selected'
+					}
+					sb.append("""<option id="${scopeKey}: ${scopeValue}" ${selected}>${scopeValue}</option>""")
+				}
 			}
 			sb.append('</select>')
 		}
 		else
 		{
-            sb.append("""<input class="${DETAILS_CLASS_SCOPE_INPUT}" title="'A scope value must be provided." id="${scopeKey}" style="color: black;" type="text" placeholder="Enter value...">""")
+			noMatch = false
+			String value = providedValue ?: ''
+            sb.append("""<input class="${DETAILS_CLASS_SCOPE_INPUT}" id="${scopeKey}" style="color: black;" type="text" placeholder="Enter value..." value="${value}">""")
 		}
 		sb.append("""</div>""")
 		sb.append("""</div>""")
 		sb.append("""</div>""")
 
-		if (!selected && providedValue)
+		if (providedValue && noMatch)
 		{
 			sb.append("""<div class="row" >""")
 			sb.append("""<div class="col-md-4">${SPACE}</div>""")

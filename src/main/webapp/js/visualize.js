@@ -66,6 +66,7 @@ var Visualizer = (function ($) {
     var LEVEL_PREFIX = 'Level ';
     var STICKY_SCOPE_MESSAGE = 'STICKY_SCOPE_MESSAGE';
     var SCOPE_IMAGE = {src: './img/scope.png', width: '65px', height: '20px'};
+    var SCOPE_DEFAULT_VALUE = 'Default';
 
     //Network layout parameters
     var _hierarchical = false;
@@ -250,7 +251,7 @@ var Visualizer = (function ($) {
             scopeParts = id.split(':');
             key = scopeParts[0];
             value = scopeParts[1].trim();
-            _scope[key] = value;
+            _scope[key] = value === SCOPE_DEFAULT_VALUE ? null : value;
             scopeChange();
         }
     }
@@ -1256,10 +1257,10 @@ var Visualizer = (function ($) {
             _nodeDetails.change(function (e) {
                 target = e.target;
                 if (target.className.indexOf('scopeSelect') > -1) {
-                    scopeSelect(target);
+                    scopeSelectEvent(target);
                 }
                 else if (target.className.indexOf('scopeInput') > -1) {
-                    scopeInput(target);
+                    scopeInputEvent(target);
                 }
             });
             _nodeDetails.click(function (e) {

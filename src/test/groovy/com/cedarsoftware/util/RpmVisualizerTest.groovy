@@ -471,7 +471,7 @@ class RpmVisualizerTest
                           coverage         : 'CCCoverage',
                           sourceFieldName  : 'Coverages',
                           risk             : 'WProductOps',
-                          businessDivisionCode: 'AAADIV']
+                          businessDivisionCode: 'AAADIV'] as CaseInsensitiveMap
 
         Map nodeScope = new CaseInsensitiveMap(scope)
         nodeScope.remove('sourceFieldName')
@@ -492,6 +492,7 @@ class RpmVisualizerTest
           ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
+        visInfo.scopeInfo = new VisualizerScopeInfo(appId, scope)
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
@@ -539,7 +540,7 @@ class RpmVisualizerTest
                      sourceCoverage   : 'FCoverage',
                      coverage         : 'CCCoverage',
                      sourceFieldName  : 'Coverages',
-                     risk             : 'WProductOps']
+                     risk             : 'WProductOps'] as CaseInsensitiveMap
 
         Map nodeScope = new CaseInsensitiveMap(scope)
         nodeScope.remove('sourceFieldName')
@@ -560,6 +561,7 @@ class RpmVisualizerTest
         ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
+        visInfo.scopeInfo = new VisualizerScopeInfo(appId, scope)
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
@@ -601,7 +603,7 @@ class RpmVisualizerTest
     private static void checkUnboundAxesMessage_CCCoverage(String message)
     {
         //TODO:
-        //assert message.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}CCoverage of type Coverage.")
+        //assert message.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}CCCoverage of type Coverage.")
 
         //assert message.contains("${ADD_SCOPE_VALUE_FOR_OPTIONAL_KEY}businessDivisionCode")
         assert message.contains('AAADIV')
@@ -639,7 +641,7 @@ class RpmVisualizerTest
                      coverage         : 'AdmCoverage',
                      sourceFieldName  : 'Coverages',
                      risk             : 'WProductOps',
-                     businessDivisionCode: 'AAADIV']
+                     businessDivisionCode: 'AAADIV'] as CaseInsensitiveMap
 
         Map nodeScope = new CaseInsensitiveMap(scope)
         nodeScope.remove('sourceFieldName')
@@ -660,6 +662,7 @@ class RpmVisualizerTest
         ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
+        visInfo.scopeInfo = new VisualizerScopeInfo(appId, scope)
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
@@ -701,7 +704,7 @@ class RpmVisualizerTest
                      quoteDate        : '2017-01-01',
                      coverage         : 'FCoverage',
                      sourceFieldName  : 'Coverages',
-                     risk             : 'WProductOps']
+                     risk             : 'WProductOps'] as CaseInsensitiveMap
 
           Map oldNode = [
                 id: '2',
@@ -718,6 +721,7 @@ class RpmVisualizerTest
         ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
+        visInfo.scopeInfo = new VisualizerScopeInfo(appId, scope)
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
@@ -757,7 +761,7 @@ class RpmVisualizerTest
                      sourceCoverage   : 'FCoverage',
                      coverage         : 'CCCoverage',
                      sourceFieldName  : 'Coverages',
-                     risk             : 'WProductOps']
+                     risk             : 'WProductOps'] as CaseInsensitiveMap
 
         Map nodeScope = new CaseInsensitiveMap(scope)
         nodeScope.remove('sourceFieldName')
@@ -778,6 +782,7 @@ class RpmVisualizerTest
         ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
+        visInfo.scopeInfo = new VisualizerScopeInfo(appId, scope)
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
@@ -829,16 +834,18 @@ class RpmVisualizerTest
         //TODO:
         //assert scopeMessage.contains(SCOPE_VALUES_ADDED_FOR_REQUIRED_KEYS)
         //assert scopeMessage.contains("${ADD_SCOPE_VALUE_FOR_REQUIRED_KEY}Product:")
-        assert scopeMessage.contains('policyControlDate')
-        assert scopeMessage.contains('quoteDate')
+      //  assert scopeMessage.contains('policyControlDate')
+      ////  assert scopeMessage.contains('quoteDate')
         assert scopeMessage.contains('_effectiveVersion')
         assert scopeMessage.contains('GProduct')
         assert scopeMessage.contains('UProduct')
         assert scopeMessage.contains('WProduct')
+        assert scopeMessage.contains('<option>Select...</option>')
         assert !scopeMessage.contains('<option>Default</option>')
     }
 
-    @Test
+    //TODO: No longer a possible scenario
+   /* @Test
     void testBuildGraph_invalidScope()
     {
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
@@ -880,7 +887,7 @@ class RpmVisualizerTest
         assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
         assert !nodeDetails.contains(DETAILS_LABEL_NOTE)
         assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
-    }
+    }*/
 
     private static void checkInvalidScopeMessage(String message)
     {
@@ -1200,7 +1207,6 @@ class RpmVisualizerTest
         assert message.contains('dummy1')
         assert message.contains('dummy2')
         assert message.contains('dummy3')
-        assert !message.contains('<option>Default</option>')
     }
 
     @Test
@@ -1758,7 +1764,7 @@ class RpmVisualizerTest
 
     private static void checkExceptionMessage(String message)
     {
-        assert message.contains("An exception was thrown while loading FCoverage")
+        assert message.contains("An exception was thrown while loading this node.")
         assert message.contains(DETAILS_LABEL_MESSAGE)
         assert message.contains(DETAILS_LABEL_ROOT_CAUSE)
         assert message.contains('java.lang.ArithmeticException: Division by zero')

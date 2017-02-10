@@ -174,14 +174,6 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		return RPM_CLASS_DOT + targetFieldName
 	}
 
-	String getSourceMessage()
-	{
-		if (sourceTraits)
-		{
-			return sourceScopedName ? ", the target of ${sourceScopedName} on ${getCubeDisplayName(sourceCube.name)}" : ", the target of ${getCubeDisplayName(sourceCube.name)}"
-		}
-		return ''
-	}
 
 	void retainUsedScope(VisualizerInfo visInfo, Map output)
 	{
@@ -272,7 +264,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	}
 
 	@Override
-	static String getCubeDisplayName(String cubeName)
+	String getCubeDisplayName(String cubeName)
 	{
 		if (cubeName.startsWith(RPM_CLASS_DOT))
 		{
@@ -409,7 +401,9 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 
 	private void handleException(Throwable e)
 	{
-		notes << helper.handleException(e)
+		StringBuilder sb = new StringBuilder("An exception was thrown while loading this node. ${DOUBLE_BREAK}")
+		sb.append(helper.handleException(e))
+		notes << sb.toString()
 		nodeLabelPrefix = "Unable to load "
 		targetTraits = new CaseInsensitiveMap()
 	}

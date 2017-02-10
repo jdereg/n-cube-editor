@@ -39,6 +39,8 @@ class Visualizer
 		appId = applicationID
 		String startCubeName = options.startCubeName as String
 		VisualizerInfo visInfo = getVisualizerInfo(options)
+		VisualizerRelInfo relInfo = visualizerRelInfo
+		visInfo.scopeInfo.startCubeDisplayName = relInfo.getCubeDisplayName(startCubeName)
 
 		if (!isValidStartCube(visInfo, startCubeName))
 		{
@@ -51,7 +53,7 @@ class Visualizer
 			return [status: STATUS_MISSING_START_SCOPE, visInfo: visInfo]
 		}
 
-		getVisualization(visInfo, startCubeName)
+		getVisualization(visInfo, relInfo, startCubeName)
 		visInfo.scopeInfo.createScopePrompt()
 		visInfo.convertToSingleMessage()
 		return [status: STATUS_SUCCESS, visInfo: visInfo]
@@ -75,7 +77,7 @@ class Visualizer
 		return getCellValues(relInfo, options)
 	}
 
-	protected Map getCellValues(VisualizerRelInfo relInfo, Map options)
+	static protected Map getCellValues(VisualizerRelInfo relInfo, Map options)
 	{
 		VisualizerInfo visInfo = options.visInfo as VisualizerInfo
 		visInfo.messages = new LinkedHashSet()
@@ -100,13 +102,12 @@ class Visualizer
 		{
 			visInfo = new VisualizerInfo(appId)
 		}
-		visInfo.init(options.startCubeName as String, options.scope as CaseInsensitiveMap)
+		visInfo.init(options.scope as CaseInsensitiveMap)
 		return visInfo
 	}
 
-	protected void getVisualization(VisualizerInfo visInfo, String startCubeName)
+	protected void getVisualization(VisualizerInfo visInfo, VisualizerRelInfo relInfo, String startCubeName)
 	{
-		VisualizerRelInfo relInfo = visualizerRelInfo
 		loadFirstVisualizerRelInfo(visInfo, relInfo, startCubeName)
 		stack.push(relInfo)
 
