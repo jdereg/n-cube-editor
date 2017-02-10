@@ -272,7 +272,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	}
 
 	@Override
-	String getCubeDisplayName(String cubeName)
+	static String getCubeDisplayName(String cubeName)
 	{
 		if (cubeName.startsWith(RPM_CLASS_DOT))
 		{
@@ -382,40 +382,34 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 
 	private void handleUnboundScope(VisualizerInfo visInfo, RuleInfo ruleInfo)
 	{
-		String unboundScopeMessage = helper.handleUnboundScope(visInfo, this, ruleInfo)
-		if (unboundScopeMessage)
+		StringBuilder sb = helper.handleUnboundScope(visInfo, this, ruleInfo)
+		if (sb)
 		{
-			notes << unboundScopeMessage
+			notes << sb.toString()
 		}
 	}
 
 	private void handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerInfo visInfo)
 	{
-		String scopeKey = e.axisName
-		Object value = e.value ?: 'null'
-		String targetMsg = ''
-		StringBuilder sb = new StringBuilder("The scope value ${value} for required scope key ${scopeKey} cannot be found.")
-		sb.append(helper.handleCoordinateNotFoundException(e, visInfo, targetMsg))
-		String msg = sb.toString()
-		notes << msg
+		StringBuilder sb = new StringBuilder("A required scope value was not found for this node: ${DOUBLE_BREAK}")
+		sb.append(helper.handleCoordinateNotFoundException(e, visInfo))
+		notes << sb.toString()
 		nodeLabelPrefix = 'Required scope value not found for '
 		targetTraits = new CaseInsensitiveMap()
 	}
 
 	private void handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerInfo visInfo)
 	{
-		StringBuilder sb = new StringBuilder("Additional scope is required for scope keys: ")
+		StringBuilder sb = new StringBuilder("Additional scope is required to load this node: ${DOUBLE_BREAK}")
 		sb.append(helper.handleInvalidCoordinateException(e, visInfo, this, MANDATORY_SCOPE_KEYS))
-		String msg = sb.toString()
-		notes << msg
+		notes << sb.toString()
 		nodeLabelPrefix = 'Additional scope required for '
 		targetTraits = new CaseInsensitiveMap()
 	}
 
 	private void handleException(Throwable e)
 	{
-		String targetMsg = "${getLabel(targetCube.name)}${sourceMessage}"
-		notes << helper.handleException(e, targetMsg)
+		notes << helper.handleException(e)
 		nodeLabelPrefix = "Unable to load "
 		targetTraits = new CaseInsensitiveMap()
 	}

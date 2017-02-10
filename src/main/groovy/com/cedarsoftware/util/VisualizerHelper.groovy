@@ -16,12 +16,11 @@ import static com.cedarsoftware.util.VisualizerConstants.*
 @CompileStatic
 class VisualizerHelper
 {
-	static String handleUnboundScope(VisualizerInfo visInfo, VisualizerRelInfo relInfo, RuleInfo ruleInfo)
+	static StringBuilder handleUnboundScope(VisualizerInfo visInfo, VisualizerRelInfo relInfo, RuleInfo ruleInfo)
 	{
-		StringBuilder sb = new StringBuilder()
-		Map<String, Set<Object>> thisUnboundScopeAvailableValues = new CaseInsensitiveMap()
-		Map<String, Set<Object>> thisUnboundScopeProvidedValues = new CaseInsensitiveMap()
-		Map<String, Set<String>> thisUnboundScopeCubeNames = new CaseInsensitiveMap()
+		Map<String, Set<Object>> nodeAvailableValues = new CaseInsensitiveMap()
+		Map<String, Set<Object>> nodeProvidedValues = new CaseInsensitiveMap()
+		Map<String, Set<String>> nodeCubeNames = new CaseInsensitiveMap()
 		List unboundAxesList = ruleInfo.getUnboundAxesList()
 		if (unboundAxesList)
 		{
@@ -35,61 +34,67 @@ class VisualizerHelper
 				Object unBoundValue = axisEntry.value
 				if (relInfo.includeUnboundScopeKey(visInfo, axisName))
 				{
-					Set<Object> availableValues = scopeInfo.addUnboundScope(cubeName, axisName, unBoundValue)
-					scopeInfo.addValue(axisName, thisUnboundScopeAvailableValues, availableValues)
-					scopeInfo.addValue(axisName, thisUnboundScopeProvidedValues, unBoundValue)
-					scopeInfo.addValue(axisName, thisUnboundScopeCubeNames, cubeName)
+					Set<Object> availableValues = scopeInfo.addOptionalGraphScope(cubeName, axisName, unBoundValue)
+					scopeInfo.addValue(axisName, nodeAvailableValues, availableValues)
+					scopeInfo.addValue(axisName, nodeProvidedValues, unBoundValue)
+					scopeInfo.addValue(axisName, nodeCubeNames, cubeName)
 				}
 			}
-		}
 
-		thisUnboundScopeAvailableValues.keySet().each{ String axisName ->
-			Set<Object> providedValues = thisUnboundScopeProvidedValues[axisName]
-			Set<String> cubeNames = thisUnboundScopeCubeNames[axisName]
-			sb.append("A default was used for scope key ${axisName} since ")
-			providedValues ? sb.append("the following values were provided, but not found: ${providedValues.join(COMMA_SPACE)}.") : sb.append('"no values were provided.')
-			cubeNames ? sb.append("${BREAK}Cubes where the default was utilized for this key: ${cubeNames.join(COMMA_SPACE)}.") : sb.append('')
+			if (nodeAvailableValues)
+			{
+				return scopeInfo.getOptionalNodeScopeMessage(nodeAvailableValues, nodeProvidedValues, nodeCubeNames)
+			}
 		}
-		return sb.toString()
+		return null
 	}
 
-	static String handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerInfo visInfo, String targetMsg )
+	static StringBuilder handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerInfo visInfo )
 	{
 		String cubeName = e.cubeName
-		String axisName = e.axisName
-		Object providedValue = e.value
-		if (cubeName && axisName)
+		String scopeKey = e.axisName
+		if (cubeName && scopeKey)
 		{
-			visInfo.scopeInfo.addMissingRequiredScope(axisName, cubeName, providedValue)
-			return ''
+			return getAdditionalRequiredNodeScopeMessage(visInfo.scopeInfo, scopeKey, e.value as String, cubeName)
 		}
 		else
 		{
-			return BREAK + handleException(e as Exception, targetMsg)
+			StringBuilder sb = new StringBuilder("Unable to handle CoordinateNotFoundException ${DOUBLE_BREAK}")
+			return sb.append(handleException(e as Exception))
 		}
 	}
 
-	static String handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerInfo visInfo, VisualizerRelInfo relInfo, Set mandatoryScopeKeys)
+	static StringBuilder handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerInfo visInfo, VisualizerRelInfo relInfo, Set mandatoryScopeKeys)
 	{
 		Set<String> missingScope = findMissingScope(relInfo.availableTargetScope, e.requiredKeys, mandatoryScopeKeys)
-		missingScope.each{String scopeKey ->
-			visInfo.scopeInfo.addMissingRequiredScope(scopeKey, e.cubeName, null)
-		}
 		if (missingScope)
 		{
-			return missingScope.join(COMMA_SPACE)
+			StringBuilder sb = new StringBuilder()
+			missingScope.each { String scopeKey ->
+				sb.append(getAdditionalRequiredNodeScopeMessage(visInfo.scopeInfo, scopeKey, null, e.cubeName))
+			}
+			return sb
 		}
 		else
 		{
-			throw new IllegalStateException("InvalidCoordinateException thrown, but no missing scope keys found for ${relInfo.targetCube.name} and scope ${visInfo.scopeInfo.scope.toString()}.", e)
-
+			StringBuilder sb = new StringBuilder("Unable to handle InvalidCoordinateException ${DOUBLE_BREAK}")
+			return sb.append(handleException(e as Exception))
 		}
 	}
 
-	static String handleException(Throwable e, String targetMsg)
+	private static StringBuilder getAdditionalRequiredNodeScopeMessage(VisualizerScopeInfo scopeInfo, String scopeKey, String providedValue, String cubeName)
+	{
+		StringBuilder sb = new StringBuilder()
+		Set<Object> availableValues = scopeInfo.addOptionalGraphScope(scopeKey, cubeName, providedValue)
+		String title1 = "Additional scope for ${scopeKey} is required to load this node."
+		String title2 = " The scope is required by ${cubeName}."
+		return sb.append(scopeInfo.getScopeMessage(scopeKey, availableValues, false, title1 + title2, providedValue))
+	}
+
+	static String handleException(Throwable e)
 	{
 		Throwable t = getDeepestException(e)
-		return getExceptionMessage(t, e, targetMsg)
+		return getExceptionMessage(t, e)
 	}
 
 	static protected Throwable getDeepestException(Throwable e)
@@ -108,11 +113,10 @@ class VisualizerHelper
 		}
 	}
 
-	static String getExceptionMessage(Throwable t, Throwable e, String targetMsg)
+	static String getExceptionMessage(Throwable t, Throwable e)
 	{
 		"""\
-An exception was thrown while loading ${targetMsg}. \
-${DOUBLE_BREAK}<b>Message:</b> ${DOUBLE_BREAK}${e.message}${DOUBLE_BREAK}<b>Root cause: </b>\
+<b>Message:</b> ${DOUBLE_BREAK}${e.message}${DOUBLE_BREAK}<b>Root cause: </b>\
 ${DOUBLE_BREAK}${t.toString()}${DOUBLE_BREAK}<b>Stack trace: </b>${DOUBLE_BREAK}${NCubeController.getTestCauses(t)}"""
 	}
 }

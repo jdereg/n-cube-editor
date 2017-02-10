@@ -275,7 +275,7 @@ class VisualizerRelInfo
 		cubeName
 	}
 
-	String getCubeDisplayName(String cubeName)
+	static String getCubeDisplayName(String cubeName)
 	{
 		return cubeName
 	}

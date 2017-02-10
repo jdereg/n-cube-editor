@@ -51,7 +51,7 @@ class RpmVisualizerInfo extends VisualizerInfo
             else
             {
                 String scopeCubeName = startCubeName.replace(RPM_CLASS_DOT, RPM_SCOPE_CLASS_DOT) + DOT_TRAITS
-                scopeInfo.addMissingRequiredScope(scopeKey, scopeCubeName, null, false)
+                scopeInfo.addRequiredStartScope(scopeKey, scopeCubeName, null, false)
             }
         }
         scopeInfo.allRequiredScopeKeys << scopeKey

@@ -53,7 +53,7 @@ class RpmVisualizer extends Visualizer
 		{
 			visInfo = new RpmVisualizerInfo(appId)
 		}
-		visInfo.init(options.scope as CaseInsensitiveMap)
+		visInfo.init( options.startCubeName as String, options.scope as CaseInsensitiveMap)
 		return visInfo
 	}
 

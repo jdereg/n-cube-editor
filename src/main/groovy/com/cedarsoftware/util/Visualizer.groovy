@@ -100,7 +100,7 @@ class Visualizer
 		{
 			visInfo = new VisualizerInfo(appId)
 		}
-		visInfo.init(options.scope as CaseInsensitiveMap)
+		visInfo.init(options.startCubeName as String, options.scope as CaseInsensitiveMap)
 		return visInfo
 	}
 

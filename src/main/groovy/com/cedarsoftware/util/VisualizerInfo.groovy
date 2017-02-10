@@ -45,13 +45,12 @@ class VisualizerInfo
     VisualizerInfo(ApplicationID applicationID)
     {
         appId = applicationID
-        scopeInfo = new VisualizerScopeInfo(appId)
         loadConfigurations(cubeType)
     }
 
-    protected void init(Map scope)
+    protected void init(String startCubeName, Map scope)
     {
-        scopeInfo = new VisualizerScopeInfo(appId, scope)
+        scopeInfo = new VisualizerScopeInfo(appId, startCubeName, scope)
         maxLevel = 1
         nodeCount = 1
         relInfoCount = 1
