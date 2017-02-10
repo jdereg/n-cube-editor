@@ -26,17 +26,17 @@
   "cells":[
     {
       "id":[
-        1000000000003
-      ],
-      "type":"exp",
-      "value":"output.columns = []"
-    },
-    {
-      "id":[
         1000000000001
       ],
       "type":"exp",
       "value":"input.columns.add(new Column ('CLASS_TRAITS', Integer.MAX_VALUE - 1))\noutput.columns = input.columns"
+    },
+    {
+      "id":[
+        1000000000003
+      ],
+      "type":"exp",
+      "value":"output.columns = []"
     }
   ]
 }

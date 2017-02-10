@@ -1,316 +1,316 @@
 {
-  "ncube": "rpm.class.Product",
-  "defaultCellValueType": "string",
-  "defaultCellValue": "#NOT_DEFINED",
-  "optionalScopeKeys": {
-    "type": "exp",
-    "value": "['action', 'businessDivisionCode', 'context', 'state']"
+  "ncube":"rpm.class.Product",
+  "defaultCellValueType":"string",
+  "defaultCellValue":"#NOT_DEFINED",
+  "optionalScopeKeys":{
+    "type":"exp",
+    "value":"['action', 'businessDivisionCode', 'context', 'state']"
   },
-  "cube_tags": "EPM",
-  "axes": [
+  "cube_tags":"EPM",
+  "axes":[
     {
-      "id": 1,
-      "name": "field",
-      "hasDefault": false,
-      "type": "DISCRETE",
-      "valueType": "STRING",
-      "preferredOrder": 0,
-      "fireAll": true,
-      "columns": [
+      "id":1,
+      "name":"field",
+      "hasDefault":false,
+      "type":"DISCRETE",
+      "valueType":"STRING",
+      "preferredOrder":0,
+      "fireAll":true,
+      "columns":[
         {
-          "id": 1000000000001,
-          "type": "string",
-          "value": "CLASS_TRAITS"
+          "id":1000000000001,
+          "type":"string",
+          "value":"CLASS_TRAITS"
         },
         {
-          "id": 1000000000006,
-          "type": "string",
-          "value": "CurrentCommission"
+          "id":1000000000006,
+          "type":"string",
+          "value":"CurrentCommission"
         },
         {
-          "id": 1000000000012,
-          "type": "string",
-          "value": "CurrentExposure"
+          "id":1000000000012,
+          "type":"string",
+          "value":"CurrentExposure"
         },
         {
-          "id": 1000000000003,
-          "type": "string",
-          "value": "Risks"
+          "id":1000000000003,
+          "type":"string",
+          "value":"Risks"
         },
         {
-          "id": 1001175216068,
-          "type": "string",
-          "value": "fieldAdded102"
+          "id":1001175216068,
+          "type":"string",
+          "value":"fieldAdded102"
         },
         {
-          "id": 1000540733936,
-          "type": "string",
-          "value": "fieldObsolete101"
+          "id":1000540733936,
+          "type":"string",
+          "value":"fieldObsolete101"
         }
       ]
     },
     {
-      "id": 2,
-      "name": "trait",
-      "hasDefault": false,
-      "type": "DISCRETE",
-      "valueType": "STRING",
-      "preferredOrder": 0,
-      "fireAll": true,
-      "columns": [
+      "id":2,
+      "name":"trait",
+      "hasDefault":false,
+      "type":"DISCRETE",
+      "valueType":"STRING",
+      "preferredOrder":0,
+      "fireAll":true,
+      "columns":[
         {
-          "id": 2000000000006,
-          "type": "string",
-          "value": "r:exists"
+          "id":2000000000006,
+          "type":"string",
+          "value":"r:exists"
         },
         {
-          "id": 2000000000007,
-          "type": "string",
-          "value": "r:extends"
+          "id":2000000000007,
+          "type":"string",
+          "value":"r:extends"
         },
         {
-          "id": 2000000000008,
-          "type": "string",
-          "value": "r:name"
+          "id":2000000000008,
+          "type":"string",
+          "value":"r:name"
         },
         {
-          "id": 2000835119406,
-          "type": "string",
-          "value": "r:obsolete"
+          "id":2000835119406,
+          "type":"string",
+          "value":"r:obsolete"
         },
         {
-          "id": 2000000000030,
-          "type": "string",
-          "value": "r:rpmType"
+          "id":2000000000030,
+          "type":"string",
+          "value":"r:rpmType"
         },
         {
-          "id": 2000000000014,
-          "type": "string",
-          "value": "r:scopedName"
+          "id":2000000000014,
+          "type":"string",
+          "value":"r:scopedName"
         },
         {
-          "id": 2001761322535,
-          "type": "string",
-          "value": "r:since"
+          "id":2001761322535,
+          "type":"string",
+          "value":"r:since"
         },
         {
-          "id": 2000000000039,
-          "type": "string",
-          "value": "v:enum"
+          "id":2000000000039,
+          "type":"string",
+          "value":"v:enum"
         },
         {
-          "id": 2000000000025,
-          "type": "string",
-          "value": "v:max"
+          "id":2000000000025,
+          "type":"string",
+          "value":"v:max"
         },
         {
-          "id": 2000000000026,
-          "type": "string",
-          "value": "v:min"
+          "id":2000000000026,
+          "type":"string",
+          "value":"v:min"
         }
       ]
     }
   ],
-  "cells": [
+  "cells":[
     {
-      "id": [
+      "id":[
         1000000000006,
         2000835119406
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     },
     {
-      "id": [
+      "id":[
         1000000000003,
         2000000000030
       ],
-      "type": "string",
-      "value": "Risk"
+      "type":"string",
+      "value":"Risk"
     },
     {
-      "id": [
+      "id":[
         1000540733936,
         2001761322535
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     },
     {
-      "id": [
+      "id":[
         1000000000001,
         2000000000006
       ],
-      "type": "string",
-      "value": "true"
+      "type":"string",
+      "value":"true"
     },
     {
-      "id": [
+      "id":[
         1000000000003,
         2000000000026
       ],
-      "type": "string",
-      "value": "0"
+      "type":"string",
+      "value":"0"
     },
     {
-      "id": [
+      "id":[
         1001175216068,
         2000000000007
       ],
-      "type": "string",
-      "value": "DataElementInventory"
+      "type":"string",
+      "value":"DataElementInventory"
     },
     {
-      "id": [
+      "id":[
         1001175216068,
         2000835119406
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     },
     {
-      "id": [
+      "id":[
         1000000000006,
         2000000000007
       ],
-      "type": "string",
-      "value": "DataElementInventory[CurrentCommission]"
+      "type":"string",
+      "value":"DataElementInventory[CurrentCommission]"
     },
     {
-      "id": [
+      "id":[
         1001175216068,
         2001761322535
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     },
     {
-      "id": [
+      "id":[
         1000000000012,
         2000000000007
       ],
-      "type": "string",
-      "value": "DataElementInventory[CurrentExposure]"
+      "type":"string",
+      "value":"DataElementInventory[CurrentExposure]"
     },
     {
-      "id": [
+      "id":[
         1000000000001,
         2000000000014
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.classTraits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.classTraits[:]"
     },
     {
-      "id": [
+      "id":[
         1000000000012,
         2000835119406
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     },
     {
-      "id": [
+      "id":[
         1001175216068,
         2000000000006
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     },
     {
-      "id": [
+      "id":[
         1000540733936,
         2000000000007
       ],
-      "type": "string",
-      "value": "DataElementInventory"
+      "type":"string",
+      "value":"DataElementInventory"
     },
     {
-      "id": [
+      "id":[
         1000000000012,
         2000000000006
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     },
     {
-      "id": [
+      "id":[
         1000000000006,
         2000000000006
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     },
     {
-      "id": [
+      "id":[
         1000000000012,
         2001761322535
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     },
     {
-      "id": [
+      "id":[
         1000000000006,
         2001761322535
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     },
     {
-      "id": [
+      "id":[
         1000540733936,
         2000000000006
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     },
     {
-      "id": [
+      "id":[
         1000000000001,
         2000000000008
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.classTraits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.classTraits[:]"
     },
     {
-      "id": [
+      "id":[
         1000000000003,
         2000000000006
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     },
     {
-      "id": [
+      "id":[
         1000000000003,
         2001761322535
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     },
     {
-      "id": [
+      "id":[
         1000000000003,
         2000000000039
       ],
-      "type": "string",
-      "value": "Product.Risks"
+      "type":"string",
+      "value":"Product.Risks"
     },
     {
-      "id": [
+      "id":[
         1000000000003,
         2000835119406
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     },
     {
-      "id": [
+      "id":[
         1000540733936,
         2000835119406
       ],
-      "type": "exp",
-      "value": "@rpm.scope.class.Product.traits[:]"
+      "type":"exp",
+      "value":"@rpm.scope.class.Product.traits[:]"
     }
   ]
 }

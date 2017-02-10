@@ -1,11 +1,11 @@
 {
-  "ncube":"rpm.scope.class.Risk.traits.Risks",
+  "ncube":"rpm.scope.class.Risk.traits.fieldDRisk",
   "defaultCellValueType":"string",
   "defaultCellValue":"#NOT_DEFINED",
   "cube_tags":"EPM",
   "axes":[
     {
-      "id":2,
+      "id":3,
       "name":"trait",
       "hasDefault":false,
       "type":"DISCRETE",
@@ -14,14 +14,14 @@
       "fireAll":true,
       "columns":[
         {
-          "id":2000000000001,
+          "id":3000000000035,
           "type":"string",
           "value":"r:exists"
         }
       ]
     },
     {
-      "id":4,
+      "id":7,
       "name":"risk",
       "hasDefault":false,
       "isRef":true,
@@ -35,38 +35,24 @@
       "columns":[]
     },
     {
-      "id":5,
-      "name":"sourceRisk",
-      "hasDefault":false,
-      "isRef":true,
-      "referenceTenant":"NONE",
-      "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.4",
-      "referenceStatus":"RELEASE",
-      "referenceBranch":"HEAD",
-      "referenceCubeName":"Risk",
-      "referenceAxisName":"risk",
+      "id":8,
+      "name":"state",
+      "hasDefault":true,
+      "type":"DISCRETE",
+      "valueType":"STRING",
+      "preferredOrder":1,
+      "fireAll":true,
       "columns":[]
     }
   ],
   "cells":[
     {
       "id":[
-        2000000000001,
-        4000000000003,
-        5000000000002
+        3000000000035,
+        7001961257272
       ],
-      "type":"boolean",
-      "value":true
-    },
-    {
-      "id":[
-        2000000000001,
-        4000000000001,
-        5000000000002
-      ],
-      "type":"boolean",
-      "value":false
+      "type":"exp",
+      "value":"true"
     }
   ]
 }

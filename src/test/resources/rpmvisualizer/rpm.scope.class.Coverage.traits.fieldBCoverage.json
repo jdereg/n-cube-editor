@@ -1,5 +1,5 @@
 {
-  "ncube":"rpm.scope.class.Coverage.traits.field3CovI",
+  "ncube":"rpm.scope.class.Coverage.traits.fieldBCoverage",
   "defaultCellValueType":"string",
   "defaultCellValue":"#NOT_DEFINED",
   "cube_tags":"EPM",
@@ -30,13 +30,13 @@
         {
           "id":3000000000035,
           "type":"string",
-          "value":"r:defaultValue"
+          "value":"r:exists"
         }
       ]
     },
     {
-      "id":6,
-      "name":"type",
+      "id":5,
+      "name":"state",
       "hasDefault":true,
       "type":"DISCRETE",
       "valueType":"STRING",
@@ -44,32 +44,58 @@
       "fireAll":true,
       "columns":[
         {
-          "id":6000579666525,
+          "id":5001683995653,
           "type":"string",
-          "value":"type1"
+          "value":"IN"
         },
         {
-          "id":6000824458495,
+          "id":5001175698947,
           "type":"string",
-          "value":"type2"
+          "value":"KY"
         },
         {
-          "id":6000096838602,
+          "id":5001479111097,
           "type":"string",
-          "value":"type3"
-        },
-        {
-          "id":6000918439513,
-          "type":"string",
-          "value":"typeA"
-        },
-        {
-          "id":6001704319323,
-          "type":"string",
-          "value":"typeB"
+          "value":"NY"
         }
       ]
     }
   ],
-  "cells":[]
+  "cells":[
+    {
+      "id":[
+        1001808802272,
+        3000000000035,
+        5001479111097
+      ],
+      "type":"exp",
+      "value":"true"
+    },
+    {
+      "id":[
+        1001808802272,
+        3000000000035
+      ],
+      "type":"exp",
+      "value":"true"
+    },
+    {
+      "id":[
+        1001808802272,
+        3000000000035,
+        5001683995653
+      ],
+      "type":"exp",
+      "value":"true"
+    },
+    {
+      "id":[
+        1001808802272,
+        3000000000035,
+        5001175698947
+      ],
+      "type":"exp",
+      "value":"true"
+    }
+  ]
 }

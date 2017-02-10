@@ -61,7 +61,7 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.0",
+      "referenceVersion":"1.0.4",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Coverage",
@@ -78,40 +78,56 @@
   "cells":[
     {
       "id":[
-        1000000000017,
+        1000000000015,
         2000000000007
       ],
       "type":"string",
-      "value":"true"
+      "value":"1"
     },
     {
       "id":[
-        1000000000017,
-        2000000000041
+        1000000000001,
+        2000000000036
       ],
       "type":"string",
-      "value":"true"
+      "value":"AdmCoverage"
     },
     {
       "id":[
-        1001932058152,
-        2000000000050
+        1000000000002,
+        2001808802272
       ],
       "type":"exp",
       "value":"@rpm.scope.enum.Risk.Coverages.traits[:]"
     },
     {
       "id":[
-        1000000000001,
-        2000000000007
+        1000000000015,
+        2000478303063
       ],
       "type":"string",
-      "value":"FCoverage"
+      "value":"1"
+    },
+    {
+      "id":[
+        1000000000016,
+        2001088463220
+      ],
+      "type":"string",
+      "value":"0"
     },
     {
       "id":[
         1000000000017,
         2000000000031
+      ],
+      "type":"string",
+      "value":"true"
+    },
+    {
+      "id":[
+        1000000000017,
+        2000000000007
       ],
       "type":"string",
       "value":"true"
@@ -126,80 +142,88 @@
     },
     {
       "id":[
-        1000000000016,
-        2000000000041
-      ],
-      "type":"string",
-      "value":"1"
-    },
-    {
-      "id":[
-        1000000000002,
-        2000000000007
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.enum.Risk.Coverages.traits[:]"
-    },
-    {
-      "id":[
-        1000000000002,
-        2000000000041
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.enum.Risk.Coverages.traits[:]"
-    },
-    {
-      "id":[
-        1000000000015,
-        2000000000007
-      ],
-      "type":"string",
-      "value":"1"
-    },
-    {
-      "id":[
         1000000000017,
-        2000000000036
+        2001088463220
       ],
       "type":"string",
       "value":"true"
     },
     {
       "id":[
-        1000000000016,
-        2000000000031
+        1000000000015,
+        2000000000041
       ],
       "type":"string",
-      "value":"0"
+      "value":"1"
     },
     {
       "id":[
-        1000000000017,
+        1000759223305,
         2000000000050
       ],
-      "type":"string",
-      "value":"true"
+      "type":"exp",
+      "value":"@rpm.scope.enum.Risk.Coverages.traits[:]"
     },
     {
       "id":[
-        1000000000015,
-        2000000000036
+        1000000000002,
+        2001088463220
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Risk.Coverages.traits[:]"
+    },
+    {
+      "id":[
+        1000000000017,
+        2000478303063
       ],
       "type":"string",
-      "value":"1"
+      "value":"true"
     },
     {
       "id":[
         1000000000001,
-        2000000000036
+        2000478303063
+      ],
+      "type":"string",
+      "value":"CCoverage"
+    },
+    {
+      "id":[
+        1000000000001,
+        2001088463220
       ],
       "type":"string",
       "value":"ACoverage"
     },
     {
       "id":[
-        1000000000015,
+        1000000000002,
+        2000000000036
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Risk.Coverages.traits[:]"
+    },
+    {
+      "id":[
+        1000000000002,
+        2000478303063
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Risk.Coverages.traits[:]"
+    },
+    {
+      "id":[
+        1000000000016,
         2000000000050
+      ],
+      "type":"string",
+      "value":"0"
+    },
+    {
+      "id":[
+        1000000000015,
+        2000000000031
       ],
       "type":"string",
       "value":"999999"
@@ -207,15 +231,47 @@
     {
       "id":[
         1000000000001,
-        2000000000050
+        2002147483646
       ],
       "type":"string",
-      "value":"CCoverage"
+      "value":"Class Traits"
+    },
+    {
+      "id":[
+        1000000000002,
+        2002147483646
+      ],
+      "type":"string",
+      "value":"true"
+    },
+    {
+      "id":[
+        1000000000001,
+        2000000000031
+      ],
+      "type":"string",
+      "value":"WACoverage"
+    },
+    {
+      "id":[
+        1000000000016,
+        2000000000041
+      ],
+      "type":"string",
+      "value":"1"
+    },
+    {
+      "id":[
+        1000000000017,
+        2000000000036
+      ],
+      "type":"string",
+      "value":"true"
     },
     {
       "id":[
         1000000000015,
-        2000000000041
+        2001808802272
       ],
       "type":"string",
       "value":"1"
@@ -230,79 +286,143 @@
     },
     {
       "id":[
-        1000000000016,
-        2000000000050
-      ],
-      "type":"string",
-      "value":"0"
-    },
-    {
-      "id":[
-        1000000000016,
-        2000000000036
-      ],
-      "type":"string",
-      "value":"0"
-    },
-    {
-      "id":[
-        1000000000002,
-        2000000000036
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.enum.Risk.Coverages.traits[:]"
-    },
-    {
-      "id":[
         1000000000015,
-        2000000000031
+        2000000000036
       ],
       "type":"string",
-      "value":"999999"
+      "value":"1"
     },
     {
       "id":[
-        1000000000002,
-        2000000000050
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.enum.Risk.Coverages.traits[:]"
-    },
-    {
-      "id":[
-        1000000000001,
-        2000000000031
-      ],
-      "type":"string",
-      "value":"WACoverage"
-    },
-    {
-      "id":[
-        1000000000001,
-        2002147483646
-      ],
-      "type":"string",
-      "value":"Class Traits"
-    },
-    {
-      "id":[
-        1000000000002,
-        2000000000031
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.enum.Risk.Coverages.traits[:]"
-    },
-    {
-      "id":[
-        1000000000002,
-        2002147483646
+        1000000000017,
+        2001808802272
       ],
       "type":"string",
       "value":"true"
     },
     {
       "id":[
-        1000759223305,
+        1000000000001,
+        2000000000007
+      ],
+      "type":"string",
+      "value":"FCoverage"
+    },
+    {
+      "id":[
+        1000000000016,
+        2000000000031
+      ],
+      "type":"string",
+      "value":"0"
+    },
+    {
+      "id":[
+        1000000000016,
+        2001808802272
+      ],
+      "type":"string",
+      "value":"0"
+    },
+    {
+      "id":[
+        1000000000002,
+        2000000000031
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Risk.Coverages.traits[:]"
+    },
+    {
+      "id":[
+        1000000000002,
+        2000000000007
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Risk.Coverages.traits[:]"
+    },
+    {
+      "id":[
+        1000000000001,
+        2001808802272
+      ],
+      "type":"string",
+      "value":"BCoverage"
+    },
+    {
+      "id":[
+        1000000000015,
+        2001088463220
+      ],
+      "type":"string",
+      "value":"1"
+    },
+    {
+      "id":[
+        1000000000015,
+        2000000000050
+      ],
+      "type":"string",
+      "value":"999999"
+    },
+    {
+      "id":[
+        1000000000017,
+        2000000000050
+      ],
+      "type":"string",
+      "value":"true"
+    },
+    {
+      "id":[
+        1000000000002,
+        2000000000041
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Risk.Coverages.traits[:]"
+    },
+    {
+      "id":[
+        1000000000017,
+        2000000000041
+      ],
+      "type":"string",
+      "value":"true"
+    },
+    {
+      "id":[
+        1000000000001,
+        2000000000050
+      ],
+      "type":"string",
+      "value":"CCoverage"
+    },
+    {
+      "id":[
+        1000000000002,
+        2000000000050
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Risk.Coverages.traits[:]"
+    },
+    {
+      "id":[
+        1000000000016,
+        2000000000036
+      ],
+      "type":"string",
+      "value":"0"
+    },
+    {
+      "id":[
+        1000000000016,
+        2000478303063
+      ],
+      "type":"string",
+      "value":"0"
+    },
+    {
+      "id":[
+        1001932058152,
         2000000000050
       ],
       "type":"exp",

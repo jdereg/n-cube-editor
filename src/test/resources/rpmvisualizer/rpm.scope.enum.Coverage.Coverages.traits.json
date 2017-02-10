@@ -53,17 +53,11 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.0",
+      "referenceVersion":"1.0.4",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Coverage",
       "referenceAxisName":"coverage",
-      "transformApp":null,
-      "transformVersion":null,
-      "transformStatus":null,
-      "transformBranch":null,
-      "transformCubeName":null,
-      "transformMethodName":null,
       "columns":[]
     },
     {
@@ -73,61 +67,15 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.0",
+      "referenceVersion":"1.0.4",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Coverage",
       "referenceAxisName":"coverage",
-      "transformApp":null,
-      "transformVersion":null,
-      "transformStatus":null,
-      "transformBranch":null,
-      "transformCubeName":null,
-      "transformMethodName":null,
       "columns":[]
     }
   ],
   "cells":[
-    {
-      "id":[
-        1000000000001,
-        2000000000002,
-        3000000000050,
-        4000000000036
-      ],
-      "type":"boolean",
-      "value":true
-    },
-    {
-      "id":[
-        1000000000001,
-        2000000000002,
-        3000000000060,
-        4000000000036
-      ],
-      "type":"boolean",
-      "value":true
-    },
-    {
-      "id":[
-        1000000000001,
-        2000000000002,
-        3000000000057,
-        4000000000036
-      ],
-      "type":"boolean",
-      "value":true
-    },
-    {
-      "id":[
-        1000000000001,
-        2000000000002,
-        3000000000050,
-        4000000000007
-      ],
-      "type":"boolean",
-      "value":true
-    },
     {
       "id":[
         1000000000001,
@@ -142,8 +90,48 @@
       "id":[
         1000000000001,
         2000000000002,
+        3000000000050,
+        4000000000036
+      ],
+      "type":"boolean",
+      "value":true
+    },
+    {
+      "id":[
+        1000000000001,
+        2000000000002,
         3000000000057,
         4000000000007
+      ],
+      "type":"boolean",
+      "value":true
+    },
+    {
+      "id":[
+        1000000000001,
+        2000000000002,
+        3000000000050,
+        4000000000007
+      ],
+      "type":"boolean",
+      "value":true
+    },
+    {
+      "id":[
+        1000000000001,
+        2000000000002,
+        3000000000057,
+        4000000000036
+      ],
+      "type":"boolean",
+      "value":true
+    },
+    {
+      "id":[
+        1000000000001,
+        2000000000002,
+        3000000000060,
+        4000000000036
       ],
       "type":"boolean",
       "value":true

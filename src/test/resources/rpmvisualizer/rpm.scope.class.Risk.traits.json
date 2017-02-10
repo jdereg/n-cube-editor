@@ -12,15 +12,11 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.0",
+      "referenceVersion":"1.0.4",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Risk",
       "referenceAxisName":"risk",
-      "transformApp":null,
-      "transformVersion":null,
-      "transformCubeName":null,
-      "transformMethodName":null,
       "columns":[]
     },
     {
@@ -56,6 +52,21 @@
           "id":2000000000016,
           "type":"string",
           "value":"Risks"
+        },
+        {
+          "id":2000144541822,
+          "type":"string",
+          "value":"fieldARisk"
+        },
+        {
+          "id":2000370642046,
+          "type":"string",
+          "value":"fieldBRisk"
+        },
+        {
+          "id":2001848327150,
+          "type":"string",
+          "value":"fieldDRisk"
         }
       ]
     },
@@ -88,12 +99,30 @@
     },
     {
       "id":[
-        1000000000003,
-        2000963145542,
+        1000000000002,
+        2000000000010,
         3000000000002
       ],
-      "type":"boolean",
-      "value":true
+      "type":"string",
+      "value":"true"
+    },
+    {
+      "id":[
+        1001427128926,
+        2000000000010,
+        3000000000002
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Risk.traits.Coverages[:]"
+    },
+    {
+      "id":[
+        1001427128926,
+        2000144541822,
+        3000000000002
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Risk.traits.fieldARisk[:]"
     },
     {
       "id":[
@@ -106,21 +135,30 @@
     },
     {
       "id":[
-        1000000000002,
-        2000000000010,
-        3000000000002
-      ],
-      "type":"string",
-      "value":"true"
-    },
-    {
-      "id":[
         1000000000003,
         2000000000016,
         3000000000002
       ],
       "type":"exp",
       "value":"@rpm.scope.class.Risk.traits.Risks[:]"
+    },
+    {
+      "id":[
+        1000000000003,
+        2000000000010,
+        3000000000002
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Risk.traits.Coverages[:]"
+    },
+    {
+      "id":[
+        1000000000003,
+        2000963145542,
+        3000000000002
+      ],
+      "type":"boolean",
+      "value":true
     },
     {
       "id":[
@@ -133,15 +171,6 @@
     },
     {
       "id":[
-        1000000000003,
-        2000000000010,
-        3000000000002
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Risk.traits.Coverages[:]"
-    },
-    {
-      "id":[
         1000000000001,
         2000000000016,
         3000000000002
@@ -151,12 +180,39 @@
     },
     {
       "id":[
+        1001107612492,
+        2000370642046,
+        3000000000002
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Risk.traits.fieldBRisk[:]"
+    },
+    {
+      "id":[
         1000000000002,
         2000000000016,
         3000000000002
       ],
       "type":"string",
       "value":"true"
+    },
+    {
+      "id":[
+        1001961257272,
+        2001848327150,
+        3000000000002
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Risk.traits.fieldDRisk[:]"
+    },
+    {
+      "id":[
+        1001107612492,
+        2000000000010,
+        3000000000002
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Risk.traits.Coverages[:]"
     }
   ]
 }

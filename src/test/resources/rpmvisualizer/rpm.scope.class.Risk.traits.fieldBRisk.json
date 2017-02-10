@@ -1,26 +1,11 @@
 {
-  "ncube":"rpm.scope.enum.Product.Risks.traits",
+  "ncube":"rpm.scope.class.Risk.traits.fieldBRisk",
   "defaultCellValueType":"string",
   "defaultCellValue":"#NOT_DEFINED",
+  "cube_tags":"EPM",
   "axes":[
     {
-      "id":1,
-      "name":"sourceFieldName",
-      "hasDefault":false,
-      "type":"DISCRETE",
-      "valueType":"STRING",
-      "preferredOrder":1,
-      "fireAll":true,
-      "columns":[
-        {
-          "id":1000000000001,
-          "type":"string",
-          "value":"Risks"
-        }
-      ]
-    },
-    {
-      "id":2,
+      "id":3,
       "name":"trait",
       "hasDefault":false,
       "type":"DISCRETE",
@@ -29,15 +14,15 @@
       "fireAll":true,
       "columns":[
         {
-          "id":2000000000004,
+          "id":3000000000035,
           "type":"string",
           "value":"r:exists"
         }
       ]
     },
     {
-      "id":3,
-      "name":"name",
+      "id":7,
+      "name":"risk",
       "hasDefault":false,
       "isRef":true,
       "referenceTenant":"NONE",
@@ -50,7 +35,23 @@
       "columns":[]
     },
     {
-      "id":4,
+      "id":8,
+      "name":"pgm",
+      "hasDefault":false,
+      "type":"DISCRETE",
+      "valueType":"STRING",
+      "preferredOrder":1,
+      "fireAll":true,
+      "columns":[
+        {
+          "id":8001291403155,
+          "type":"string",
+          "value":"pgm3"
+        }
+      ]
+    },
+    {
+      "id":9,
       "name":"product",
       "hasDefault":false,
       "isRef":true,
@@ -67,40 +68,20 @@
   "cells":[
     {
       "id":[
-        1000000000001,
-        2000000000004,
-        3001427128926,
-        4001108369471
+        3000000000035,
+        7001107612492,
+        8001291403155,
+        9001778566436
       ],
       "type":"exp",
       "value":"true"
     },
     {
       "id":[
-        1000000000001,
-        2000000000004,
-        3000000000002,
-        4000000000001
-      ],
-      "type":"exp",
-      "value":"true"
-    },
-    {
-      "id":[
-        1000000000001,
-        2000000000004,
-        3001107612492,
-        4001108369471
-      ],
-      "type":"exp",
-      "value":"true"
-    },
-    {
-      "id":[
-        1000000000001,
-        2000000000004,
-        3001961257272,
-        4001778566436
+        3000000000035,
+        7001107612492,
+        8001291403155,
+        9001108369471
       ],
       "type":"exp",
       "value":"true"

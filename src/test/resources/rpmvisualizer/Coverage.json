@@ -11,12 +11,27 @@
       "fireAll":true,
       "columns":[
         {
-          "id":1000000000036,
+          "id":1001088463220,
           "type":"string",
           "value":"ACoverage"
         },
         {
+          "id":1000000000036,
+          "type":"string",
+          "value":"AdmCoverage"
+        },
+        {
+          "id":1001808802272,
+          "type":"string",
+          "value":"BCoverage"
+        },
+        {
           "id":1000000000050,
+          "type":"string",
+          "value":"CCCoverage"
+        },
+        {
+          "id":1000478303063,
           "type":"string",
           "value":"CCoverage"
         },

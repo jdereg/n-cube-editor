@@ -27,37 +27,25 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.0",
+      "referenceVersion":"1.0.4",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Risk",
       "referenceAxisName":"risk",
-      "transformApp":null,
-      "transformVersion":null,
-      "transformStatus":null,
-      "transformBranch":null,
-      "transformCubeName":null,
-      "transformMethodName":null,
       "columns":[]
     },
     {
       "id":5,
       "name":"sourceRisk",
-      "hasDefault":false,
+      "hasDefault":true,
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.0",
+      "referenceVersion":"1.0.4",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Risk",
       "referenceAxisName":"risk",
-      "transformApp":null,
-      "transformVersion":null,
-      "transformStatus":null,
-      "transformBranch":null,
-      "transformCubeName":null,
-      "transformMethodName":null,
       "columns":[]
     },
     {
@@ -67,17 +55,11 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.0",
+      "referenceVersion":"1.0.4",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Product",
       "referenceAxisName":"product",
-      "transformApp":null,
-      "transformVersion":null,
-      "transformStatus":null,
-      "transformBranch":null,
-      "transformCubeName":null,
-      "transformMethodName":null,
       "columns":[]
     }
   ],
@@ -85,8 +67,36 @@
     {
       "id":[
         2000000000001,
+        4001427128926,
+        6001108369471
+      ],
+      "type":"exp",
+      "value":"true"
+    },
+    {
+      "id":[
+        2000000000001,
         4000000000001,
         5000000000002
+      ],
+      "type":"boolean",
+      "value":true
+    },
+    {
+      "id":[
+        2000000000001,
+        4001107612492,
+        6001778566436
+      ],
+      "type":"exp",
+      "value":"true"
+    },
+    {
+      "id":[
+        2000000000001,
+        4000000000001,
+        5000000000002,
+        6000000000001
       ],
       "type":"boolean",
       "value":true

@@ -12,15 +12,11 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.0",
+      "referenceVersion":"1.0.4",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Product",
       "referenceAxisName":"product",
-      "transformApp":null,
-      "transformVersion":null,
-      "transformCubeName":null,
-      "transformMethodName":null,
       "columns":[]
     },
     {
@@ -98,8 +94,26 @@
     },
     {
       "id":[
+        1001108369471,
+        2000000000002,
+        3000000000002
+      ],
+      "type":"string",
+      "value":"true"
+    },
+    {
+      "id":[
         1000000000001,
         2001716310156,
+        3000000000002
+      ],
+      "type":"string",
+      "value":"true"
+    },
+    {
+      "id":[
+        1001778566436,
+        2000000000002,
         3000000000002
       ],
       "type":"string",

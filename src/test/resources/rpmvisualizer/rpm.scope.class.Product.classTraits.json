@@ -11,15 +11,11 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.0",
+      "referenceVersion":"1.0.4",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Product",
       "referenceAxisName":"product",
-      "transformApp":null,
-      "transformVersion":null,
-      "transformCubeName":null,
-      "transformMethodName":null,
       "columns":[]
     },
     {
@@ -48,7 +44,7 @@
     {
       "id":[
         1000000000001,
-        2000000000012
+        2000000000006
       ],
       "type":"string",
       "value":"WProduct"
@@ -56,10 +52,18 @@
     {
       "id":[
         1000000000001,
-        2000000000006
+        2000000000012
       ],
       "type":"string",
       "value":"WProduct"
+    },
+    {
+      "id":[
+        1001108369471,
+        2000000000006
+      ],
+      "type":"string",
+      "value":"AProduct"
     },
     {
       "id":[
@@ -68,6 +72,30 @@
       ],
       "type":"string",
       "value":"GProduct"
+    },
+    {
+      "id":[
+        1000859883503,
+        2000000000006
+      ],
+      "type":"string",
+      "value":"GProduct"
+    },
+    {
+      "id":[
+        1001108369471,
+        2000000000012
+      ],
+      "type":"string",
+      "value":"AProduct"
+    },
+    {
+      "id":[
+        1001778566436,
+        2000000000012
+      ],
+      "type":"string",
+      "value":"BProduct"
     },
     {
       "id":[
@@ -79,11 +107,11 @@
     },
     {
       "id":[
-        1000859883503,
+        1001778566436,
         2000000000006
       ],
       "type":"string",
-      "value":"GProduct"
+      "value":"BProduct"
     },
     {
       "id":[

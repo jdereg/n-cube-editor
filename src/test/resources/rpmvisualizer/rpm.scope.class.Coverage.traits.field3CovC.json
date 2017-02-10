@@ -11,15 +11,11 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.0",
+      "referenceVersion":"1.0.4",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Coverage",
       "referenceAxisName":"coverage",
-      "transformApp":null,
-      "transformVersion":null,
-      "transformCubeName":null,
-      "transformMethodName":null,
       "columns":[]
     },
     {

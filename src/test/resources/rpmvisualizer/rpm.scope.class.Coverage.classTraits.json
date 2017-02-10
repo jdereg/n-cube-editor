@@ -11,17 +11,11 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.0",
+      "referenceVersion":"1.0.4",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Coverage",
       "referenceAxisName":"coverage",
-      "transformApp":null,
-      "transformVersion":null,
-      "transformCubeName":null,
-      "transformMethodName":null,
-      "transformStatus":null,
-      "transformBranch":null,
       "columns":[]
     },
     {
@@ -49,6 +43,118 @@
   "cells":[
     {
       "id":[
+        1001088463220,
+        2000000000007
+      ],
+      "type":"string",
+      "value":"ACoverage"
+    },
+    {
+      "id":[
+        1000000000007,
+        2000000000016
+      ],
+      "type":"string",
+      "value":"FCoverage"
+    },
+    {
+      "id":[
+        1000000000050,
+        2000000000016
+      ],
+      "type":"string",
+      "value":"CCCoverage"
+    },
+    {
+      "id":[
+        1000000000036,
+        2000000000016
+      ],
+      "type":"string",
+      "value":"AdmCoverage"
+    },
+    {
+      "id":[
+        1000478303063,
+        2000000000007
+      ],
+      "type":"string",
+      "value":"CCoverage"
+    },
+    {
+      "id":[
+        1001808802272,
+        2000000000007
+      ],
+      "type":"string",
+      "value":"BCoverage"
+    },
+    {
+      "id":[
+        1000000000036,
+        2000000000007
+      ],
+      "type":"string",
+      "value":"AdmCoverage"
+    },
+    {
+      "id":[
+        1001088463220,
+        2000000000016
+      ],
+      "type":"string",
+      "value":"ACoverage"
+    },
+    {
+      "id":[
+        1000000000057,
+        2000000000007
+      ],
+      "type":"string",
+      "value":"ICoverage"
+    },
+    {
+      "id":[
+        1000000000050,
+        2000000000007
+      ],
+      "type":"string",
+      "value":"CCCoverage"
+    },
+    {
+      "id":[
+        1001808802272,
+        2000000000016
+      ],
+      "type":"string",
+      "value":"BCoverage"
+    },
+    {
+      "id":[
+        1000000000007,
+        2000000000007
+      ],
+      "type":"string",
+      "value":"FCoverage"
+    },
+    {
+      "id":[
+        1000000000031,
+        2000000000007
+      ],
+      "type":"string",
+      "value":"WACoverage"
+    },
+    {
+      "id":[
+        1000000000060,
+        2000000000016
+      ],
+      "type":"string",
+      "value":"TCoverage"
+    },
+    {
+      "id":[
         1000000000057,
         2000000000016
       ],
@@ -58,14 +164,6 @@
     {
       "id":[
         1000000000031,
-        2000000000007
-      ],
-      "type":"string",
-      "value":"WACoverage"
-    },
-    {
-      "id":[
-        1000000000031,
         2000000000016
       ],
       "type":"string",
@@ -73,15 +171,7 @@
     },
     {
       "id":[
-        1000000000050,
-        2000000000007
-      ],
-      "type":"string",
-      "value":"CCoverage"
-    },
-    {
-      "id":[
-        1000000000050,
+        1000478303063,
         2000000000016
       ],
       "type":"string",
@@ -89,24 +179,8 @@
     },
     {
       "id":[
-        1000000000036,
-        2000000000016
-      ],
-      "type":"string",
-      "value":"ACoverage"
-    },
-    {
-      "id":[
         1000000000060,
         2000000000007
-      ],
-      "type":"string",
-      "value":"TCoverage"
-    },
-    {
-      "id":[
-        1000000000060,
-        2000000000016
       ],
       "type":"string",
       "value":"TCoverage"
@@ -126,38 +200,6 @@
       ],
       "type":"string",
       "value":"WCoverage"
-    },
-    {
-      "id":[
-        1000000000007,
-        2000000000007
-      ],
-      "type":"string",
-      "value":"FCoverage"
-    },
-    {
-      "id":[
-        1000000000007,
-        2000000000016
-      ],
-      "type":"string",
-      "value":"FCoverage"
-    },
-    {
-      "id":[
-        1000000000057,
-        2000000000007
-      ],
-      "type":"string",
-      "value":"ICoverage"
-    },
-    {
-      "id":[
-        1000000000036,
-        2000000000007
-      ],
-      "type":"string",
-      "value":"ACoverage"
     }
   ]
 }

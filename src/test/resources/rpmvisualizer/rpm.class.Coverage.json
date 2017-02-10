@@ -61,6 +61,21 @@
           "id":1001618941656,
           "type":"string",
           "value":"field4"
+        },
+        {
+          "id":1001715369645,
+          "type":"string",
+          "value":"fieldACoverage"
+        },
+        {
+          "id":1001076560146,
+          "type":"string",
+          "value":"fieldBCoverage"
+        },
+        {
+          "id":1001011872239,
+          "type":"string",
+          "value":"fieldCCoverage"
         }
       ]
     },
@@ -129,24 +144,48 @@
   "cells":[
     {
       "id":[
-        1001618941656,
-        2000000000007
+        1000000000001,
+        2000000000018
       ],
       "type":"exp",
-      "value":"@rpm.scope.class.Coverage.traits[:]"
+      "value":"@rpm.scope.class.Coverage.classTraits[:]"
     },
     {
       "id":[
-        1000662821702,
-        2000000000007
+        1001076560146,
+        2000000000008
       ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Coverage.traits[:]"
+      "type":"string",
+      "value":"DataElementInventory"
     },
     {
       "id":[
         1000000000004,
-        2000000000029
+        2000000000031
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1001011872239,
+        2000000000007
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1001618941656,
+        2000000000008
+      ],
+      "type":"string",
+      "value":"DataElementInventory"
+    },
+    {
+      "id":[
+        1000537182018,
+        2000000000007
       ],
       "type":"exp",
       "value":"@rpm.scope.class.Coverage.traits[:]"
@@ -158,6 +197,14 @@
       ],
       "type":"exp",
       "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1001715369645,
+        2000000000008
+      ],
+      "type":"string",
+      "value":"DataElementInventory"
     },
     {
       "id":[
@@ -169,107 +216,11 @@
     },
     {
       "id":[
-        1000537182018,
-        2000000000007
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Coverage.traits[:]"
-    },
-    {
-      "id":[
-        1000000000040,
-        2000000000007
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Coverage.traits[:]"
-    },
-    {
-      "id":[
-        1000000000004,
-        2000000000007
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Coverage.traits[:]"
-    },
-    {
-      "id":[
-        1000000000001,
-        2000000000007
-      ],
-      "type":"string",
-      "value":"true"
-    },
-    {
-      "id":[
-        1001848359800,
-        2000000000008
-      ],
-      "type":"string",
-      "value":"DataElementInventory"
-    },
-    {
-      "id":[
-        1000789408224,
-        2000000000031
-      ],
-      "type":"string",
-      "value":"0"
-    },
-    {
-      "id":[
-        1001848359800,
+        1001618941656,
         2000000000045
       ],
       "type":"exp",
       "value":"@rpm.scope.class.Coverage.traits[:]"
-    },
-    {
-      "id":[
-        1000000000001,
-        2000723176889
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Coverage.classTraits[:]"
-    },
-    {
-      "id":[
-        1000662821702,
-        2000000000008
-      ],
-      "type":"string",
-      "value":"DataElementInventory"
-    },
-    {
-      "id":[
-        1000789408224,
-        2000000000045
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Coverage.traits[:]"
-    },
-    {
-      "id":[
-        1000537182018,
-        2000000000008
-      ],
-      "type":"string",
-      "value":"DataElementInventory"
-    },
-    {
-      "id":[
-        1000000000004,
-        2000000000031
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Coverage.traits[:]"
-    },
-    {
-      "id":[
-        1000000000040,
-        2000000000008
-      ],
-      "type":"string",
-      "value":"DataElementInventory"
     },
     {
       "id":[
@@ -281,8 +232,160 @@
     },
     {
       "id":[
+        1000000000004,
+        2000000000029
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1000000000004,
+        2000000000007
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1001715369645,
+        2000000000007
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1001011872239,
+        2000000000008
+      ],
+      "type":"string",
+      "value":"DataElementInventory"
+    },
+    {
+      "id":[
+        1000000000081,
+        2000000000008
+      ],
+      "type":"string",
+      "value":"DataElementInventory[StatCode]"
+    },
+    {
+      "id":[
+        1001848359800,
+        2000000000008
+      ],
+      "type":"string",
+      "value":"DataElementInventory"
+    },
+    {
+      "id":[
         1001618941656,
+        2000000000007
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1001848359800,
         2000000000045
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1000537182018,
+        2000000000008
+      ],
+      "type":"string",
+      "value":"DataElementInventory"
+    },
+    {
+      "id":[
+        1000000000001,
+        2000723176889
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.classTraits[:]"
+    },
+    {
+      "id":[
+        1001076560146,
+        2000000000007
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1000662821702,
+        2000000000007
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1000789408224,
+        2000000000031
+      ],
+      "type":"string",
+      "value":"0"
+    },
+    {
+      "id":[
+        1000000000001,
+        2000000000007
+      ],
+      "type":"string",
+      "value":"true"
+    },
+    {
+      "id":[
+        1000537182018,
+        2000000000045
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1000789408224,
+        2000000000007
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1000000000040,
+        2000000000045
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1000000000040,
+        2000000000008
+      ],
+      "type":"string",
+      "value":"DataElementInventory"
+    },
+    {
+      "id":[
+        1000000000081,
+        2000000000045
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1000000000040,
+        2000000000007
       ],
       "type":"exp",
       "value":"@rpm.scope.class.Coverage.traits[:]"
@@ -297,32 +400,8 @@
     },
     {
       "id":[
-        1000000000081,
-        2000000000045
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Coverage.traits[:]"
-    },
-    {
-      "id":[
         1001848359800,
         2000000000007
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Coverage.traits[:]"
-    },
-    {
-      "id":[
-        1001618941656,
-        2000000000008
-      ],
-      "type":"string",
-      "value":"DataElementInventory"
-    },
-    {
-      "id":[
-        1000537182018,
-        2000000000045
       ],
       "type":"exp",
       "value":"@rpm.scope.class.Coverage.traits[:]"
@@ -337,7 +416,7 @@
     },
     {
       "id":[
-        1000000000040,
+        1000789408224,
         2000000000045
       ],
       "type":"exp",
@@ -345,27 +424,11 @@
     },
     {
       "id":[
-        1000000000081,
+        1000662821702,
         2000000000008
       ],
       "type":"string",
-      "value":"DataElementInventory[StatCode]"
-    },
-    {
-      "id":[
-        1000789408224,
-        2000000000007
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Coverage.traits[:]"
-    },
-    {
-      "id":[
-        1000000000001,
-        2000000000018
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Coverage.classTraits[:]"
+      "value":"DataElementInventory"
     }
   ]
 }

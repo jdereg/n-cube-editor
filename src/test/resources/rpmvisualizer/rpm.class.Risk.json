@@ -46,6 +46,21 @@
           "id":1000000000017,
           "type":"string",
           "value":"Risks"
+        },
+        {
+          "id":1001956126625,
+          "type":"string",
+          "value":"fieldARisk"
+        },
+        {
+          "id":1001427879255,
+          "type":"string",
+          "value":"fieldBRisk"
+        },
+        {
+          "id":1001851985549,
+          "type":"string",
+          "value":"fieldDRisk"
         }
       ]
     },
@@ -109,59 +124,19 @@
   "cells":[
     {
       "id":[
+        1000000000015,
+        2000000000007
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Risk.traits[:]"
+    },
+    {
+      "id":[
         1000536320736,
-        2000000000031
-      ],
-      "type":"string",
-      "value":"Risk"
-    },
-    {
-      "id":[
-        1000000000017,
-        2000000000007
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Risk.traits[:]"
-    },
-    {
-      "id":[
-        1000000000015,
-        2000000000007
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Risk.traits[:]"
-    },
-    {
-      "id":[
-        1000000000001,
-        2000000000007
-      ],
-      "type":"string",
-      "value":"true"
-    },
-    {
-      "id":[
-        1000000000017,
         2000000000024
       ],
       "type":"string",
-      "value":"0"
-    },
-    {
-      "id":[
-        1000000000016,
-        2000000000007
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.class.Risk.traits[:]"
-    },
-    {
-      "id":[
-        1000000000015,
-        2000000000024
-      ],
-      "type":"string",
-      "value":"0"
+      "value":"1"
     },
     {
       "id":[
@@ -173,11 +148,43 @@
     },
     {
       "id":[
-        1000000000016,
-        2000000000024
+        1000000000017,
+        2000000000031
       ],
       "type":"string",
-      "value":"0"
+      "value":"Risk"
+    },
+    {
+      "id":[
+        1000000000017,
+        2000000000007
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Risk.traits[:]"
+    },
+    {
+      "id":[
+        1001427879255,
+        2000000000008
+      ],
+      "type":"string",
+      "value":"DataElementInventory[fieldBRisk]"
+    },
+    {
+      "id":[
+        1000000000016,
+        2000000000007
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Risk.traits[:]"
+    },
+    {
+      "id":[
+        1000000000016,
+        2000000000008
+      ],
+      "type":"string",
+      "value":"DataElementInventory[PrintWaiverText]"
     },
     {
       "id":[
@@ -189,19 +196,43 @@
     },
     {
       "id":[
-        1000000000017,
-        2000000000031
+        1000536320736,
+        2000000000023
       ],
       "type":"string",
-      "value":"Risk"
+      "value":"1"
     },
     {
       "id":[
-        1000000000015,
+        1000000000011,
+        2000000000024
+      ],
+      "type":"string",
+      "value":"0"
+    },
+    {
+      "id":[
+        1001956126625,
+        2000000000007
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Risk.traits[:]"
+    },
+    {
+      "id":[
+        1000000000016,
+        2000000000023
+      ],
+      "type":"string",
+      "value":"1"
+    },
+    {
+      "id":[
+        1000000000016,
         2000000000050
       ],
       "type":"string",
-      "value":"Yes"
+      "value":"Waive this and waive that."
     },
     {
       "id":[
@@ -221,11 +252,19 @@
     },
     {
       "id":[
-        1000000000016,
-        2000000000050
+        1000000000015,
+        2000000000008
       ],
       "type":"string",
-      "value":"Waive this and waive that."
+      "value":"DataElementInventory[PrintWaiverIndicator]"
+    },
+    {
+      "id":[
+        1000000000015,
+        2000000000024
+      ],
+      "type":"string",
+      "value":"0"
     },
     {
       "id":[
@@ -237,11 +276,11 @@
     },
     {
       "id":[
-        1000000000016,
-        2000000000023
+        1001851985549,
+        2000000000007
       ],
-      "type":"string",
-      "value":"1"
+      "type":"exp",
+      "value":"@rpm.scope.class.Risk.traits[:]"
     },
     {
       "id":[
@@ -253,22 +292,6 @@
     },
     {
       "id":[
-        1000536320736,
-        2000000000024
-      ],
-      "type":"string",
-      "value":"1"
-    },
-    {
-      "id":[
-        1000000000016,
-        2000000000008
-      ],
-      "type":"string",
-      "value":"DataElementInventory[PrintWaiverText]"
-    },
-    {
-      "id":[
         1000000000015,
         2000000000042
       ],
@@ -277,11 +300,27 @@
     },
     {
       "id":[
+        1000000000017,
+        2000000000024
+      ],
+      "type":"string",
+      "value":"0"
+    },
+    {
+      "id":[
         1000000000015,
         2000000000023
       ],
       "type":"string",
       "value":"1"
+    },
+    {
+      "id":[
+        1000000000001,
+        2000000000007
+      ],
+      "type":"string",
+      "value":"true"
     },
     {
       "id":[
@@ -293,27 +332,51 @@
     },
     {
       "id":[
-        1000536320736,
-        2000000000023
-      ],
-      "type":"string",
-      "value":"1"
-    },
-    {
-      "id":[
-        1000000000015,
-        2000000000008
-      ],
-      "type":"string",
-      "value":"DataElementInventory[PrintWaiverIndicator]"
-    },
-    {
-      "id":[
-        1000000000011,
+        1000000000016,
         2000000000024
       ],
       "type":"string",
       "value":"0"
+    },
+    {
+      "id":[
+        1001956126625,
+        2000000000008
+      ],
+      "type":"string",
+      "value":"DataElementInventory[fieldARisk]"
+    },
+    {
+      "id":[
+        1001427879255,
+        2000000000007
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Risk.traits[:]"
+    },
+    {
+      "id":[
+        1000000000015,
+        2000000000050
+      ],
+      "type":"string",
+      "value":"Yes"
+    },
+    {
+      "id":[
+        1000536320736,
+        2000000000031
+      ],
+      "type":"string",
+      "value":"Risk"
+    },
+    {
+      "id":[
+        1001851985549,
+        2000000000008
+      ],
+      "type":"string",
+      "value":"DataElementInventory[fieldDRisk]"
     }
   ]
 }

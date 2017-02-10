@@ -53,17 +53,10 @@
     },
     {
       "id":[
-        1001294724408
+        1001827256759
       ],
       "type":"exp",
-      "value":"//Set path prefixes\n\nString resourceLocation = 'C:/Development/BUE/n-cube-editor/src/main/resources/'\noutput.configPathPrefix = resourceLocation + 'config/'\n\nString testResourceLocation = 'C:/Development/BUE/n-cube-editor/src/test/resources/'\noutput.nonRpmPathPrefix = testResourceLocation + 'visualizer'\noutput.rpmPathPrefix = testResourceLocation + 'rpmvisualizer'"
-    },
-    {
-      "id":[
-        1001385034657
-      ],
-      "type":"exp",
-      "value":"@visualizer.Cubes[cubeType: 'config']"
+      "value":"@visualizer.Cubes[cubeType: 'nonRpm']"
     },
     {
       "id":[
@@ -74,10 +67,17 @@
     },
     {
       "id":[
-        1001827256759
+        1001385034657
       ],
       "type":"exp",
-      "value":"@visualizer.Cubes[cubeType: 'nonRpm']"
+      "value":"@visualizer.Cubes[cubeType: 'config']"
+    },
+    {
+      "id":[
+        1001294724408
+      ],
+      "type":"exp",
+      "value":"//Set path prefixes\n\nString resourceLocation = 'C:/Development/BUE/n-cube-editor/src/main/resources/'\noutput.configPathPrefix = resourceLocation + 'config/'\n\nString testResourceLocation = 'C:/Development/BUE/n-cube-editor/src/test/resources/'\noutput.nonRpmPathPrefix = testResourceLocation + 'visualizer'\noutput.rpmPathPrefix = testResourceLocation + 'rpmvisualizer'"
     }
   ]
 }

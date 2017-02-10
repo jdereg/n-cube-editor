@@ -68,27 +68,19 @@
   "cells":[
     {
       "id":[
+        1000000000002,
+        2000000000001
+      ],
+      "type":"string",
+      "value":"roleRefCode"
+    },
+    {
+      "id":[
         1000000000001,
-        2000000000002
+        2000000000003
       ],
       "type":"string",
-      "value":"true"
-    },
-    {
-      "id":[
-        1000000000002,
-        2000000000004
-      ],
-      "type":"string",
-      "value":"LOSSPREVENTION"
-    },
-    {
-      "id":[
-        1000000000002,
-        2000000000002
-      ],
-      "type":"string",
-      "value":"true"
+      "value":"partyrole.BasePartyRole"
     },
     {
       "id":[
@@ -100,11 +92,19 @@
     },
     {
       "id":[
-        1000000000002,
-        2000000000001
+        1000000000001,
+        2000000000002
       ],
       "type":"string",
-      "value":"roleRefCode"
+      "value":"true"
+    },
+    {
+      "id":[
+        1000000000002,
+        2000000000002
+      ],
+      "type":"string",
+      "value":"true"
     },
     {
       "id":[
@@ -116,11 +116,11 @@
     },
     {
       "id":[
-        1000000000001,
-        2000000000003
+        1000000000002,
+        2000000000004
       ],
       "type":"string",
-      "value":"partyrole.BasePartyRole"
+      "value":"LOSSPREVENTION"
     }
   ]
 }

@@ -11,6 +11,16 @@
       "fireAll":true,
       "columns":[
         {
+          "id":1001108369471,
+          "type":"string",
+          "value":"AProduct"
+        },
+        {
+          "id":1001778566436,
+          "type":"string",
+          "value":"BProduct"
+        },
+        {
           "id":1000859883503,
           "type":"string",
           "value":"GProduct"

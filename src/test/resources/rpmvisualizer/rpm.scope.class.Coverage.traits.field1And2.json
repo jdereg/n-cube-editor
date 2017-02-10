@@ -12,15 +12,11 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.0",
+      "referenceVersion":"1.0.4",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Coverage",
       "referenceAxisName":"coverage",
-      "transformApp":null,
-      "transformVersion":null,
-      "transformCubeName":null,
-      "transformMethodName":null,
       "columns":[]
     },
     {
@@ -116,37 +112,19 @@
   "cells":[
     {
       "id":[
-        1000000000036,
+        1000000000041,
         3000000000035
       ],
       "type":"string",
-      "value":"3333"
+      "value":"1155"
     },
     {
       "id":[
-        1000000000031,
+        1000000000057,
         3000000000035
       ],
       "type":"string",
-      "value":"1166"
-    },
-    {
-      "id":[
-        1000000000036,
-        3000000000035,
-        4001637854956
-      ],
-      "type":"string",
-      "value":"2222"
-    },
-    {
-      "id":[
-        1000000000050,
-        3000000000035,
-        4000305648501
-      ],
-      "type":"string",
-      "value":"1133"
+      "value":"1177"
     },
     {
       "id":[
@@ -159,19 +137,28 @@
     {
       "id":[
         1000000000041,
-        3000000000035
+        3000000000035,
+        4001637854956
       ],
       "type":"string",
-      "value":"1155"
+      "value":"1199"
     },
     {
       "id":[
-        1000000000041,
+        1000000000036,
+        3000000000035
+      ],
+      "type":"string",
+      "value":"3333"
+    },
+    {
+      "id":[
+        1000000000050,
         3000000000035,
         4000305648501
       ],
       "type":"string",
-      "value":"1198"
+      "value":"1133"
     },
     {
       "id":[
@@ -186,18 +173,19 @@
       "id":[
         1000000000041,
         3000000000035,
-        4001637854956
+        4000305648501
       ],
       "type":"string",
-      "value":"1199"
+      "value":"1198"
     },
     {
       "id":[
-        1000000000057,
-        3000000000035
+        1000000000036,
+        3000000000035,
+        4001637854956
       ],
       "type":"string",
-      "value":"1177"
+      "value":"2222"
     },
     {
       "id":[
@@ -207,6 +195,14 @@
       ],
       "type":"string",
       "value":"1188"
+    },
+    {
+      "id":[
+        1000000000031,
+        3000000000035
+      ],
+      "type":"string",
+      "value":"1166"
     }
   ]
 }

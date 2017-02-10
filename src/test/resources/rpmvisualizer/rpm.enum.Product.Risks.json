@@ -46,7 +46,7 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.0",
+      "referenceVersion":"1.0.4",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Risk",
@@ -63,8 +63,88 @@
   "cells":[
     {
       "id":[
+        1000000000007,
+        2001961257272
+      ],
+      "type":"string",
+      "value":"DRisk"
+    },
+    {
+      "id":[
         1000000000015,
         2000000000002
+      ],
+      "type":"string",
+      "value":"1"
+    },
+    {
+      "id":[
+        1000000000007,
+        2001427128926
+      ],
+      "type":"string",
+      "value":"ARisk"
+    },
+    {
+      "id":[
+        1000000000007,
+        2000000000002
+      ],
+      "type":"string",
+      "value":"WProductOps"
+    },
+    {
+      "id":[
+        1000000000015,
+        2001961257272
+      ],
+      "type":"string",
+      "value":"1"
+    },
+    {
+      "id":[
+        1000000000002,
+        2001107612492
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Product.Risks.traits[:]"
+    },
+    {
+      "id":[
+        1000000000015,
+        2001427128926
+      ],
+      "type":"string",
+      "value":"1"
+    },
+    {
+      "id":[
+        1000000000002,
+        2001427128926
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Product.Risks.traits[:]"
+    },
+    {
+      "id":[
+        1000000000002,
+        2001961257272
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Product.Risks.traits[:]"
+    },
+    {
+      "id":[
+        1000000000002,
+        2002147483646
+      ],
+      "type":"string",
+      "value":"true"
+    },
+    {
+      "id":[
+        1000000000015,
+        2001107612492
       ],
       "type":"string",
       "value":"1"
@@ -79,11 +159,19 @@
     },
     {
       "id":[
-        1000000000007,
-        2000000000002
+        1000000000016,
+        2001427128926
       ],
       "type":"string",
-      "value":"WProductOps"
+      "value":"1"
+    },
+    {
+      "id":[
+        1000000000016,
+        2001107612492
+      ],
+      "type":"string",
+      "value":"1"
     },
     {
       "id":[
@@ -95,11 +183,19 @@
     },
     {
       "id":[
-        1000000000002,
-        2002147483646
+        1000000000016,
+        2001961257272
       ],
       "type":"string",
-      "value":"true"
+      "value":"1"
+    },
+    {
+      "id":[
+        1000000000007,
+        2001107612492
+      ],
+      "type":"string",
+      "value":"BRisk"
     }
   ]
 }

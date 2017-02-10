@@ -52,11 +52,11 @@
   "cells":[
     {
       "id":[
-        1000527254003,
+        1000307945826,
         2000453853552
       ],
       "type":"exp",
-      "value":"@CubeWithSingleValue[bogusAxisName:'CubeKAxis1Col1', CubeKAxis2: 'CubeKAxis2Col3']"
+      "value":"@CubeWithSingleValue[CubeKAxis1:'CubeKAxis1Col1', CubeKAxis2: 'CubeKAxis2Col3']"
     },
     {
       "id":[
@@ -68,11 +68,11 @@
     },
     {
       "id":[
-        1000307945826,
+        1000527254003,
         2000453853552
       ],
       "type":"exp",
-      "value":"@CubeWithSingleValue[CubeKAxis1:'CubeKAxis1Col1', CubeKAxis2: 'CubeKAxis2Col3']"
+      "value":"@CubeWithSingleValue[bogusAxisName:'CubeKAxis1Col1', CubeKAxis2: 'CubeKAxis2Col3']"
     },
     {
       "id":[

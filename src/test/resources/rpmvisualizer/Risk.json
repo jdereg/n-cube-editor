@@ -11,6 +11,21 @@
       "fireAll":true,
       "columns":[
         {
+          "id":1001427128926,
+          "type":"string",
+          "value":"ARisk"
+        },
+        {
+          "id":1001107612492,
+          "type":"string",
+          "value":"BRisk"
+        },
+        {
+          "id":1001961257272,
+          "type":"string",
+          "value":"DRisk"
+        },
+        {
           "id":1001018651315,
           "type":"string",
           "value":"GProductOps"

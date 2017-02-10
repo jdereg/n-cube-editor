@@ -51,7 +51,7 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.0",
+      "referenceVersion":"1.0.4",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Risk",
@@ -68,30 +68,6 @@
   "cells":[
     {
       "id":[
-        1000000000014,
-        2000000000003
-      ],
-      "type":"string",
-      "value":"999999"
-    },
-    {
-      "id":[
-        1000000000015,
-        2000000000001
-      ],
-      "type":"string",
-      "value":"0"
-    },
-    {
-      "id":[
-        1000000000001,
-        2000000000001
-      ],
-      "type":"string",
-      "value":"State Operations"
-    },
-    {
-      "id":[
         1000000000002,
         2000000000001
       ],
@@ -100,19 +76,11 @@
     },
     {
       "id":[
-        1000000000007,
-        2000000000003
-      ],
-      "type":"string",
-      "value":"ProductLocation"
-    },
-    {
-      "id":[
-        1000000000007,
+        1000000000014,
         2000000000001
       ],
       "type":"string",
-      "value":"StateOps"
+      "value":"999999"
     },
     {
       "id":[
@@ -125,6 +93,14 @@
     {
       "id":[
         1000000000001,
+        2000000000001
+      ],
+      "type":"string",
+      "value":"State Operations"
+    },
+    {
+      "id":[
+        1000000000001,
         2002147483646
       ],
       "type":"string",
@@ -132,11 +108,11 @@
     },
     {
       "id":[
-        1000000000002,
+        1000000000015,
         2000000000003
       ],
-      "type":"exp",
-      "value":"@rpm.scope.enum.Risk.Risks.traits[:]"
+      "type":"string",
+      "value":"0"
     },
     {
       "id":[
@@ -149,18 +125,42 @@
     {
       "id":[
         1000000000015,
-        2000000000003
+        2000000000001
       ],
       "type":"string",
       "value":"0"
     },
     {
       "id":[
+        1000000000002,
+        2000000000003
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Risk.Risks.traits[:]"
+    },
+    {
+      "id":[
         1000000000014,
-        2000000000001
+        2000000000003
       ],
       "type":"string",
       "value":"999999"
+    },
+    {
+      "id":[
+        1000000000007,
+        2000000000001
+      ],
+      "type":"string",
+      "value":"StateOps"
+    },
+    {
+      "id":[
+        1000000000007,
+        2000000000003
+      ],
+      "type":"string",
+      "value":"ProductLocation"
     }
   ]
 }
