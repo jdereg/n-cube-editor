@@ -102,7 +102,7 @@ class Visualizer
 		{
 			visInfo = new VisualizerInfo(appId)
 		}
-		visInfo.init(options.scope as CaseInsensitiveMap)
+		visInfo.init()
 		return visInfo
 	}
 

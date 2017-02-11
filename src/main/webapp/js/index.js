@@ -1645,6 +1645,7 @@ var NCE = (function ($) {
         _releaseCubesOk.click(function () {
             releaseCubesOk();
         });
+
         
         addSystemMenuListeners();
         addGlobalComparatorListeners();
@@ -4693,6 +4694,12 @@ var NCE = (function ($) {
             noteDiv.on('change click', function (e) {
                 e.preventDefault();
                 onNoteEvent(e);
+            });
+
+            $('[data-toggle="popover"]').popover({
+                html: true,
+                trigger: 'hover',
+                placement: 'auto'
             });
         }
      }

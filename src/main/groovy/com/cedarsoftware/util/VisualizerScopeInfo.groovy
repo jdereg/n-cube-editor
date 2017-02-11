@@ -82,7 +82,6 @@ class VisualizerScopeInfo
 		}
 	}
 
-
 	private void addScopeValues(String cubeName, String scopeKey, Map scopeInfoMap, boolean skipAvailableScopeValues)
 	{
 		Set<Object> scopeValues = scopeInfoMap[scopeKey] as Set ?: new LinkedHashSet()
@@ -143,10 +142,10 @@ class VisualizerScopeInfo
 		optionalGraphScopeAvailableValues.keySet().each{ String scopeKey ->
 			Set<String> cubeNames = optionalGraphScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
-			String title1 = "The scope for ${scopeKey} is optional to load the top level node, but may be required for other nodes in the graph."
-			String title2 = cubeNames ? " The scope is used on ${cubeNames.join(COMMA_SPACE)}." : ''
-			String providedValue = scope.scopeKey as String
-			sb.append(getScopeMessage(scopeKey, optionalGraphScopeAvailableValues[scopeKey], title1 + title2, providedValue))
+			String providedValue = scope[scopeKey] as String
+			StringBuilder popover = new StringBuilder("Optional to load the top level node, but may be required for other nodes in the graph.")
+			popover.append(addCubeNamesList('Used on:', cubeNames))
+			sb.append(getScopeMessage(scopeKey, optionalGraphScopeAvailableValues[scopeKey], popover, providedValue))
 		}
 		return sb
 	}
@@ -158,9 +157,9 @@ class VisualizerScopeInfo
 			Set<String> cubeNames =  requiredStartScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
 			String providedValue = scope[scopeKey] as String
-			String title1 = "The scope for ${scopeKey} is required to load the top level node."
-			String title2 = cubeNames ? " The scope is required by ${cubeNames.join(COMMA_SPACE)}." : ''
-			sb.append(getScopeMessage(scopeKey, requiredStartScopeAvailableValues[scopeKey], title1 + title2, providedValue))
+			StringBuilder popover = new StringBuilder("Required to load the top level node.")
+			popover.append(addCubeNamesList('Required by:', cubeNames))
+			sb.append(getScopeMessage(scopeKey, requiredStartScopeAvailableValues[scopeKey], popover, providedValue))
 		}
 		return sb
 	}
@@ -173,28 +172,25 @@ class VisualizerScopeInfo
 			providedValues.remove(null)
 			String providedValue = providedValues ? providedValues.join(COMMA_SPACE) : null
 			Set<String> cubeNames = nodeCubeNames[axisName]
-			String title1 = "The scope for ${axisName} is optional to load this node."
-			String title2 = cubeNames ? " The scope is used on ${cubeNames.join(COMMA_SPACE)}." : ''
-			sb.append(getScopeMessage(axisName, nodeAvailableValues[axisName], title1 + title2, providedValue))
+			StringBuilder popover = new StringBuilder("Optional to load this node.")
+			popover.append(addCubeNamesList('Used on:', cubeNames))
+			sb.append(getScopeMessage(axisName, nodeAvailableValues[axisName], popover, providedValue))
 		}
 		return sb
 	}
 
-	static StringBuilder getScopeMessage(String scopeKey, Set<Object> scopeValues, String title, String providedValue)
+	static StringBuilder getScopeMessage(String scopeKey, Set<Object> scopeValues, StringBuilder popoverContent, String providedValue)
 	{
 		StringBuilder sb = new StringBuilder(BREAK)
+		StringBuilder sbInner = new StringBuilder()
 		boolean optionalScope = scopeValues.contains(null)
 		String nullValueOptionLabel = optionalScope ? 'Default' : 'Select...'
 		boolean noMatch = true
 
-		sb.append("""<div class="row" >""")
-		sb.append("""<div class="col-md-4" align="right"><b>${scopeKey}:</b></div>""")
-		sb.append("""<div class="col-md-8">""")
-		sb.append("""<div class="input-group input-group-sm" title="${title}">""")
 		if (scopeValues || optionalScope)
 		{
-			sb.append("""<select class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_SCOPE_SELECT}">""")
-			sb.append("""<option id="${scopeKey}: null">${nullValueOptionLabel}</option>""")
+			sbInner.append("""<select class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_SCOPE_SELECT}">""")
+			sbInner.append("""<option id="${scopeKey}: null">${nullValueOptionLabel}</option>""")
 			scopeValues.each {
 				if (it)
 				{
@@ -204,27 +200,45 @@ class VisualizerScopeInfo
 						noMatch = false
 						selected = 'selected'
 					}
-					sb.append("""<option id="${scopeKey}: ${scopeValue}" ${selected}>${scopeValue}</option>""")
+					sbInner.append("""<option id="${scopeKey}: ${scopeValue}" ${selected}>${scopeValue}</option>""")
 				}
 			}
-			sb.append('</select>')
+			sbInner.append('</select>')
 		}
 		else
 		{
 			noMatch = false
 			String value = providedValue ?: ''
-            sb.append("""<input class="${DETAILS_CLASS_SCOPE_INPUT}" id="${scopeKey}" style="color: black;" type="text" placeholder="Enter value..." value="${value}">""")
+			sbInner.append("""<input class="${DETAILS_CLASS_SCOPE_INPUT}" id="${scopeKey}" style="color: black;" type="text" placeholder="Enter value..." value="${value}">""")
 		}
-		sb.append("""</div>""")
-		sb.append("""</div>""")
-		sb.append("""</div>""")
 
 		if (providedValue && noMatch)
 		{
-			sb.append("""<div class="row" >""")
-			sb.append("""<div class="col-md-4">${SPACE}</div>""")
-			sb.append("""<div class="col-md-8">${SPACE}(${providedValue} provided, but not found)</div>""")
-			sb.append("""</div>""")
+			popoverContent.append("${DOUBLE_BREAK}(${providedValue} provided, but not found)")
+		}
+
+		sb.append("""<div class="row" >""")
+		sb.append("""<div class="col-md-4" align="right"><b>${scopeKey}:</b></div>""")
+		sb.append("""<div class="col-md-8">""")
+		sb.append("""<div class="input-group input-group-sm" data-toggle="popover" title="${scopeKey}" data-content="${popoverContent.toString()}"> """)
+		sb.append(sbInner)
+		sb.append("""</div>""")
+		sb.append("""</div>""")
+		sb.append("""</div>""")
+		return sb
+	}
+
+	static StringBuilder addCubeNamesList(String prefix, Set<String> cubeNames)
+	{
+		StringBuilder sb = new StringBuilder()
+		if (cubeNames)
+		{
+			sb.append("${SPACE}${prefix}${BREAK}")
+			sb.append('<ul>')
+			cubeNames.each { String cubeName ->
+				sb.append("<li>${cubeName}</li>")
+			}
+			sb.append('</ul>')
 		}
 		return sb
 	}

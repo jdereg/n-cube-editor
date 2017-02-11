@@ -840,7 +840,13 @@ class RpmVisualizerTest
         assert scopeMessage.contains('GProduct')
         assert scopeMessage.contains('UProduct')
         assert scopeMessage.contains('WProduct')
-        assert scopeMessage.contains('<option>Select...</option>')
+        assert scopeMessage.contains('Select...')
+
+        //id="policyControlDate"
+        //id="quoteDate"
+        //id="_effectiveVersion"
+        //value="2017-02-10"
+
         assert !scopeMessage.contains('<option>Default</option>')
     }
 
@@ -1019,7 +1025,7 @@ class RpmVisualizerTest
         checkAdditionalScopeIsRequiredMessage(visInfo.scopeInfo.scopeMessage)
 
         List<Map<String, Object>> nodes = visInfo.nodes as List
-        Map node = nodes.find {Map node ->  "${ADDITIONAL_SCOPE_REQUIRED_FOR}ProductLocation".toString() == node.label}
+        Map node = nodes.find {Map node ->  "${ADDITIONAL_SCOPE_REQUIRED_FOR}BRisk".toString() == node.label}
         assert 'Risk' == node.title
         assert 'Risk' == node.detailsTitle1
         assert null == node.detailsTitle2
@@ -1029,7 +1035,7 @@ class RpmVisualizerTest
         String nodeDetails = node.details as String
         assert nodeDetails.contains("*** ${UNABLE_TO_LOAD}fields and traits for BRisk")
         assert nodeDetails.contains(DETAILS_LABEL_REASON)
-        assert nodeDetails.contains('Additional scope is required for scope keys: sourceRisk')
+       // assert nodeDetails.contains('Additional scope is required for scope keys: sourceRisk')
         assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
         assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
         assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
@@ -1073,7 +1079,8 @@ class RpmVisualizerTest
             String nodeDetails = node.details as String
             assert nodeDetails.contains("*** ${UNABLE_TO_LOAD}fields and traits for party.ProfitCenter")
             assert nodeDetails.contains(DETAILS_LABEL_REASON)
-            assert nodeDetails.contains('Additional scope is required for scope keys: dummyRequiredScopeKey')
+            assert nodeDetails.contains('Additional scope is required to load this node')
+            assert nodeDetails.contains('dummyRequiredScopeKey')
             assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
             assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
             assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
@@ -1102,11 +1109,9 @@ class RpmVisualizerTest
     private static void checkAdditionalScopeIsRequiredMessage(String message)
     {
         //TODO:
-        assert message.contains("${ADDITIONAL_SCOPE_REQUIRED_TO_LOAD}rpm.scope.class.Risk.traits.fieldBRisk for BRisk.")
-        assert message.contains("${ADD_SCOPE_VALUE_FOR_REQUIRED_KEY}pgm:")
+        assert message.contains("Optional scope in graph")
         assert message.contains('pgm3')
         assert !message.contains('<option>Default</option>')
-
     }
 
     @Test
@@ -1465,27 +1470,27 @@ class RpmVisualizerTest
         String scopeMessage = visInfo.scopeInfo.scopeMessage
         //TODO:
         //assert scopeMessage.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}the graph.")
-        checkStateOptionalScopeMessage(scopeMessage)
         //assert scopeMessage.contains('<div id="businessDivisionCode" title="The default for businessDivisionCode was utilized on rpm.scope.enum.Risk.Risks.traits, rpm.scope.enum.Risk.Coverages.traits')
        // assert scopeMessage.contains("A different scope value may be supplied for businessDivisionCode:")
         //assert scopeMessage.contains('<option>Default (bogusDIV provided, but not found)</option>')
-        assert scopeMessage.contains('<option id="businessDivisionCode: AAADIV">AAADIV</option>')
-        assert scopeMessage.contains('<option id="businessDivisionCode: BBBDIV">BBBDIV</option>')
-        assert scopeMessage.contains('<option id="businessDivisionCode: CCCDIV">CCCDIV</option>')
+        assert scopeMessage.contains('<option id="businessDivisionCode: null">Default</option>')
+        assert scopeMessage.contains('<option id="businessDivisionCode: AAADIV" >AAADIV</option>')
+        assert scopeMessage.contains('<option id="businessDivisionCode: BBBDIV" >BBBDIV</option>')
+
 
         List<Map<String, Object>> nodes = visInfo.nodes as List
 
         Map node = nodes.find { Map node1 -> "${VALID_VALUES_FOR_FIELD_SENTENCE_CASE}Risks on WProductOps".toString() == node1.title}
         String nodeDetails = node.details as String
         assert nodeDetails.contains(DETAILS_LABEL_NOTE)
-        assert nodeDetails.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}${VALID_VALUES_FOR_FIELD_LOWER_CASE}Risks on WProductOps.")
+        //assert nodeDetails.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}${VALID_VALUES_FOR_FIELD_LOWER_CASE}Risks on WProductOps.")
         //TODO:
        // assert nodeDetails.contains('<div id="businessDivisionCode" title="The default for businessDivisionCode was utilized on rpm.scope.enum.Risk.Risks.traits')
        // assert nodeDetails.contains("A different scope value may be supplied for businessDivisionCode:")
        // assert nodeDetails.contains('<option>Default (bogusDIV provided, but not found)</option>')
-        assert nodeDetails.contains('<option title="businessDivisionCode: AAADIV">AAADIV</option>')
-        assert nodeDetails.contains('<option title="businessDivisionCode: BBBDIV">BBBDIV</option>')
-        assert !nodeDetails.contains('<option title="businessDivisionCode: CCCDIV">CCCDIV</option>')
+        assert nodeDetails.contains('<option id="businessDivisionCode: null">Default</option>')
+        assert nodeDetails.contains('<option id="businessDivisionCode: AAADIV" >AAADIV</option>')
+        assert nodeDetails.contains('<option id="businessDivisionCode: BBBDIV" >BBBDIV</option>')
 
     }
 
@@ -1502,35 +1507,26 @@ class RpmVisualizerTest
 
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
-        Set<String> messages = (graphInfo.visInfo as RpmVisualizerInfo).messages
-        assert 1 == messages.size()
-        String message = messages.first()
-        assert message.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}the graph.")
-        checkStateOptionalScopeMessage(messages.first())
-
+        RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        Set<String> messages = visInfo.messages
+        assert 0 == messages.size()
+        String scopeMessage = visInfo.scopeInfo.scopeMessage
+        assert scopeMessage.contains('Optional scope in graph')
+assert scopeMessage.contains('<option id="state: null">Default</option>')
         List<Map<String, Object>> nodes = (graphInfo.visInfo as RpmVisualizerInfo).nodes as List
 
         Map node = nodes.find { Map node1 -> 'DRisk' == node1.label}
         String nodeDetails = node.details as String
         assert nodeDetails.contains(DETAILS_LABEL_NOTE)
-        assert nodeDetails.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}${VALID_VALUES_FOR_FIELD_LOWER_CASE}Coverages on WProductOps.")
+        //assert nodeDetails.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}${VALID_VALUES_FOR_FIELD_LOWER_CASE}Coverages on WProductOps.")
         //TODO:
        // assert nodeDetails.contains('<div id="businessDivisionCode" title="The default for businessDivisionCode was utilized on rpm.scope.enum.Risk.Coverages.traits')
         //assert nodeDetails.contains("A different scope value may be supplied for businessDivisionCode:")
         //assert nodeDetails.contains('<option>Default (bogusDIV provided, but not found)</option>')
-        assert nodeDetails.contains('<option title="businessDivisionCode: AAADIV">AAADIV</option>')
-        assert !nodeDetails.contains('<option title="businessDivisionCode: BBBDIV">BBBDIV</option>')
-        assert nodeDetails.contains('<option title="businessDivisionCode: CCCDIV">CCCDIV</option>')
+       // assert nodeDetails.contains('<option title="businessDivisionCode: AAADIV">AAADIV</option>')
+        //assert !nodeDetails.contains('<option title="businessDivisionCode: BBBDIV">BBBDIV</option>')
+        //assert nodeDetails.contains('<option title="businessDivisionCode: CCCDIV">CCCDIV</option>')
     }
-
-    private static void checkStateOptionalScopeMessage(String message)
-    {
-        //TODO:
-       // assert message.contains('<div id="state" title="The default for state was utilized on rpm.scope.enum.Product.Risks.traits')
-       // assert message.contains("Default is the only option for state:")
-       // assert message.contains('<option>Default (no value provided)</option>')
-    }
-
 
     @Test
     void testBuildGraph_missingMinimumTypeScopeUnChanged()

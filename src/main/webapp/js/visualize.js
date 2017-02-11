@@ -137,6 +137,7 @@ var Visualizer = (function ($) {
                 reload();
             });
 
+
             $('#hierarchical').on('change', function () {
                 //Hierarchical mode is disabled due to what appears to be a bug in vis.js or because the
                 //visualizer.js code is missing something. Tis problem started when converting to use
@@ -251,7 +252,7 @@ var Visualizer = (function ($) {
             scopeParts = id.split(':');
             key = scopeParts[0];
             value = scopeParts[1].trim();
-            _scope[key] = value === SCOPE_DEFAULT_VALUE ? null : value;
+            _scope[key] = value === 'null' ? null : value;
             scopeChange();
         }
     }

@@ -88,9 +88,9 @@ class VisualizerHelper
 	{
 		StringBuilder sb = new StringBuilder()
 		Set<Object> availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey, providedValue)
-		String title1 = "Additional scope for ${scopeKey} is required to load this node."
-		String title2 = " The scope is required by ${cubeName}."
-		return sb.append(scopeInfo.getScopeMessage(scopeKey, availableValues, title1 + title2, providedValue))
+		StringBuilder popover = new StringBuilder("Additional scope for ${scopeKey} is required to load this node.")
+		popover.append("$DOUBLE_BREAK}The scope is required by ${cubeName}.")
+		return sb.append(scopeInfo.getScopeMessage(scopeKey, availableValues, popover, providedValue))
 	}
 
 	static String handleException(Throwable e)

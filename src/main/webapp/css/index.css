@@ -668,3 +668,18 @@ a.section-all:hover, a.section-none:hover {
 .space-grey {
     color: #a5adb0;
 }
+
+.popover{
+    min-width: 100px;
+    max-width: 1000px;
+    overflow-wrap:break-word;
+}
+
+
+.popover-title {
+    color: black;
+}
+
+.popover-content {
+    color: black;
+}
