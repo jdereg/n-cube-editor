@@ -110,6 +110,10 @@ var NCubeEditor2 = (function ($) {
     var _searchOptionsLoadAllData = null;
     var _permCache = null;
     var _isCellDirty = null;
+    var _coordBarRightBtn = null;
+    var _coordBarLeftBtn = null;
+    var _coordBarText = null;
+    var _utilContainerBar = null;
 
     function init(info) {
         if (!nce) {
@@ -187,6 +191,10 @@ var NCubeEditor2 = (function ($) {
             _searchOptionsLabel = $('#searchOptionsLabel');
             _searchOptionsModal = $('#searchOptionsModal');
             _searchOptionsLoadAllData = $('#searchOptionsLoadAllData');
+            _coordBarRightBtn = $('#coordinate-bar-move-right');
+            _coordBarLeftBtn = $('#coordinate-bar-move-left');
+            _coordBarText = $('#coordinate-bar-text');
+            _utilContainerBar = $('#util-container-bar');
 
             addSelectAllNoneListeners();
             addAxisEditListeners();
@@ -324,15 +332,14 @@ var NCubeEditor2 = (function ($) {
     }
 
     function setUtilityBarDisplay() {
-        var moveRightBtn = $('#coordinate-bar-move-right');
-        var btnWidth = moveRightBtn.outerWidth();
+        var btnWidth = _coordBarRightBtn.outerWidth();
         var windowWidth = $(this).width();
         var search = $('#search-container');
         var searchWidth = search.width();
         var coordWidth = windowWidth - searchWidth;
-        $(getDomCoordinateBar()).width(coordWidth - btnWidth * 2); // coord bar text
-        moveRightBtn.css({left: coordWidth - btnWidth}); // keep the right button to the end
-        $('#util-container-bar').width(coordWidth); // coord bar container for background
+        _coordBarText.width(coordWidth - btnWidth * 2); // coord bar text
+        _coordBarRightBtn.css({left: coordWidth - btnWidth}); // keep the right button to the end
+        _utilContainerBar.width(coordWidth); // coord bar container for background
         search.css({left: windowWidth - searchWidth});
     }
 
@@ -2842,46 +2849,26 @@ var NCubeEditor2 = (function ($) {
 
     //====================================== coordinate bar functions ==================================================
 
-    function getDomCoordinateBar() {
-        return document.getElementById('coordinate-bar-text');
-    }
-
-    function getDomCoordinateBarLeftButton() {
-        return document.getElementById('coordinate-bar-move-left');
-    }
-
-    function getDomCoordinateBarRightButton() {
-        return document.getElementById('coordinate-bar-move-right');
-    }
-
     function resetCoordinateBar(displayText) {
-        var bar = getDomCoordinateBar();
-        var left = getDomCoordinateBarLeftButton();
-        var right = getDomCoordinateBarRightButton();
-
-        bar.scrollLeft = 0;
-        bar.innerHTML = displayText || '';
-
-        if ($(bar).hasScrollBar()) {
-            $(left).show();
-            $(right).show();
+        _coordBarText[0].scrollLeft = 0;
+        _coordBarText[0].innerHTML = displayText || '';
+        if (_coordBarText.hasScrollBar()) {
+            _coordBarLeftBtn.show();
+            _coordBarRightBtn.show();
         } else {
-            $(left).hide();
-            $(right).hide();
+            _coordBarLeftBtn.hide();
+            _coordBarRightBtn.hide();
         }
-        bar = null;
-        left = null;
-        right = null;
     }
 
     function setCoordinateBarListeners() {
-        $(getDomCoordinateBarLeftButton()).on('click', function() {
-            getDomCoordinateBar().scrollLeft = getDomCoordinateBar().scrollLeft - COORDINATE_BAR_SCROLL_AMOUNT;
+        _coordBarLeftBtn.on('click', function() {
+            _coordBarText[0].scrollLeft -= COORDINATE_BAR_SCROLL_AMOUNT;
             $(this).blur();
         });
 
-        $(getDomCoordinateBarRightButton()).on('click', function() {
-            getDomCoordinateBar().scrollLeft = getDomCoordinateBar().scrollLeft + COORDINATE_BAR_SCROLL_AMOUNT;
+        _coordBarRightBtn.on('click', function() {
+            _coordBarText[0].scrollLeft += COORDINATE_BAR_SCROLL_AMOUNT;
             $(this).blur();
         });
     }
@@ -3657,6 +3644,7 @@ var NCubeEditor2 = (function ($) {
             _editCellCancel.hide();
             _editCellClear.hide();
         }
+        editCellAffectsCoordBar(true);
         _editCellModal.modal('show');
     }
 
@@ -3675,6 +3663,7 @@ var NCubeEditor2 = (function ($) {
 
     function editCellClose() {
         _cellId = null;
+        editCellAffectsCoordBar(false);
         _editCellModal.modal('hide');
         destroyEditor();
     }
@@ -3716,6 +3705,10 @@ var NCubeEditor2 = (function ($) {
             editCellClose();
         }
         reload();
+    }
+
+    function editCellAffectsCoordBar(editState) {
+        _utilContainerBar.css({'z-index': editState ? 1051 : '' }); // position above bootstrap modal backdrop
     }
 
     function onEditCellModalShown() {
