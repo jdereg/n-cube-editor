@@ -45,7 +45,21 @@ class VisualizerScopeInfo
 		scope = scopeMap as CaseInsensitiveMap ?: new CaseInsensitiveMap()
 	}
 
-	Set<Object> addRequiredStartScope(String scopeKey, String cubeName, Object providedValue, boolean skipAvailableScopeValues = false)
+	void init()
+	{
+		if (!scope)
+		{
+			scope = new CaseInsensitiveMap()
+			requiredStartScopeAvailableValues = new CaseInsensitiveMap()
+			requiredStartScopeProvidedValues = new CaseInsensitiveMap()
+			requiredStartScopeCubeNames = new CaseInsensitiveMap()
+			optionalGraphScopeAvailableValues = new CaseInsensitiveMap()
+			optionalGraphScopeProvidedValues = new CaseInsensitiveMap()
+			optionalGraphScopeCubeNames = new CaseInsensitiveMap()
+		}
+	}
+
+	Set<Object> addRequiredStartScope(String cubeName, String scopeKey, Object providedValue, boolean skipAvailableScopeValues = false)
 	{
 		addRequiredStartScopeValues(cubeName, scopeKey, requiredStartScopeAvailableValues, skipAvailableScopeValues)
 		addValue(scopeKey, requiredStartScopeCubeNames, cubeName)
@@ -140,10 +154,11 @@ class VisualizerScopeInfo
 	{
 		StringBuilder sb = new StringBuilder()
 		optionalGraphScopeAvailableValues.keySet().each{ String scopeKey ->
+			sb.append(BREAK)
 			Set<String> cubeNames = optionalGraphScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
 			String providedValue = scope[scopeKey] as String
-			StringBuilder popover = new StringBuilder("Optional to load the top level node, but may be required for other nodes in the graph.")
+			StringBuilder popover = new StringBuilder("Optional for the top level node, may be required for other nodes.")
 			popover.append(addCubeNamesList('Used on:', cubeNames))
 			sb.append(getScopeMessage(scopeKey, optionalGraphScopeAvailableValues[scopeKey], popover, providedValue))
 		}
@@ -154,6 +169,7 @@ class VisualizerScopeInfo
 	{
 		StringBuilder sb = new StringBuilder()
 		requiredStartScopeAvailableValues.keySet().each{ String scopeKey ->
+			sb.append(BREAK)
 			Set<String> cubeNames =  requiredStartScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
 			String providedValue = scope[scopeKey] as String
@@ -166,13 +182,13 @@ class VisualizerScopeInfo
 
 	protected static StringBuilder getOptionalNodeScopeMessage(Map<String, Set<Object>> nodeAvailableValues, Map<String, Set<Object>> nodeProvidedValues,  Map<String, Set<String>> nodeCubeNames )
 	{
-		StringBuilder sb = new StringBuilder("Scope defaults were used during load of this node. Different values may be selected:${DOUBLE_BREAK}")
+		StringBuilder sb = new StringBuilder("Optional scope may be provided: ${BREAK}")
 		nodeAvailableValues.keySet().each { String axisName ->
 			Set<Object> providedValues = nodeProvidedValues[axisName]
 			providedValues.remove(null)
 			String providedValue = providedValues ? providedValues.join(COMMA_SPACE) : null
 			Set<String> cubeNames = nodeCubeNames[axisName]
-			StringBuilder popover = new StringBuilder("Optional to load this node.")
+			StringBuilder popover = new StringBuilder('Optional to load this node.')
 			popover.append(addCubeNamesList('Used on:', cubeNames))
 			sb.append(getScopeMessage(axisName, nodeAvailableValues[axisName], popover, providedValue))
 		}
@@ -181,7 +197,7 @@ class VisualizerScopeInfo
 
 	static StringBuilder getScopeMessage(String scopeKey, Set<Object> scopeValues, StringBuilder popoverContent, String providedValue)
 	{
-		StringBuilder sb = new StringBuilder(BREAK)
+		StringBuilder sb = new StringBuilder()
 		StringBuilder sbInner = new StringBuilder()
 		boolean optionalScope = scopeValues.contains(null)
 		String nullValueOptionLabel = optionalScope ? 'Default' : 'Select...'
@@ -233,7 +249,7 @@ class VisualizerScopeInfo
 		StringBuilder sb = new StringBuilder()
 		if (cubeNames)
 		{
-			sb.append("${SPACE}${prefix}${BREAK}")
+			sb.append("${SPACE}${prefix}${DOUBLE_BREAK}")
 			sb.append('<ul>')
 			cubeNames.each { String cubeName ->
 				sb.append("<li>${cubeName}</li>")

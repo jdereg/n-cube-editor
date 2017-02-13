@@ -57,7 +57,7 @@ class VisualizerHelper
 		String scopeKey = e.axisName
 		if (cubeName && scopeKey)
 		{
-			return getAdditionalRequiredNodeScopeMessage(visInfo.scopeInfo, scopeKey, e.value as String, cubeName)
+			return getAdditionalRequiredNodeScopeMessage(visInfo, scopeKey, e.value as String, cubeName)
 		}
 		else
 		{
@@ -73,7 +73,7 @@ class VisualizerHelper
 		{
 			StringBuilder sb = new StringBuilder()
 			missingScope.each { String scopeKey ->
-				sb.append(getAdditionalRequiredNodeScopeMessage(visInfo.scopeInfo, scopeKey, null, e.cubeName))
+				sb.append(getAdditionalRequiredNodeScopeMessage(visInfo, scopeKey, null, e.cubeName))
 			}
 			return sb
 		}
@@ -84,12 +84,20 @@ class VisualizerHelper
 		}
 	}
 
-	private static StringBuilder getAdditionalRequiredNodeScopeMessage(VisualizerScopeInfo scopeInfo, String scopeKey, String providedValue, String cubeName)
+	protected static StringBuilder getAdditionalRequiredNodeScopeMessage(VisualizerInfo visInfo, String scopeKey, String providedValue, String cubeName)
 	{
 		StringBuilder sb = new StringBuilder()
-		Set<Object> availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey, providedValue)
-		StringBuilder popover = new StringBuilder("Additional scope for ${scopeKey} is required to load this node.")
-		popover.append("$DOUBLE_BREAK}The scope is required by ${cubeName}.")
+		Set<Object> availableValues
+		VisualizerScopeInfo scopeInfo = visInfo.scopeInfo
+		if (visInfo.nodeCount == 1)
+		{
+			availableValues = scopeInfo.addRequiredStartScope(cubeName, scopeKey, providedValue)
+		}
+		else
+		{
+			availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey, providedValue)
+		}
+		StringBuilder popover = new StringBuilder("Required by ${cubeName} to load this node.")
 		return sb.append(scopeInfo.getScopeMessage(scopeKey, availableValues, popover, providedValue))
 	}
 

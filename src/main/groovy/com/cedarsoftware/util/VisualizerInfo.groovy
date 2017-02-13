@@ -51,6 +51,7 @@ class VisualizerInfo
 
     protected void init()
     {
+        scopeInfo.init()
         maxLevel = 1
         nodeCount = 1
         relInfoCount = 1

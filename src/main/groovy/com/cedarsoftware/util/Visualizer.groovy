@@ -47,12 +47,7 @@ class Visualizer
 			return [status: STATUS_INVALID_START_CUBE, visInfo: visInfo]
 		}
 
-		if (hasMissingMinimumScope(visInfo, startCubeName))
-		{
-			visInfo.scopeInfo.createScopePrompt()
-			return [status: STATUS_MISSING_START_SCOPE, visInfo: visInfo]
-		}
-
+		populateScopeDefaults(visInfo, startCubeName)
 		getVisualization(visInfo, relInfo, startCubeName)
 		visInfo.scopeInfo.createScopePrompt()
 		visInfo.convertToSingleMessage()
@@ -197,8 +192,7 @@ class Visualizer
 		return true
 	}
 
-	protected boolean hasMissingMinimumScope(VisualizerInfo visInfo, String startCubeName)
+	protected void populateScopeDefaults(VisualizerInfo visInfo, String startCubeName)
 	{
-		return false
 	}
 }

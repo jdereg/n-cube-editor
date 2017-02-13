@@ -56,7 +56,6 @@ var Visualizer = (function ($) {
     var _scopeButton = null;
     var _findNode = null;
     var STATUS_SUCCESS = 'success';
-    var STATUS_MISSING_START_SCOPE = 'missingStartScope';
     var UNSPECIFIED = 'UNSPECIFIED';
     var COMPLETE = 'complete';
     var ITERATING = 'iterating...';
@@ -66,7 +65,6 @@ var Visualizer = (function ($) {
     var LEVEL_PREFIX = 'Level ';
     var STICKY_SCOPE_MESSAGE = 'STICKY_SCOPE_MESSAGE';
     var SCOPE_IMAGE = {src: './img/scope.png', width: '65px', height: '20px'};
-    var SCOPE_DEFAULT_VALUE = 'Default';
 
     //Network layout parameters
     var _hierarchical = false;
@@ -480,7 +478,7 @@ var Visualizer = (function ($) {
 
     function scopeChange()
     {
-        saveToLocalStorage(_scope, SCOPE_MAP);
+        saveToLocalStorage(_scope, SCOPE_INFO);
         load();
     }
 
@@ -561,8 +559,7 @@ var Visualizer = (function ($) {
         _nodeCellValues.append(createCellValuesLink(node));
 
         _scope = visInfo.scopeInfo.scope;
-        _scopeMessage = visInfo.scopeInfo.scopeMessage;
-
+        _scopeMessage = _scope.scopeMessage;
         _visInfo = visInfo;
     }
 
@@ -607,12 +604,11 @@ var Visualizer = (function ($) {
         if (_visInfo){
             _visInfo.nodes = {};
             _visInfo.edges = {};
-            options =  {startCubeName: _selectedCubeName, scope: _scope, visInfo: _visInfo};
         }
         else{
             getAllFromLocalStorage();
-            options =  {startCubeName: _selectedCubeName, scope: _scope};
         }
+        options =  {startCubeName: _selectedCubeName, visInfo: _visInfo};
 
 
         result = _nce.call('ncubeController.getVisualizerJson', [_nce.getSelectedTabAppId(), options]);
@@ -639,16 +635,6 @@ var Visualizer = (function ($) {
             _visualizerContent.show();
             _visualizerInfo.show();
             _visualizerNetwork.show();
-        }
-        else if (STATUS_MISSING_START_SCOPE === json.status) {
-            displayMessages(json.visInfo.messages);
-            loadGraphData(json.visInfo, json.status);
-            saveAllToLocalStorage();
-            loadScopeView();
-            _visualizerContent.show();
-            _visualizerInfo.hide();
-            _visualizerNetwork.hide();
-            _networkOptionsSection.hide();
         }
         else {
              _visualizerContent.hide();
@@ -993,8 +979,7 @@ var Visualizer = (function ($) {
             }
         }
         _scope = visInfo.scopeInfo.scope;
-        _scopeMessage = visInfo.scopeInfo.scopeMessage;
-
+        _scopeMessage = _scope.scopeMessage;
         _visInfo = visInfo;
 
         _loadedCubeName = _selectedCubeName;
@@ -1273,6 +1258,12 @@ var Visualizer = (function ($) {
             });
             _nodeDetails.addClass(HAS_EVENT)
         }
+        $('[data-toggle="popover"]').popover({
+            html: true,
+            container: 'body',
+            trigger: 'hover',
+            placement: 'auto'
+        });
     }
 
     function executeCell(target) {
@@ -1380,7 +1371,7 @@ var Visualizer = (function ($) {
             _keepCurrentScope = false;
         }
         else{
-            _scope = getFromLocalStorage(SCOPE_MAP, null);
+            _visInfo = getFromLocalStorage(VISUALIZER_INFO, null);
         }
 
         _selectedGroups = getFromLocalStorage(SELECTED_GROUPS, null);
@@ -1401,7 +1392,7 @@ var Visualizer = (function ($) {
     }
 
     function saveAllToLocalStorage() {
-        saveToLocalStorage(_scope, SCOPE_MAP);
+        saveToLocalStorage(_visInfo, VISUALIZER_INFO);
         saveToLocalStorage(_selectedGroups, SELECTED_GROUPS);
         saveToLocalStorage(_selectedLevel, SELECTED_LEVEL);
         saveToLocalStorage(_hierarchical, HIERARCHICAL);

@@ -89,7 +89,7 @@ ul, li{
 .cellValues li.Exception
 {
     background-image: url('../img/redexclamationmarkcircle.png');
-     background-repeat: no-repeat;
+    background-repeat: no-repeat;
     background-position: 0 50%;
     padding: 3px 0 3px 20px;
     margin: .4em 0;
@@ -169,6 +169,12 @@ h3{
 
 .readOnly{
     background-color:rgb(235, 235, 228);
+}
+
+.popover{
+    min-width: 100px;
+    max-width: 1000px;
+    overflow-wrap:break-word;
 }
 
 

@@ -48,23 +48,21 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	String getDetails(VisualizerInfo visInfo)
 	{
 		StringBuilder sb = new StringBuilder()
-		String notesLabel = "<b>Notes</b>"
 
 		if (!cellValuesLoaded)
 		{
 			sb.append("<b>*** Unable to load fields and traits for ${getLabel(targetCube.name)}</b>${DOUBLE_BREAK}")
-			notesLabel = "<b>Reason</b>"
 		}
 
 		//Notes
 		if (notes)
 		{
-			sb.append("<pre><ul>")
-			sb.append(notesLabel)
+			sb.append('<b>Notes</b>')
+			sb.append("<pre>")
 			notes.each { String note ->
-				sb.append("<li>${note}</li>")
+				sb.append("${note}")
 			}
-			sb.append("</ul></pre>")
+			sb.append("</pre>")
 			sb.append("${BREAK}")
 		}
 
@@ -152,15 +150,9 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		return visInfo.allGroupsKeys.contains(group) ? group : UNSPECIFIED
 	}
 
-	String getSourceScopedName()
-	{
-		Map<String, Object> classTraitsTraitMap = sourceTraits[CLASS_TRAITS] as Map
-		return classTraitsTraitMap ? classTraitsTraitMap[R_SCOPED_NAME] : null
-	}
-
 	String getTargetScopedName()
 	{
-		Map<String, Object> classTraitsTraitMap = targetTraits[CLASS_TRAITS] as Map
+		Map<String, Object> classTraitsTraitMap = targetTraits ? targetTraits[CLASS_TRAITS] as Map : null
 		return classTraitsTraitMap ? classTraitsTraitMap[R_SCOPED_NAME] : null
 	}
 
@@ -335,8 +327,8 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	{
 		try
 		{
-			targetTraits = [:]
-			Map output = [:]
+			targetTraits = new CaseInsensitiveMap()
+			Map output = new CaseInsensitiveMap()
 			if (targetCube.name.startsWith(RPM_ENUM))
 			{
 				helper.loadRpmClassFields(appId, RPM_ENUM, targetCube.name - RPM_ENUM_DOT, availableTargetScope, targetTraits, showCellValues, output)
@@ -383,7 +375,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 
 	private void handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerInfo visInfo)
 	{
-		StringBuilder sb = new StringBuilder("A required scope value was not found for this node: ${DOUBLE_BREAK}")
+		StringBuilder sb = new StringBuilder("A required scope value was not found for this node: ${BREAK}")
 		sb.append(helper.handleCoordinateNotFoundException(e, visInfo))
 		notes << sb.toString()
 		nodeLabelPrefix = 'Required scope value not found for '
@@ -392,7 +384,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 
 	private void handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerInfo visInfo)
 	{
-		StringBuilder sb = new StringBuilder("Additional scope is required to load this node: ${DOUBLE_BREAK}")
+		StringBuilder sb = new StringBuilder("Additional scope is required: ${BREAK}")
 		sb.append(helper.handleInvalidCoordinateException(e, visInfo, this, MANDATORY_SCOPE_KEYS))
 		notes << sb.toString()
 		nodeLabelPrefix = 'Additional scope required for '
@@ -401,7 +393,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 
 	private void handleException(Throwable e)
 	{
-		StringBuilder sb = new StringBuilder("An exception was thrown while loading this node. ${DOUBLE_BREAK}")
+		StringBuilder sb = new StringBuilder("An exception was thrown while loading this node. ${BREAK}")
 		sb.append(helper.handleException(e))
 		notes << sb.toString()
 		nodeLabelPrefix = "Unable to load "

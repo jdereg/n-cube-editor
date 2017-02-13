@@ -709,6 +709,11 @@ ul .checkbox-label {
     overflow-wrap:break-word;
 }
 
+ul, li .popover{
+    list-style-position: inside;
+    margin: 0;
+    padding: 0;
+}
 
 .popover-title {
     color: black;

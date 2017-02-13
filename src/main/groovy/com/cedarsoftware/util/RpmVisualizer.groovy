@@ -267,25 +267,22 @@ class RpmVisualizer extends Visualizer
 	}
 
 	@Override
-	protected boolean hasMissingMinimumScope(VisualizerInfo visInfo, String startCubeName)
+	protected void populateScopeDefaults(VisualizerInfo visInfo, String startCubeName)
 	{
 		RpmVisualizerInfo rpmVisInfo = (RpmVisualizerInfo) visInfo
 		defaultScopeEffectiveVersion = appId.version
-		boolean hasMissingScope = false
+
 		if (NCubeManager.getCube(appId, startCubeName).getAxis(AXIS_TRAIT).findColumn(R_SCOPED_NAME))
 		{
 			defaultScopeDate = DATE_TIME_FORMAT.format(new Date())
-			String type = getTypeFromCubeName(startCubeName)
-			hasMissingScope = rpmVisInfo.addMissingMinimumScope(type, null, startCubeName) ?: hasMissingScope
-			hasMissingScope = rpmVisInfo.addMissingMinimumScope(POLICY_CONTROL_DATE, defaultScopeDate, null) ?: hasMissingScope
-			hasMissingScope = rpmVisInfo.addMissingMinimumScope(QUOTE_DATE, defaultScopeDate, null) ?: hasMissingScope
-			hasMissingScope = rpmVisInfo.addMissingMinimumScope(EFFECTIVE_VERSION, defaultScopeEffectiveVersion, null) ?: hasMissingScope
+			rpmVisInfo.populateScopeDefaults(POLICY_CONTROL_DATE, defaultScopeDate)
+			rpmVisInfo.populateScopeDefaults(QUOTE_DATE, defaultScopeDate)
+			rpmVisInfo.populateScopeDefaults(EFFECTIVE_VERSION, defaultScopeEffectiveVersion)
 		}
 		else
 		{
-			hasMissingScope = rpmVisInfo.addMissingMinimumScope(EFFECTIVE_VERSION, defaultScopeEffectiveVersion, null) ?: hasMissingScope
+			rpmVisInfo.populateScopeDefaults(EFFECTIVE_VERSION, defaultScopeEffectiveVersion)
 		}
-		return hasMissingScope
 	}
 
 	private static String getTypeFromCubeName(String cubeName)
