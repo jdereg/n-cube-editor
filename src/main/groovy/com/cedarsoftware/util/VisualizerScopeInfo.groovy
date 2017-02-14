@@ -24,7 +24,7 @@ import static com.cedarsoftware.util.VisualizerConstants.SPACE
 class VisualizerScopeInfo
 {
 	ApplicationID appId
-	Map<String, Object> scope
+	Map<String, Object> scope  = new CaseInsensitiveMap()
 
 	Map<String, Set<Object>> requiredStartScopeAvailableValues = new CaseInsensitiveMap()
 	Map<String, Set<Object>> requiredStartScopeProvidedValues = new CaseInsensitiveMap()
@@ -43,20 +43,6 @@ class VisualizerScopeInfo
 	{
 		appId = applicationID
 		scope = scopeMap as CaseInsensitiveMap ?: new CaseInsensitiveMap()
-	}
-
-	void init()
-	{
-		if (!scope)
-		{
-			scope = new CaseInsensitiveMap()
-			requiredStartScopeAvailableValues = new CaseInsensitiveMap()
-			requiredStartScopeProvidedValues = new CaseInsensitiveMap()
-			requiredStartScopeCubeNames = new CaseInsensitiveMap()
-			optionalGraphScopeAvailableValues = new CaseInsensitiveMap()
-			optionalGraphScopeProvidedValues = new CaseInsensitiveMap()
-			optionalGraphScopeCubeNames = new CaseInsensitiveMap()
-		}
 	}
 
 	Set<Object> addRequiredStartScope(String cubeName, String scopeKey, Object providedValue, boolean skipAvailableScopeValues = false)

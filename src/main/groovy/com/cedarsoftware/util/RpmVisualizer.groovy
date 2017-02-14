@@ -53,7 +53,7 @@ class RpmVisualizer extends Visualizer
 		{
 			visInfo = new RpmVisualizerInfo(appId)
 		}
-		visInfo.init()
+		visInfo.init(options.scopeInfo as VisualizerScopeInfo)
 		return visInfo
 	}
 

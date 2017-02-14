@@ -97,7 +97,7 @@ class Visualizer
 		{
 			visInfo = new VisualizerInfo(appId)
 		}
-		visInfo.init()
+		visInfo.init(options.scopeInfo as VisualizerScopeInfo)
 		return visInfo
 	}
 

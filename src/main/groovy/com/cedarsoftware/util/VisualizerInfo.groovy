@@ -49,9 +49,9 @@ class VisualizerInfo
         loadConfigurations(cubeType)
     }
 
-    protected void init()
+    protected void init(VisualizerScopeInfo optionsScopeInfo)
     {
-        scopeInfo.init()
+        scopeInfo = optionsScopeInfo ?: new VisualizerScopeInfo(appId)
         maxLevel = 1
         nodeCount = 1
         relInfoCount = 1
