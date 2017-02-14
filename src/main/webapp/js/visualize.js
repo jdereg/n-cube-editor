@@ -32,8 +32,7 @@ var Visualizer = (function ($) {
     var _okToLoadGraph = true;
     var _nodes = [];
     var _edges = [];
-    var _scope = null;
-    var _scopeMessage = null;
+    var _scopeInfo = null;
     var _keepCurrentScope = false;
     var _selectedGroups = null;
     var _availableGroupsAtLevel = null;
@@ -159,7 +158,7 @@ var Visualizer = (function ($) {
                     button.removeClass('active');
                 }
                 else{
-                    _nce.showNote(_scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, SCOPE_IMAGE);
+                    _nce.showNote(_scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, SCOPE_IMAGE);
                     button.addClass('active');
                 }
                 _scopeButton = button.hasClass('active');
@@ -231,14 +230,14 @@ var Visualizer = (function ($) {
     }
 
     function scopeResetEvent() {
-        _scope = null;
+        _scopeInfo = null;
         scopeChange();
     }
 
     function scopeInputEvent(target) {
         var key = target.id;
         if (key) {
-            _scope[key] = target.value;
+            _scopeInfo.scope[key] = target.value;
             scopeChange();
         }
     }
@@ -250,7 +249,7 @@ var Visualizer = (function ($) {
             scopeParts = id.split(':');
             key = scopeParts[0];
             value = scopeParts[1].trim();
-            _scope[key] = value === 'null' ? null : value;
+            _scopeInfo.scope[key] = value === 'null' ? null : value;
             scopeChange();
         }
     }
@@ -478,7 +477,7 @@ var Visualizer = (function ($) {
 
     function scopeChange()
     {
-        saveToLocalStorage(_scope, SCOPE_INFO);
+        saveToLocalStorage(_scopeInfo, SCOPE_INFO);
         load();
     }
 
@@ -558,8 +557,7 @@ var Visualizer = (function ($) {
         _nodeCellValues[0].innerHTML = '';
         _nodeCellValues.append(createCellValuesLink(node));
 
-        _scope = visInfo.scopeInfo.scope;
-        _scopeMessage = _scope.scopeMessage;
+        _scopeInfo = visInfo.scopeInfo;
         _visInfo = visInfo;
     }
 
@@ -609,6 +607,16 @@ var Visualizer = (function ($) {
             getAllFromLocalStorage();
         }
         options =  {startCubeName: _selectedCubeName, visInfo: _visInfo};
+
+        if (_visInfo){
+            _visInfo.nodes = {};
+            _visInfo.edges = {};
+            options =  {startCubeName: _selectedCubeName, scopeInfo: _scopeInfo, visInfo: _visInfo};
+        }
+        else{
+            getAllFromLocalStorage();
+            options =  {startCubeName: _selectedCubeName, scopeInfo: _scopeInfo};
+        }
 
 
         result = _nce.call('ncubeController.getVisualizerJson', [_nce.getSelectedTabAppId(), options]);
@@ -677,7 +685,7 @@ var Visualizer = (function ($) {
         var button = $('#scopeButton');
         button.addClass('active');
         _scopeButton = true;
-        _nce.showNote(_scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, SCOPE_IMAGE);
+        _nce.showNote(_scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, SCOPE_IMAGE);
     }
 
     function loadGroupsView() {
@@ -743,7 +751,7 @@ var Visualizer = (function ($) {
 
     function getScopeString(){
         var scopeLen, key, i, len, scope, scopeString, keys;
-        scope = $.extend(true, {}, _scope);
+        scope = $.extend(true, {}, _scopeInfo.scope);
         delete scope['@type'];
         delete scope['@id'];
         scopeString = '';
@@ -978,8 +986,7 @@ var Visualizer = (function ($) {
                 _selectedLevel = maxLevel;
             }
         }
-        _scope = visInfo.scopeInfo.scope;
-        _scopeMessage = _scope.scopeMessage;
+        _scopeInfo = visInfo.scopeInfo.scope;
         _visInfo = visInfo;
 
         _loadedCubeName = _selectedCubeName;
@@ -1297,7 +1304,7 @@ var Visualizer = (function ($) {
         visualizerLink.click(function (e) {
             e.preventDefault();
             _keepCurrentScope = true;
-            _scope = node.scope;
+            _scopeInfo.scope = node.scope;
             _nce.selectCubeByName(cubeName, appId, TAB_VIEW_TYPE_VISUALIZER + PAGE_ID);
         });
         return visualizerLink;
