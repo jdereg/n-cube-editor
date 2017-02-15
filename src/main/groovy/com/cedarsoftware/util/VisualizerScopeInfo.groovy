@@ -180,49 +180,38 @@ class VisualizerScopeInfo
 	static StringBuilder getScopeMessage(String scopeKey, Set<Object> scopeValues, StringBuilder title, String providedValue)
 	{
 		StringBuilder sb = new StringBuilder()
-		StringBuilder sbInner = new StringBuilder()
 		boolean optionalScope = scopeValues.contains(null)
-		String nullValueOptionLabel = optionalScope ? 'Default' : 'Select...'
+		String nullValueOptionLabel = optionalScope ? 'Default' : null
 		boolean noMatch = true
+		String value = providedValue ?: ''
 
 		if (scopeValues || optionalScope)
 		{
-			sbInner.append("""<select class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_SCOPE_SELECT}">""")
-			sbInner.append("""<option id="${scopeKey}: null">${nullValueOptionLabel}</option>""")
+			sb.append("""<div class="input-group">""")
+			sb.append("""<div class="input-group-btn">""")
+			sb.append("""<button type="button" class="btn btn-default dropdown-toggle" title="${title}" data-toggle="dropdown">${scopeKey} <span class="caret"></span></button>""")
+			sb.append("""<ul class="dropdown-menu ${DETAILS_CLASS_SCOPE_SELECT}">""")
 			scopeValues.each {
 				if (it)
 				{
 					String scopeValue = it as String
-					String selected = ''
 					if (scopeValue == providedValue){
 						noMatch = false
-						selected = 'selected'
 					}
-					sbInner.append("""<option id="${scopeKey}: ${scopeValue}" ${selected}>${scopeValue}</option>""")
+					sb.append("""<li id="${scopeKey}: ${scopeValue}" style="color: black;">${scopeValue}</li>""")
 				}
 			}
-			sbInner.append('</select>')
-		}
-		else
-		{
-			noMatch = false
-			String value = providedValue ?: ''
-			sbInner.append("""<input class="${DETAILS_CLASS_SCOPE_INPUT}" id="${scopeKey}" style="color: black;" type="text" placeholder="Enter value..." value="${value}">""")
+			sb.append("""</ul>""")
+			sb.append("""</div>""")
+			sb.append("""<input id="${scopeKey}" style="color: black;" type="text" placeholder="Select or enter value..." value="${value}" class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_SCOPE_INPUT}">""")
+			sb.append("""</div>""")
 		}
 
-		if (providedValue && noMatch)
+		/*if (providedValue && noMatch)
 		{
 			title.append("\n\n(${providedValue} provided, but not found)")
-		}
+		}*/
 
-		sb.append("""<div class="row" >""")
-		sb.append("""<div class="col-md-4" align="right"><b>${scopeKey}:</b></div>""")
-		sb.append("""<div class="col-md-8">""")
-		sb.append("""<div class="input-group input-group-sm" title="${title.toString()}"> """)
-		sb.append(sbInner)
-		sb.append("""</div>""")
-		sb.append("""</div>""")
-		sb.append("""</div>""")
 		return sb
 	}
 
