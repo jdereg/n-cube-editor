@@ -29,7 +29,7 @@ class VisualizerInfo
     Set<String> availableGroupsAllLevels
     Set<String> messages
 
-    VisualizerScopeInfo scopeInfo
+    VisualizerScopeInfo scopeInfo = new VisualizerScopeInfo()
 
     Map<String, Object> networkOverridesBasic
     Map<String, Object> networkOverridesFull
@@ -45,13 +45,16 @@ class VisualizerInfo
     VisualizerInfo(ApplicationID applicationID)
     {
         appId = applicationID
-        scopeInfo = new VisualizerScopeInfo(appId)
         loadConfigurations(cubeType)
     }
 
-    protected void init(VisualizerScopeInfo optionsScopeInfo)
+    protected void init()
     {
-        scopeInfo = optionsScopeInfo ?: new VisualizerScopeInfo(appId)
+        scopeInfo.appId = appId
+        if (!scopeInfo.scope)
+        {
+            scopeInfo.scope = new CaseInsensitiveMap()
+        }
         maxLevel = 1
         nodeCount = 1
         relInfoCount = 1

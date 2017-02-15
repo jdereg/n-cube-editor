@@ -39,8 +39,6 @@ class Visualizer
 		appId = applicationID
 		String startCubeName = options.startCubeName as String
 		VisualizerInfo visInfo = getVisualizerInfo(options)
-		VisualizerRelInfo relInfo = visualizerRelInfo
-		visInfo.scopeInfo.startCubeDisplayName = relInfo.getCubeDisplayName(startCubeName)
 
 		if (!isValidStartCube(visInfo, startCubeName))
 		{
@@ -48,7 +46,7 @@ class Visualizer
 		}
 
 		populateScopeDefaults(visInfo, startCubeName)
-		getVisualization(visInfo, relInfo, startCubeName)
+		getVisualization(visInfo, startCubeName)
 		visInfo.scopeInfo.createScopePrompt()
 		visInfo.convertToSingleMessage()
 		return [status: STATUS_SUCCESS, visInfo: visInfo]
@@ -96,13 +94,15 @@ class Visualizer
 		if (!visInfo || visInfo.class.name != this.class.name)
 		{
 			visInfo = new VisualizerInfo(appId)
+			visInfo.scopeInfo = options.scopeInfo as VisualizerScopeInfo ?: new VisualizerScopeInfo()
 		}
-		visInfo.init(options.scopeInfo as VisualizerScopeInfo)
+		visInfo.init()
 		return visInfo
 	}
 
-	protected void getVisualization(VisualizerInfo visInfo, VisualizerRelInfo relInfo, String startCubeName)
+	protected void getVisualization(VisualizerInfo visInfo, String startCubeName)
 	{
+		VisualizerRelInfo relInfo = visualizerRelInfo
 		loadFirstVisualizerRelInfo(visInfo, relInfo, startCubeName)
 		stack.push(relInfo)
 

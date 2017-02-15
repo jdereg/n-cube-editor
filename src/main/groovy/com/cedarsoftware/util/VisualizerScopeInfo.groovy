@@ -35,14 +35,12 @@ class VisualizerScopeInfo
 	Map<String, Set<String>> optionalGraphScopeCubeNames = new CaseInsensitiveMap()
 
 	String scopeMessage
-	String startCubeDisplayName
 
 	VisualizerScopeInfo(){}
 
-	VisualizerScopeInfo(ApplicationID applicationID, Map<String, Object> scopeMap = null)
+	VisualizerScopeInfo(ApplicationID applicationID)
 	{
 		appId = applicationID
-		scope = scopeMap as CaseInsensitiveMap ?: new CaseInsensitiveMap()
 	}
 
 	Set<Object> addRequiredStartScope(String cubeName, String scopeKey, Object providedValue, boolean skipAvailableScopeValues = false)
@@ -120,7 +118,7 @@ class VisualizerScopeInfo
 		StringBuilder sb = new StringBuilder("${BREAK}")
 		if (requiredStartScopeAvailableValues)
 		{
-			sb.append("<b>Required scope for ${startCubeDisplayName}</b>")
+			sb.append("<b>Required scope to load graph</b>")
 			sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
 			sb.append(requiredStartScopeMessage)
 			sb.append("${DOUBLE_BREAK}")
@@ -144,9 +142,8 @@ class VisualizerScopeInfo
 			Set<String> cubeNames = optionalGraphScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
 			String providedValue = scope[scopeKey] as String
-			StringBuilder popover = new StringBuilder("Optional for the top level node, may be required for other nodes.")
-			popover.append(addCubeNamesList('Used on:', cubeNames))
-			sb.append(getScopeMessage(scopeKey, optionalGraphScopeAvailableValues[scopeKey], popover, providedValue))
+			StringBuilder title = new StringBuilder("${scopeKey} is optional to load the graph, but may be required for some nodes.")
+			sb.append(getScopeMessage(scopeKey, optionalGraphScopeAvailableValues[scopeKey], title, providedValue))
 		}
 		return sb
 	}
@@ -159,29 +156,28 @@ class VisualizerScopeInfo
 			Set<String> cubeNames =  requiredStartScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
 			String providedValue = scope[scopeKey] as String
-			StringBuilder popover = new StringBuilder("Required to load the top level node.")
-			popover.append(addCubeNamesList('Required by:', cubeNames))
-			sb.append(getScopeMessage(scopeKey, requiredStartScopeAvailableValues[scopeKey], popover, providedValue))
+			StringBuilder title = new StringBuilder("${scopeKey} is required to load the graph.")
+			sb.append(getScopeMessage(scopeKey, requiredStartScopeAvailableValues[scopeKey], title, providedValue))
 		}
 		return sb
 	}
 
 	protected static StringBuilder getOptionalNodeScopeMessage(Map<String, Set<Object>> nodeAvailableValues, Map<String, Set<Object>> nodeProvidedValues,  Map<String, Set<String>> nodeCubeNames )
 	{
-		StringBuilder sb = new StringBuilder("Optional scope may be provided: ${BREAK}")
+		StringBuilder sb = new StringBuilder("<b>Optional scope may be provided: </b> ${DOUBLE_BREAK}")
 		nodeAvailableValues.keySet().each { String axisName ->
 			Set<Object> providedValues = nodeProvidedValues[axisName]
 			providedValues.remove(null)
 			String providedValue = providedValues ? providedValues.join(COMMA_SPACE) : null
 			Set<String> cubeNames = nodeCubeNames[axisName]
-			StringBuilder popover = new StringBuilder('Optional to load this node.')
-			popover.append(addCubeNamesList('Used on:', cubeNames))
-			sb.append(getScopeMessage(axisName, nodeAvailableValues[axisName], popover, providedValue))
+			StringBuilder title = new StringBuilder("${axisName} is optional to load this node.")
+			title.append(addCubeNamesList('Used on:', cubeNames))
+			sb.append(getScopeMessage(axisName, nodeAvailableValues[axisName], title, providedValue))
 		}
 		return sb
 	}
 
-	static StringBuilder getScopeMessage(String scopeKey, Set<Object> scopeValues, StringBuilder popoverContent, String providedValue)
+	static StringBuilder getScopeMessage(String scopeKey, Set<Object> scopeValues, StringBuilder title, String providedValue)
 	{
 		StringBuilder sb = new StringBuilder()
 		StringBuilder sbInner = new StringBuilder()
@@ -216,13 +212,13 @@ class VisualizerScopeInfo
 
 		if (providedValue && noMatch)
 		{
-			popoverContent.append("${DOUBLE_BREAK}(${providedValue} provided, but not found)")
+			title.append("\n\n(${providedValue} provided, but not found)")
 		}
 
 		sb.append("""<div class="row" >""")
 		sb.append("""<div class="col-md-4" align="right"><b>${scopeKey}:</b></div>""")
 		sb.append("""<div class="col-md-8">""")
-		sb.append("""<div class="input-group input-group-sm" data-toggle="popover" title="${scopeKey}" data-content="${popoverContent.toString()}"> """)
+		sb.append("""<div class="input-group input-group-sm" title="${title.toString()}"> """)
 		sb.append(sbInner)
 		sb.append("""</div>""")
 		sb.append("""</div>""")
@@ -235,12 +231,10 @@ class VisualizerScopeInfo
 		StringBuilder sb = new StringBuilder()
 		if (cubeNames)
 		{
-			sb.append("${SPACE}${prefix}${DOUBLE_BREAK}")
-			sb.append('<ul>')
+			sb.append(" ${prefix}\n")
 			cubeNames.each { String cubeName ->
-				sb.append("<li>${cubeName}</li>")
+				sb.append("${cubeName}\n")
 			}
-			sb.append('</ul>')
 		}
 		return sb
 	}

@@ -26,8 +26,6 @@ var Visualizer = (function ($) {
     var _edgeDataSet = null;
     var _nce = null;
     var _visInfo = null;
-    var _loadedCubeName = null;
-    var _loadedAppId = null;
     var _loadedVisInfoType = null;
     var _okToLoadGraph = true;
     var _nodes = [];
@@ -502,7 +500,7 @@ var Visualizer = (function ($) {
         node.details = null;
         _visInfo.nodes = {};
         _visInfo.edges = {};
-
+        _visInfo.scopeInfo = _scopeInfo; //TODO: Check if this is really needed here
         options =  {startCubeName: _selectedCubeName, visInfo: _visInfo, node: node};
 
         result = _nce.call('ncubeController.getVisualizerCellValues', [_nce.getSelectedTabAppId(), options]);
@@ -592,32 +590,16 @@ var Visualizer = (function ($) {
         //TODO: rpm.class.product) after a page refresh.
         _selectedCubeName = _nce.getSelectedCubeName().replace(/_/g, '.');
 
-        if (_loadedAppId && !appIdMatch(_loadedAppId, _nce.getSelectedTabAppId())) {
-            _visInfo = null;
-        }
-        else if (_loadedCubeName && _loadedCubeName !== _selectedCubeName){
-            getAllFromLocalStorage();
-         }
-
-        if (_visInfo){
+        getAllFromLocalStorage();
+        if (_visInfo) { //Re-loading
+            _visInfo.scopeInfo = _scopeInfo;
             _visInfo.nodes = {};
             _visInfo.edges = {};
+            options = {startCubeName: _selectedCubeName, visInfo: _visInfo};
         }
-        else{
-            getAllFromLocalStorage();
-        }
-        options =  {startCubeName: _selectedCubeName, visInfo: _visInfo};
-
-        if (_visInfo){
-            _visInfo.nodes = {};
-            _visInfo.edges = {};
-            options =  {startCubeName: _selectedCubeName, scopeInfo: _scopeInfo, visInfo: _visInfo};
-        }
-        else{
-            getAllFromLocalStorage();
+        else{ //First load for this session
             options =  {startCubeName: _selectedCubeName, scopeInfo: _scopeInfo};
         }
-
 
         result = _nce.call('ncubeController.getVisualizerJson', [_nce.getSelectedTabAppId(), options]);
         _nce.clearNote();
@@ -635,11 +617,11 @@ var Visualizer = (function ($) {
             loadGraphData(json.visInfo, json.status);
             initNetwork();
             loadSelectedLevelListView();
-            saveAllToLocalStorage();
             loadScopeView();
             loadHierarchicalView();
             loadGroupsView();
             loadCountsView();
+            saveAllToLocalStorage();
             _visualizerContent.show();
             _visualizerInfo.show();
             _visualizerNetwork.show();
@@ -986,11 +968,8 @@ var Visualizer = (function ($) {
                 _selectedLevel = maxLevel;
             }
         }
-        _scopeInfo = visInfo.scopeInfo.scope;
+        _scopeInfo = visInfo.scopeInfo;
         _visInfo = visInfo;
-
-        _loadedCubeName = _selectedCubeName;
-        _loadedAppId = _nce.getSelectedTabAppId();
         _loadedVisInfoType = _visInfo['@type'];
      }
 
@@ -1378,7 +1357,7 @@ var Visualizer = (function ($) {
             _keepCurrentScope = false;
         }
         else{
-            _visInfo = getFromLocalStorage(VISUALIZER_INFO, null);
+            _scopeInfo = getFromLocalStorage(SCOPE_INFO, null);
         }
 
         _selectedGroups = getFromLocalStorage(SELECTED_GROUPS, null);
@@ -1399,7 +1378,7 @@ var Visualizer = (function ($) {
     }
 
     function saveAllToLocalStorage() {
-        saveToLocalStorage(_visInfo, VISUALIZER_INFO);
+        saveToLocalStorage(_scopeInfo, SCOPE_INFO);
         saveToLocalStorage(_selectedGroups, SELECTED_GROUPS);
         saveToLocalStorage(_selectedLevel, SELECTED_LEVEL);
         saveToLocalStorage(_hierarchical, HIERARCHICAL);

@@ -3,6 +3,8 @@ package com.cedarsoftware.util
 import com.cedarsoftware.ncube.ApplicationID
 import com.cedarsoftware.ncube.NCube
 import com.cedarsoftware.ncube.NCubeManager
+import com.cedarsoftware.ncube.ReleaseStatus
+import com.cedarsoftware.ncube.util.VersionComparator
 import groovy.transform.CompileStatic
 
 import static com.cedarsoftware.util.RpmVisualizerConstants.*
@@ -29,21 +31,23 @@ class RpmVisualizerInfo extends VisualizerInfo
 
     protected void populateScopeDefaults(String scopeKey, String defaultValue)
     {
-        Map<String, Object> scope = scopeInfo.scope ?: new CaseInsensitiveMap()
-        if (scope.containsKey(scopeKey))
-        {
-            if (!scope[scopeKey])
-            {
-                scope[scopeKey] = defaultValue
-            }
-        }
-        else
-        {
-            scope[scopeKey] = defaultValue
-        }
-        scopeInfo.addRequiredStartScope(null, scopeKey, scope[scopeKey], true)
+        Object scopeValue = scopeInfo.scope[scopeKey]
+        scopeValue =  scopeValue ?: defaultValue
+        scopeInfo.addRequiredStartScope(null, scopeKey, scopeValue, true)
+        scopeInfo.scope[scopeKey] = scopeValue
     }
 
+    protected void loadAvailableScopeValuesEffectiveVersion()
+    {
+        if (!scopeInfo.requiredStartScopeAvailableValues[EFFECTIVE_VERSION])
+        {
+            Map<String, List<String>> versionsMap = NCubeManager.getVersions(appId.tenant, appId.app)
+            Set<Object>  values = new TreeSet<>(new VersionComparator())
+            values.addAll(versionsMap[ReleaseStatus.RELEASE.name()])
+            values.addAll(versionsMap[ReleaseStatus.SNAPSHOT.name()])
+            scopeInfo.requiredStartScopeAvailableValues[EFFECTIVE_VERSION] = new LinkedHashSet(values)
+        }
+    }
 
     @Override
     List getTypesToAdd(String group)

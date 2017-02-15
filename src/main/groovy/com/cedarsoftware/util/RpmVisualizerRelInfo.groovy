@@ -51,18 +51,15 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 
 		if (!cellValuesLoaded)
 		{
-			sb.append("<b>*** Unable to load fields and traits for ${getLabel(targetCube.name)}</b>${DOUBLE_BREAK}")
+			sb.append("<b>Unable to load fields and traits for ${getLabel(targetCube.name)}</b>${DOUBLE_BREAK}")
 		}
 
 		//Notes
 		if (notes)
 		{
-			sb.append('<b>Notes</b>')
-			sb.append("<pre>")
 			notes.each { String note ->
 				sb.append("${note}")
 			}
-			sb.append("</pre>")
 			sb.append("${BREAK}")
 		}
 
@@ -172,7 +169,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		Set<String> scopeCollector = new CaseInsensitiveSet<>()
 		scopeCollector.addAll(visInfo.requiredScopeKeysByCube[targetCube.name])
 		scopeCollector.addAll(visInfo.allOptionalScopeKeysByCube[targetCube.name])
-		scopeCollector << EFFECTIVE_VERSION_SCOPE_KEY
+		scopeCollector << EFFECTIVE_VERSION
 
 		RuleInfo ruleInfo = NCube.getRuleInfo(output)
 		Set keysUsed = ruleInfo.getInputKeysUsed()
@@ -375,7 +372,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 
 	private void handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerInfo visInfo)
 	{
-		StringBuilder sb = new StringBuilder("A required scope value was not found for this node: ${BREAK}")
+		StringBuilder sb = new StringBuilder("<b>A required scope value was not found for this node:</b> ${DOUBLE_BREAK}")
 		sb.append(helper.handleCoordinateNotFoundException(e, visInfo))
 		notes << sb.toString()
 		nodeLabelPrefix = 'Required scope value not found for '
@@ -384,7 +381,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 
 	private void handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerInfo visInfo)
 	{
-		StringBuilder sb = new StringBuilder("Additional scope is required: ${BREAK}")
+		StringBuilder sb = new StringBuilder("<b>Additional scope is required: </b> ${DOUBLE_BREAK}")
 		sb.append(helper.handleInvalidCoordinateException(e, visInfo, this, MANDATORY_SCOPE_KEYS))
 		notes << sb.toString()
 		nodeLabelPrefix = 'Additional scope required for '
@@ -393,7 +390,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 
 	private void handleException(Throwable e)
 	{
-		StringBuilder sb = new StringBuilder("An exception was thrown while loading this node. ${BREAK}")
+		StringBuilder sb = new StringBuilder("<b>An exception was thrown while loading this node. </b>  ${DOUBLE_BREAK}")
 		sb.append(helper.handleException(e))
 		notes << sb.toString()
 		nodeLabelPrefix = "Unable to load "

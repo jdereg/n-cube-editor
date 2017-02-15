@@ -52,8 +52,9 @@ class RpmVisualizer extends Visualizer
 		else
 		{
 			visInfo = new RpmVisualizerInfo(appId)
+			visInfo.scopeInfo = options.scopeInfo as VisualizerScopeInfo ?: new VisualizerScopeInfo()
 		}
-		visInfo.init(options.scopeInfo as VisualizerScopeInfo)
+		visInfo.init()
 		return visInfo
 	}
 
@@ -197,8 +198,7 @@ class RpmVisualizer extends Visualizer
 			{
 				relInfo.nodeLabelPrefix = 'Unable to load '
 				relInfo.targetTraits = new CaseInsensitiveMap()
-				String msg = getLoadTraitsForTargetMessage(relInfo, type)
-				relInfo.notes << msg
+				relInfo.notes << getLoadTraitsForTargetMessage(relInfo, type)
 				relInfo.cellValuesLoaded = false
 				relInfo.showCellValuesLink = false
 				return false
@@ -277,17 +277,9 @@ class RpmVisualizer extends Visualizer
 			defaultScopeDate = DATE_TIME_FORMAT.format(new Date())
 			rpmVisInfo.populateScopeDefaults(POLICY_CONTROL_DATE, defaultScopeDate)
 			rpmVisInfo.populateScopeDefaults(QUOTE_DATE, defaultScopeDate)
-			rpmVisInfo.populateScopeDefaults(EFFECTIVE_VERSION, defaultScopeEffectiveVersion)
 		}
-		else
-		{
-			rpmVisInfo.populateScopeDefaults(EFFECTIVE_VERSION, defaultScopeEffectiveVersion)
-		}
-	}
-
-	private static String getTypeFromCubeName(String cubeName)
-	{
-		return (cubeName - RPM_CLASS_DOT)
+		rpmVisInfo.populateScopeDefaults(EFFECTIVE_VERSION, defaultScopeEffectiveVersion)
+		rpmVisInfo.loadAvailableScopeValuesEffectiveVersion()
 	}
 
 	private static String getLoadTraitsForTargetMessage(RpmVisualizerRelInfo relInfo, String type) {
@@ -298,6 +290,6 @@ class RpmVisualizer extends Visualizer
 		"""\
 ${sourceCubeDisplayName} points directly to ${targetCubeDisplayName} via field ${relInfo.sourceFieldName}, but \
 there is no ${type.toLowerCase()} named ${relInfo.sourceFieldName} on ${type}.  ${DOUBLE_BREAK}Therefore \
-it cannot be loaded in the visualization."""
+it cannot be loaded in the visualization.${BREAK}"""
 	}
 }

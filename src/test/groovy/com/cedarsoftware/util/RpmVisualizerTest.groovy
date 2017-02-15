@@ -492,7 +492,9 @@ class RpmVisualizerTest
           ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
-        visInfo.scopeInfo = new VisualizerScopeInfo(appId, scope)
+        visInfo.scopeInfo = new VisualizerScopeInfo()
+        visInfo.scopeInfo.appId = appId
+        visInfo.scopeInfo.scope = scope
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
@@ -561,7 +563,9 @@ class RpmVisualizerTest
         ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
-        visInfo.scopeInfo = new VisualizerScopeInfo(appId, scope)
+        visInfo.scopeInfo = new VisualizerScopeInfo()
+        visInfo.scopeInfo.appId = appId
+        visInfo.scopeInfo.scope = scope
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
@@ -662,7 +666,9 @@ class RpmVisualizerTest
         ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
-        visInfo.scopeInfo = new VisualizerScopeInfo(appId, scope)
+        visInfo.scopeInfo = new VisualizerScopeInfo()
+        visInfo.scopeInfo.appId = appId
+        visInfo.scopeInfo.scope = scope
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
@@ -721,7 +727,9 @@ class RpmVisualizerTest
         ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
-        visInfo.scopeInfo = new VisualizerScopeInfo(appId, scope)
+        visInfo.scopeInfo = new VisualizerScopeInfo()
+        visInfo.scopeInfo.appId = appId
+        visInfo.scopeInfo.scope = scope
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
@@ -782,7 +790,9 @@ class RpmVisualizerTest
         ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
-        visInfo.scopeInfo = new VisualizerScopeInfo(appId, scope)
+        visInfo.scopeInfo = new VisualizerScopeInfo()
+        visInfo.scopeInfo.appId = appId
+        visInfo.scopeInfo.scope = scope
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
