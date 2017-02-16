@@ -60,7 +60,6 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			notes.each { String note ->
 				sb.append("${note}")
 			}
-			sb.append("${BREAK}")
 		}
 
 		//Scope

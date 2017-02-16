@@ -52,10 +52,10 @@ class VisualizerScopeInfo
 
 	Set<Object> addOptionalGraphScope(String cubeName, String scopeKey, Object providedValue, boolean skipAvailableScopeValues = false)
 	{
-		addScopeValues(cubeName, scopeKey, optionalGraphScopeAvailableValues, skipAvailableScopeValues)
+		Set<Object> inScopeAvailableValues = addScopeValues(cubeName, scopeKey, optionalGraphScopeAvailableValues, skipAvailableScopeValues)
 		addValue(scopeKey, optionalGraphScopeCubeNames, cubeName)
 		addValue(scopeKey, optionalGraphScopeProvidedValues, providedValue)
-		return optionalGraphScopeAvailableValues[scopeKey]
+		return inScopeAvailableValues
 	}
 
 	private void addRequiredGraphScopeValues(String cubeName, String scopeKey, Map scopeInfoMap, boolean skipAvailableScopeValues)
@@ -79,14 +79,17 @@ class VisualizerScopeInfo
 		}
 	}
 
-	private void addScopeValues(String cubeName, String scopeKey, Map scopeInfoMap, boolean skipAvailableScopeValues)
+	private Set<Object> addScopeValues(String cubeName, String scopeKey, Map scopeInfoMap, boolean skipAvailableScopeValues)
 	{
+		Set<Object> inScopeColumnValues = new LinkedHashSet()
 		Set<Object> scopeValues = scopeInfoMap[scopeKey] as Set ?: new LinkedHashSet()
 		if (!skipAvailableScopeValues)
 		{
-			scopeValues.addAll(getInScopeColumnValues(cubeName, scopeKey))
+			inScopeColumnValues = getInScopeColumnValues(cubeName, scopeKey)
+			scopeValues.addAll(inScopeColumnValues)
 		}
 		scopeInfoMap[scopeKey] = scopeValues
+		return inScopeColumnValues
 	}
 
 	protected static void addValue(String scopeKey, Map scopeInfoMap, Object valueToAdd)
@@ -117,46 +120,48 @@ class VisualizerScopeInfo
 		StringBuilder sb = new StringBuilder("${BREAK}")
 		if (requiredGraphScopeAvailableValues)
 		{
+			Map<String, Set<Object>> sorted = requiredGraphScopeAvailableValues.sort()
 			sb.append("<b>Required scope to load graph</b>")
 			sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
-			sb.append(requiredGraphScopeMessage)
+			sb.append(getRequiredGraphScopeMessage(sorted))
 			sb.append("${DOUBLE_BREAK}")
 		}
 		if (optionalGraphScopeAvailableValues)
 		{
+			Map<String, Set<Object>> sorted = optionalGraphScopeAvailableValues.sort()
 			sb.append("<b>Optional scope in graph</b>")
 			sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
-			sb.append(optionalGraphScopeMessage)
+			sb.append(getOptionalGraphScopeMessage(sorted))
 			sb.append("${DOUBLE_BREAK}")
 		}
 		sb.append("""<a href="#" title="Reset scope to original defaults" class="scopeReset">Reset scope</a>""")
 		scopeMessage = sb.toString()
 	}
 
-	private StringBuilder getOptionalGraphScopeMessage()
+	private StringBuilder getOptionalGraphScopeMessage(Map<String, Set<Object>> availableValues)
 	{
 		StringBuilder sb = new StringBuilder()
-		optionalGraphScopeAvailableValues.keySet().each{ String scopeKey ->
+		availableValues.keySet().each{ String scopeKey ->
 			sb.append(BREAK)
 			Set<String> cubeNames = optionalGraphScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
 			String providedValue = scope[scopeKey] as String
 			StringBuilder title = new StringBuilder("${scopeKey} is optional to load the graph, but may be required for some nodes")
-			sb.append(getScopeMessage(scopeKey, optionalGraphScopeAvailableValues[scopeKey], title, providedValue))
+			sb.append(getScopeMessage(scopeKey, availableValues[scopeKey], title, providedValue))
 		}
 		return sb
 	}
 
-	private StringBuilder getRequiredGraphScopeMessage()
+	private StringBuilder getRequiredGraphScopeMessage(Map<String, Set<Object>> availableValues)
 	{
 		StringBuilder sb = new StringBuilder()
-		requiredGraphScopeAvailableValues.keySet().each{ String scopeKey ->
+		availableValues.keySet().each{ String scopeKey ->
 			sb.append(BREAK)
 			Set<String> cubeNames =  requiredGraphScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
 			String providedValue = scope[scopeKey] as String
 			StringBuilder title = new StringBuilder("${scopeKey} is required to load the graph")
-			sb.append(getScopeMessage(scopeKey, requiredGraphScopeAvailableValues[scopeKey], title, providedValue))
+			sb.append(getScopeMessage(scopeKey, availableValues[scopeKey], title, providedValue))
 		}
 		return sb
 	}
@@ -172,6 +177,7 @@ class VisualizerScopeInfo
 			StringBuilder title = new StringBuilder("${axisName} is optional to load this node")
 			title.append(addCubeNamesList('. Used on:', cubeNames))
 			sb.append(getScopeMessage(axisName, nodeAvailableValues[axisName], title, providedValue))
+			sb.append(BREAK)
 		}
 		return sb
 	}
