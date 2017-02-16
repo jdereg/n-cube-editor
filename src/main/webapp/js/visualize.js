@@ -61,7 +61,7 @@ var Visualizer = (function ($) {
     var NO_GROUPS_SELECTED = 'NO GROUPS SELECTED';
     var LEVEL_PREFIX = 'Level ';
     var STICKY_SCOPE_MESSAGE = 'STICKY_SCOPE_MESSAGE';
-    var SCOPE_IMAGE = {src: './img/scope.png', width: '65px', height: '20px'};
+    var SCOPE_IMAGE = {class: 'toastScopeButton', src: './img/scope.png', width: '65px', height: '20px'};
 
     //Network layout parameters
     var _hierarchical = false;
@@ -150,18 +150,7 @@ var Visualizer = (function ($) {
             });
 
             $('#scopeButton').click(function () {
-                var button, scopeImage;
-                button = $('#scopeButton');
-                if (_nce.hasNote(STICKY_SCOPE_MESSAGE)){
-                    _nce.clearNotes(STICKY_SCOPE_MESSAGE);
-                    button.removeClass('active');
-                }
-                else{
-                    scopeImage =  $.extend({title: getScopeString()}, SCOPE_IMAGE);
-                    _nce.showNote(_scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, scopeImage);
-                    button.addClass('active');
-                }
-                _scopeButton = button.hasClass('active');
+                scopeButtonClick();
             });
 
             _findNode.on('change', function () {
@@ -224,9 +213,27 @@ var Visualizer = (function ($) {
         else if (e.type === 'click' && target.className.indexOf('scopeReset') > -1) {
             scopeResetEvent();
         }
+        else if (e.type === 'click' && target.className.indexOf('toastScopeButton') > -1) {
+            scopeButtonClick();
+        }
         else if (e.type === 'click' && target.className.indexOf('findNode') > -1) {
             findNode(target);
         }
+    }
+
+    function scopeButtonClick(){
+        var button, scopeImage;
+        button = $('#scopeButton');
+        if (_nce.hasNote(STICKY_SCOPE_MESSAGE)){
+            _nce.clearNotes(STICKY_SCOPE_MESSAGE);
+            button.removeClass('active');
+        }
+        else{
+            scopeImage =  $.extend({title: getScopeString()}, SCOPE_IMAGE);
+            _nce.showNote(_scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, scopeImage);
+            button.addClass('active');
+        }
+        _scopeButton = button.hasClass('active');
     }
 
     function scopeResetEvent() {

@@ -154,7 +154,8 @@
                 var imageWidth = image.width ? ' width="' + image.width + '"' : '';
                 var imageHeight = image.height ? ' height="' + image.height + '"' : '';
                 var imageTitle = image.title ? ' title="' + image.title + '"' : '';
-                var image_str = '<img src="' + image.src + '"' + imageTitle + imageWidth + imageHeight + ' class="gritter-image" />';
+                var imageClass = image.class ? ' class="' + image.class + '"' : '';
+                var image_str = '<img src="' + image.src + '"' + imageClass + imageTitle + imageWidth + imageHeight + ' class="gritter-image" />';
             }
             else{
                 image_str = '';
