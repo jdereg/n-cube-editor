@@ -106,19 +106,19 @@ body {
     width: 215px;
 }
 
-.tab-menu li {
+.tab-menu li, .top-menu li {
     min-height: 22px;
 }
 
-.tab-menu li a {
+.tab-menu li a, .top-menu li a {
     min-height: inherit;
 }
 
-.tab-menu li button {
+.tab-menu li button, .top-menu li button {
     margin-left: 2px;
 }
 
-.tab-menu li input {
+.tab-menu li input, .top-menu li input {
     margin: 5px 0 0 5px;
     width: 95%;
 }
