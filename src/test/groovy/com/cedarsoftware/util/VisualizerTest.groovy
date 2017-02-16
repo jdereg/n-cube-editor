@@ -38,16 +38,17 @@ class VisualizerTest{
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
         VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
+        VisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as VisualizerScopeInfo
         assert null == visInfo.messages
 
         assert 5 == visInfo.nodes.size()
         assert 4 == visInfo.edges.size()
-        assert [:] as CaseInsensitiveMap == visInfo.scopeInfo.scope
+        assert [:] as CaseInsensitiveMap == scopeInfo.scope
         assert 3l == visInfo.maxLevel
         assert 6l == visInfo.nodeCount
         assert 5l == visInfo.relInfoCount
         assert 999999l == visInfo.defaultLevel
-        assert [:] == visInfo.scopeInfo.optionalGraphScopeAvailableValues
+        assert [:] == scopeInfo.optionalGraphScopeAvailableValues
         assert '' == visInfo.groupSuffix
         assert ['NCUBE'] as Set == visInfo.availableGroupsAllLevels
 
@@ -921,20 +922,21 @@ class VisualizerTest{
         //Neither cube name nor axis name
         CoordinateNotFoundException e = new CoordinateNotFoundException('CoordinateNotFoundException', null, null, null, null)
         VisualizerInfo visInfo = new VisualizerInfo()
+        RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
         String targetMsg = 'dummy1'
-        String message = VisualizerHelper.handleCoordinateNotFoundException(e, visInfo)
+        String message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l)
         checkExceptionMessage(message, targetMsg)
 
         //No cube name
         targetMsg = 'dummy2'
         e = new CoordinateNotFoundException('CoordinateNotFoundException', null, null, 'dummyAxis', null)
-        message = VisualizerHelper.handleCoordinateNotFoundException(e, visInfo)
+        message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l)
         checkExceptionMessage(message, targetMsg)
 
         //No axis name
         targetMsg = 'dummy3'
         e = new CoordinateNotFoundException('CoordinateNotFoundException', 'dummyCube', null, null, null)
-        message = VisualizerHelper.handleCoordinateNotFoundException(e, visInfo)
+        message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l)
         checkExceptionMessage(message, targetMsg)
     }
 
@@ -946,13 +948,14 @@ class VisualizerTest{
         NCube cube = new NCube('dummyCube')
         InvalidCoordinateException e = new InvalidCoordinateException('InvalidCoordinateException', null, null, relInfoScope.keySet())
         VisualizerInfo visInfo = new VisualizerInfo(appId)
-        visInfo.scopeInfo.scope = new CaseInsensitiveMap(visInfoScope)
+        RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
+        scopeInfo.scope = new CaseInsensitiveMap(visInfoScope)
         VisualizerRelInfo relInfo = new VisualizerRelInfo(appId)
         relInfo.targetCube = cube
         relInfo.availableTargetScope = new CaseInsensitiveMap(relInfoScope)
         try
         {
-            VisualizerHelper.handleInvalidCoordinateException(e, visInfo, relInfo, [] as Set)
+            VisualizerHelper.handleInvalidCoordinateException(e, scopeInfo, 1l, relInfo, [] as Set)
             fail('Expected IllegalStateException to be thrown.')
         }
         catch (IllegalStateException exc)

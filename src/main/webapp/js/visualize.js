@@ -500,8 +500,7 @@ var Visualizer = (function ($) {
         node.details = null;
         _visInfo.nodes = {};
         _visInfo.edges = {};
-        _visInfo.scopeInfo = _scopeInfo; //TODO: Check if this is really needed here
-        options =  {startCubeName: _selectedCubeName, visInfo: _visInfo, node: node};
+        options =  {startCubeName: _selectedCubeName, visInfo: _visInfo, scopeInfo: _scopeInfo, node: node};
 
         result = _nce.call('ncubeController.getVisualizerCellValues', [_nce.getSelectedTabAppId(), options]);
         _nce.clearNote();
@@ -514,7 +513,7 @@ var Visualizer = (function ($) {
 
         if (STATUS_SUCCESS === json.status) {
             displayMessages(json.visInfo.messages);
-            loadDataForNode(json.visInfo);
+            loadDataForNode(json.visInfo, json.scopeInfo);
             loadScopeView() ;
         }
         else {
@@ -537,7 +536,7 @@ var Visualizer = (function ($) {
         }
     }
 
-    function loadDataForNode(visInfo){
+    function loadDataForNode(visInfo, scopeInfo){
         var node, dataSetNode;
         node = visInfo.nodes['@items'][0];
         dataSetNode = _nodeDataSet.get(node.id);
@@ -555,7 +554,7 @@ var Visualizer = (function ($) {
         _nodeCellValues[0].innerHTML = '';
         _nodeCellValues.append(createCellValuesLink(node));
 
-        _scopeInfo = visInfo.scopeInfo;
+        _scopeInfo = scopeInfo;
         _visInfo = visInfo;
     }
 
@@ -592,10 +591,9 @@ var Visualizer = (function ($) {
 
         getAllFromLocalStorage();
         if (_visInfo) { //Re-loading
-            _visInfo.scopeInfo = _scopeInfo;
             _visInfo.nodes = {};
             _visInfo.edges = {};
-            options = {startCubeName: _selectedCubeName, visInfo: _visInfo};
+            options = {startCubeName: _selectedCubeName, visInfo: _visInfo, scopeInfo: _scopeInfo};
         }
         else{ //First load for this session
             options =  {startCubeName: _selectedCubeName, scopeInfo: _scopeInfo};
@@ -614,7 +612,7 @@ var Visualizer = (function ($) {
 
         if (json.status === STATUS_SUCCESS) {
             displayMessages(json.visInfo.messages);
-            loadGraphData(json.visInfo, json.status);
+            loadGraphData(json.visInfo, json.scopeInfo, json.status);
             initNetwork();
             loadSelectedLevelListView();
             loadScopeView();
@@ -934,7 +932,7 @@ var Visualizer = (function ($) {
         _edgeDataSet.add(edgesToAddBack);
     }
 
-    function loadGraphData(visInfo, status)
+    function loadGraphData(visInfo, scopeInfo, status)
     {
         var nodes, edges, maxLevel;
 
@@ -968,7 +966,7 @@ var Visualizer = (function ($) {
                 _selectedLevel = maxLevel;
             }
         }
-        _scopeInfo = visInfo.scopeInfo;
+        _scopeInfo = scopeInfo;
         _visInfo = visInfo;
         _loadedVisInfoType = _visInfo['@type'];
      }

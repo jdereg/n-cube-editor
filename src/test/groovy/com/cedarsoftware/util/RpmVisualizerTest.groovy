@@ -52,6 +52,7 @@ class RpmVisualizerTest
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
         RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
         assert !visInfo.messages
 
         //Check visInfo
@@ -62,7 +63,7 @@ class RpmVisualizerTest
         assert 5l == visInfo.relInfoCount
         assert 3l == visInfo.defaultLevel
         assert '_ENUM' == visInfo.groupSuffix
-        assert scope == visInfo.scopeInfo.scope
+        assert scope == scopeInfo.scope
 
         Map allGroups =  [PRODUCT: 'Product', FORM: 'Form', RISK: 'Risk', COVERAGE: 'Coverage', CONTAINER: 'Container', DEDUCTIBLE: 'Deductible', LIMIT: 'Limit', RATE: 'Rate', RATEFACTOR: 'Rate Factor', PREMIUM: 'Premium', PARTY: 'Party', PLACE: 'Place', ROLE: 'Role', ROLEPLAYER: 'Role Player', UNSPECIFIED: 'Unspecified']
         assert allGroups == visInfo.allGroups
@@ -492,9 +493,9 @@ class RpmVisualizerTest
           ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
-        visInfo.scopeInfo = new VisualizerScopeInfo()
-        visInfo.scopeInfo.appId = appId
-        visInfo.scopeInfo.scope = scope
+        RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
+        scopeInfo.appId = appId
+        scopeInfo.scope = scope
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
@@ -563,9 +564,9 @@ class RpmVisualizerTest
         ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
-        visInfo.scopeInfo = new VisualizerScopeInfo()
-        visInfo.scopeInfo.appId = appId
-        visInfo.scopeInfo.scope = scope
+        RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
+        scopeInfo.appId = appId
+        scopeInfo.scope = scope
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
@@ -666,9 +667,9 @@ class RpmVisualizerTest
         ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
-        visInfo.scopeInfo = new VisualizerScopeInfo()
-        visInfo.scopeInfo.appId = appId
-        visInfo.scopeInfo.scope = scope
+        RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
+        scopeInfo.appId = appId
+        scopeInfo.scope = scope
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
@@ -727,9 +728,9 @@ class RpmVisualizerTest
         ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
-        visInfo.scopeInfo = new VisualizerScopeInfo()
-        visInfo.scopeInfo.appId = appId
-        visInfo.scopeInfo.scope = scope
+        RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
+        scopeInfo.appId = appId
+        scopeInfo.scope = scope
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
@@ -790,9 +791,9 @@ class RpmVisualizerTest
         ]
 
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
-        visInfo.scopeInfo = new VisualizerScopeInfo()
-        visInfo.scopeInfo.appId = appId
-        visInfo.scopeInfo.scope = scope
+        RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
+        scopeInfo.appId = appId
+        scopeInfo.scope = scope
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
         visInfo.availableGroupsAllLevels = [] as Set
@@ -833,6 +834,7 @@ class RpmVisualizerTest
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert  STATUS_MISSING_START_SCOPE == graphInfo.status
         RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
         Set messages = visInfo.messages
         assert 0 == messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
@@ -840,7 +842,7 @@ class RpmVisualizerTest
         assert 0 == nodes.size()
         assert 0 == edges.size()
 
-        String scopeMessage = visInfo.scopeInfo.scopeMessage
+        String scopeMessage = scopeInfo.scopeMessage
         //TODO:
         //assert scopeMessage.contains(SCOPE_VALUES_ADDED_FOR_REQUIRED_KEYS)
         //assert scopeMessage.contains("${ADD_SCOPE_VALUE_FOR_REQUIRED_KEY}Product:")
@@ -877,7 +879,7 @@ class RpmVisualizerTest
         RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
         Set<String> messages = visInfo.messages
         assert 0 == messages.size()
-        checkInvalidScopeMessage(visInfo.scopeInfo.scopeMessage)
+        checkInvalidScopeMessage(scopeInfo.scopeMessage)
 
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
@@ -930,9 +932,10 @@ class RpmVisualizerTest
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
         RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
         Set messages = visInfo.messages
         assert 0 == messages.size()
-        String scopeMessage = visInfo.scopeInfo.scopeMessage
+        String scopeMessage = scopeInfo.scopeMessage
         //TODO
         //assert scopeMessage.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}the graph.")
         assert !scopeMessage.contains('product')
@@ -959,9 +962,10 @@ class RpmVisualizerTest
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
         RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
         Set messages = visInfo.messages
         assert 0 == messages.size()
-        String scopeMessage = visInfo.scopeInfo.scopeMessage
+        String scopeMessage = scopeInfo.scopeMessage
         //TODO
         //assert scopeMessage.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}the graph.")
         //assert scopeMessage.contains('<div id="product" title="The default for product was utilized on rpm.scope.class.Risk.traits.Coverages" class="input-group input-group-sm">')
@@ -1000,9 +1004,10 @@ class RpmVisualizerTest
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
         RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
         Set messages = visInfo.messages
         assert 0 == messages.size()
-        String message = visInfo.scopeInfo.scopeMessage
+        String message = scopeInfo.scopeMessage
         //TODO
        // assert message.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}the graph.")
         assert message.contains("businessDivisionCode")
@@ -1030,9 +1035,11 @@ class RpmVisualizerTest
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
         RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
         Set messages = visInfo.messages
         assert 0 == messages.size()
-        checkAdditionalScopeIsRequiredMessage(visInfo.scopeInfo.scopeMessage)
+        checkAdditionalScopeIsRequiredMessage(scopeInfo.scopeMessage)
+
 
         List<Map<String, Object>> nodes = visInfo.nodes as List
         Map node = nodes.find {Map node ->  "${ADDITIONAL_SCOPE_REQUIRED_FOR}BRisk".toString() == node.label}
@@ -1070,9 +1077,10 @@ class RpmVisualizerTest
             Map graphInfo = visualizer.buildGraph(appId, options)
             assert STATUS_SUCCESS == graphInfo.status
             RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+            RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
             Set messages = visInfo.messages
             assert 0 == messages.size()
-            checkAdditionalScopeIsRequiredNonEPMMessage(visInfo.scopeInfo.scopeMessage)
+            checkAdditionalScopeIsRequiredNonEPMMessage(scopeInfo.scopeMessage)
             List<Map<String, Object>> nodes = visInfo.nodes as List
             List<Map<String, Object>> edges = visInfo.edges as List
 
@@ -1178,9 +1186,10 @@ class RpmVisualizerTest
             Map graphInfo = visualizer.buildGraph(appId, options)
             assert STATUS_SUCCESS == graphInfo.status
             RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+            RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
             Set messages = visInfo.messages
             assert 0 == messages.size()
-            String scopeMessage = visInfo.scopeInfo.scopeMessage
+            String scopeMessage = scopeInfo.scopeMessage
             //TODO:
             //assert scopeMessage.contains("${ADDITIONAL_SCOPE_REQUIRED_TO_LOAD}FCoverage, the target of Risk.Coverages.")
             //assert scopeMessage.contains("${ADDITIONAL_SCOPE_REQUIRED_TO_LOAD}ACoverage, the target of Risk.Coverages.")
@@ -1245,12 +1254,13 @@ class RpmVisualizerTest
             Map graphInfo = visualizer.buildGraph(appId, options)
             assert STATUS_SUCCESS == graphInfo.status
             RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+            RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
             Set messages = visInfo.messages
             assert 0 == messages.size()
 
             List<Map<String, Object>> nodes = visInfo.nodes as List
 
-            String scopeMessage = visInfo.scopeInfo.scopeMessage
+            String scopeMessage = scopeInfo.scopeMessage
             //TODO
             //assert scopeMessage.contains("${ADDITIONAL_SCOPE_REQUIRED_TO_LOAD}FCoverage, the target of Risk.Coverages.")
            // assert scopeMessage.contains("${ADDITIONAL_SCOPE_REQUIRED_TO_LOAD}ACoverage, the target of Risk.Coverages.")
@@ -1299,6 +1309,7 @@ class RpmVisualizerTest
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_MISSING_START_SCOPE == graphInfo.status
         RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
         Set<String> messages = visInfo.messages
         assert 0 == messages.size()
 
@@ -1307,7 +1318,7 @@ class RpmVisualizerTest
         assert 0 == nodes.size()
         assert 0 == edges.size()
 
-        checkMissingMinimumTypeScopeMessage(visInfo.scopeInfo.scopeMessage)
+        checkMissingMinimumTypeScopeMessage(scopeInfo.scopeMessage)
     }
 
     @Test
@@ -1324,6 +1335,7 @@ class RpmVisualizerTest
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_MISSING_START_SCOPE == graphInfo.status
         RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
         Set<String> messages = visInfo.messages
         assert 0 == messages.size()
 
@@ -1332,7 +1344,7 @@ class RpmVisualizerTest
         assert 0 == nodes.size()
         assert 0 == edges.size()
 
-        checkMissingMinimumTypeScopeMessage(visInfo.scopeInfo.scopeMessage)
+        checkMissingMinimumTypeScopeMessage(scopeInfo.scopeMessage)
     }
 
     private static void checkMissingMinimumTypeScopeMessage(String message)
@@ -1356,6 +1368,7 @@ class RpmVisualizerTest
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_MISSING_START_SCOPE == graphInfo.status
         RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
         Set messages = visInfo.messages
         assert 0 == messages.size()
 
@@ -1364,12 +1377,12 @@ class RpmVisualizerTest
         assert 0 == nodes.size()
         assert 0 == edges.size()
 
-        String scopeMessage = visInfo.scopeInfo.scopeMessage
+        String scopeMessage = scopeInfo.scopeMessage
         //TODO:
         //assert message.contains('Scope for policyControlDate was added since required. The scope value may be changed as desired.')
         //assert message.contains('Scope for quoteDate was added since required. The scope value may be changed as desired.')
-        assert DATE_TIME_FORMAT.format(new Date()) == visInfo.scopeInfo.scope.policyControlDate
-        assert DATE_TIME_FORMAT.format(new Date()) == visInfo.scopeInfo.scope.quoteDate
+        assert DATE_TIME_FORMAT.format(new Date()) == scopeInfo.scope.policyControlDate
+        assert DATE_TIME_FORMAT.format(new Date()) == scopeInfo.scope.quoteDate
     }
 
 
@@ -1386,6 +1399,7 @@ class RpmVisualizerTest
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_MISSING_START_SCOPE == graphInfo.status
         RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
         Set messages = visInfo.messages
         assert 0 == messages.size()
 
@@ -1394,10 +1408,10 @@ class RpmVisualizerTest
         assert 0 == nodes.size()
         assert 0 == edges.size()
 
-        String scopeMessage = visInfo.scopeInfo.scopeMessage
+        String scopeMessage = scopeInfo.scopeMessage
         //TODO:
         //assert scopeMessage.contains('Scope for _effectiveVersion was added since required. The scope value may be changed as desired.')
-        assert appId.version == visInfo.scopeInfo.scope._effectiveVersion
+        assert appId.version == scopeInfo.scope._effectiveVersion
     }
 
     @Test
@@ -1475,9 +1489,10 @@ class RpmVisualizerTest
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
         RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
         Set<String> messages = visInfo.messages
         assert 0 == messages.size()
-        String scopeMessage = visInfo.scopeInfo.scopeMessage
+        String scopeMessage = scopeInfo.scopeMessage
         //TODO:
         //assert scopeMessage.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}the graph.")
         //assert scopeMessage.contains('<div id="businessDivisionCode" title="The default for businessDivisionCode was utilized on rpm.scope.enum.Risk.Risks.traits, rpm.scope.enum.Risk.Coverages.traits')
@@ -1518,9 +1533,10 @@ class RpmVisualizerTest
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
         RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
         Set<String> messages = visInfo.messages
         assert 0 == messages.size()
-        String scopeMessage = visInfo.scopeInfo.scopeMessage
+        String scopeMessage = scopeInfo.scopeMessage
         assert scopeMessage.contains('Optional scope in graph')
 assert scopeMessage.contains('<option id="state: null">Default</option>')
         List<Map<String, Object>> nodes = (graphInfo.visInfo as RpmVisualizerInfo).nodes as List
@@ -1551,6 +1567,7 @@ assert scopeMessage.contains('<option id="state: null">Default</option>')
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_MISSING_START_SCOPE == graphInfo.status
         RpmVisualizerInfo visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        RpmVisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
         Set<String> messages = visInfo.messages
         assert 0 == messages.size()
 
@@ -1559,7 +1576,7 @@ assert scopeMessage.contains('<option id="state: null">Default</option>')
         assert 0 == nodes.size()
         assert 0 == edges.size()
 
-        checkMissingMinimumTypeScopeMessage(visInfo.scopeInfo.scopeMessage)
+        checkMissingMinimumTypeScopeMessage(scopeInfo.scopeMessage)
     }
 
     @Test

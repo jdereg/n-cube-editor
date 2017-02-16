@@ -16,7 +16,7 @@ import static com.cedarsoftware.util.VisualizerConstants.*
 @CompileStatic
 class VisualizerHelper
 {
-	static StringBuilder handleUnboundScope(VisualizerInfo visInfo, VisualizerRelInfo relInfo, RuleInfo ruleInfo)
+	static StringBuilder handleUnboundScope(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo, RuleInfo ruleInfo)
 	{
 		Map<String, Set<Object>> nodeAvailableValues = new CaseInsensitiveMap()
 		Map<String, Set<Object>> nodeProvidedValues = new CaseInsensitiveMap()
@@ -25,8 +25,6 @@ class VisualizerHelper
 		if (unboundAxesList)
 		{
 			//Gather entries in unboundAxesList into maps both for the graph as a whole and for this cube.
-			VisualizerScopeInfo scopeInfo = visInfo.scopeInfo
-
 			unboundAxesList.each { MapEntry unboundAxis ->
 				String cubeName = unboundAxis.key as String
 				MapEntry axisEntry = unboundAxis.value as MapEntry
@@ -51,13 +49,13 @@ class VisualizerHelper
 		return null
 	}
 
-	static StringBuilder handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerInfo visInfo )
+	static StringBuilder handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo, long nodeCount)
 	{
 		String cubeName = e.cubeName
 		String scopeKey = e.axisName
 		if (cubeName && scopeKey)
 		{
-			return getAdditionalRequiredNodeScopeMessage(visInfo, scopeKey, e.value as String, cubeName)
+			return getAdditionalRequiredNodeScopeMessage(scopeInfo, nodeCount, scopeKey, e.value as String, cubeName)
 		}
 		else
 		{
@@ -66,14 +64,14 @@ class VisualizerHelper
 		}
 	}
 
-	static StringBuilder handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerInfo visInfo, VisualizerRelInfo relInfo, Set mandatoryScopeKeys)
+	static StringBuilder handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerScopeInfo scopeInfo, long nodeCount, VisualizerRelInfo relInfo, Set mandatoryScopeKeys)
 	{
 		Set<String> missingScope = findMissingScope(relInfo.availableTargetScope, e.requiredKeys, mandatoryScopeKeys)
 		if (missingScope)
 		{
 			StringBuilder sb = new StringBuilder()
 			missingScope.each { String scopeKey ->
-				sb.append(getAdditionalRequiredNodeScopeMessage(visInfo, scopeKey, null, e.cubeName))
+				sb.append(getAdditionalRequiredNodeScopeMessage(scopeInfo, nodeCount, scopeKey, null, e.cubeName))
 			}
 			return sb
 		}
@@ -84,14 +82,13 @@ class VisualizerHelper
 		}
 	}
 
-	protected static StringBuilder getAdditionalRequiredNodeScopeMessage(VisualizerInfo visInfo, String scopeKey, String providedValue, String cubeName)
+	protected static StringBuilder getAdditionalRequiredNodeScopeMessage(VisualizerScopeInfo scopeInfo, long nodeCount, String scopeKey, String providedValue, String cubeName)
 	{
 		StringBuilder sb = new StringBuilder()
 		Set<Object> availableValues
-		VisualizerScopeInfo scopeInfo = visInfo.scopeInfo
-		if (visInfo.nodeCount == 1)
+		if (nodeCount == 1l)
 		{
-			availableValues = scopeInfo.addRequiredStartScope(cubeName, scopeKey, providedValue)
+			availableValues = scopeInfo.addRequiredGraphScope(cubeName, scopeKey, providedValue)
 		}
 		else
 		{

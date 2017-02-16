@@ -12,13 +12,10 @@ import static com.cedarsoftware.util.RpmVisualizerConstants.*
  * visualize the classes and their relationships.
  */
 
-// TODO: This code needs to be moved out of NCE and pulled-in via Grapes.
 @CompileStatic
 class RpmVisualizer extends Visualizer
 {
 	protected RpmVisualizerHelper helper
-	protected String defaultScopeEffectiveVersion
-	protected String defaultScopeDate
 
 	/**
 	 * Loads all cell values available for a given rpm class.
@@ -26,18 +23,22 @@ class RpmVisualizer extends Visualizer
 	 * @param applicationID
 	 * @param options - a map containing:
 	 *            Map node, representing a class and its scope
-	 *            VisualizerInfo visInfo, information about the visualization
+	 *            RpmVisualizerInfo visInfo, information about the visualization
+	 *            VisualizerScopeInfo scopeInfo, information about the scope used in the visualization
 	 * @return a map containing:
 	 *           String status, status of the visualization
-	 *           VisualizerInfo visInfo, information about the visualization
+	 *           RpmVisualizerInfo visInfo, information about the visualization
+	 *           VisualizerScopeInfo scopeInfo, information about the scope used in the visualization
 	 */
 
 	@Override
 	Map getCellValues(ApplicationID applicationID, Map options)
 	{
 		appId = applicationID
+		RpmVisualizerInfo visInfo = options.visInfo as RpmVisualizerInfo
+		RpmVisualizerScopeInfo scopeInfo = options.scopeInfo as RpmVisualizerScopeInfo
 		RpmVisualizerRelInfo relInfo = new RpmVisualizerRelInfo(appId, options.node as Map)
-		return getCellValues(relInfo, options)
+		return getCellValues(visInfo, scopeInfo, relInfo, options)
 	}
 
 	@Override
@@ -52,40 +53,53 @@ class RpmVisualizer extends Visualizer
 		else
 		{
 			visInfo = new RpmVisualizerInfo(appId)
-			visInfo.scopeInfo = options.scopeInfo as VisualizerScopeInfo ?: new VisualizerScopeInfo()
 		}
 		visInfo.init()
 		return visInfo
 	}
 
-	@Override
-	protected void loadFirstVisualizerRelInfo(VisualizerInfo visInfo, VisualizerRelInfo relInfo, String startCubeName)
+	protected VisualizerScopeInfo getVisualizerScopeInfo(Map options)
 	{
-		super.loadFirstVisualizerRelInfo(visInfo, relInfo, startCubeName)
+		RpmVisualizerScopeInfo scopeInfo = options.scopeInfo as RpmVisualizerScopeInfo
+		if (!scopeInfo)
+		{
+			scopeInfo = new RpmVisualizerScopeInfo(appId)
+		}
+		else if (!scopeInfo.scope)
+		{
+			scopeInfo.scope = new CaseInsensitiveMap()
+		}
+		return scopeInfo
+	}
+
+	@Override
+	protected void loadFirstVisualizerRelInfo(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo, String startCubeName)
+	{
+		super.loadFirstVisualizerRelInfo(visInfo, scopeInfo, relInfo, startCubeName)
 		relInfo.showCellValuesLink = false
 	}
 
 	@Override
-	protected void processCube(VisualizerInfo visInfo, VisualizerRelInfo relInfo)
+	protected void processCube(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo)
 	{
 		if (relInfo.targetCube.name.startsWith(RPM_CLASS))
 		{
-			processClassCube((RpmVisualizerInfo) visInfo, (RpmVisualizerRelInfo) relInfo)
+			processClassCube((RpmVisualizerInfo) visInfo, scopeInfo, (RpmVisualizerRelInfo) relInfo)
 		}
 		else
 		{
-			processEnumCube((RpmVisualizerInfo) visInfo, (RpmVisualizerRelInfo) relInfo)
+			processEnumCube((RpmVisualizerInfo) visInfo, scopeInfo, (RpmVisualizerRelInfo) relInfo)
 		}
 	}
 
-	private void processClassCube(RpmVisualizerInfo visInfo, RpmVisualizerRelInfo relInfo)
+	private void processClassCube(RpmVisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, RpmVisualizerRelInfo relInfo)
 	{
 		boolean cellValuesLoaded
 		String targetCubeName = relInfo.targetCube.name
 
 		if (canLoadTraitsForTarget(relInfo))
 		{
-			cellValuesLoaded = relInfo.loadCellValues(visInfo)
+			cellValuesLoaded = relInfo.loadCellValues(visInfo, scopeInfo)
 		}
 
 		if (relInfo.sourceCube)
@@ -98,7 +112,7 @@ class RpmVisualizer extends Visualizer
 			return
 		}
 
-		visInfo.nodes << relInfo.createNode(visInfo)
+		visInfo.nodes << relInfo.createNode(visInfo, scopeInfo)
 
 		if (cellValuesLoaded)
 		{
@@ -124,12 +138,12 @@ class RpmVisualizer extends Visualizer
 		}
 	}
 
-	private void processEnumCube(RpmVisualizerInfo visInfo, RpmVisualizerRelInfo relInfo)
+	private void processEnumCube(RpmVisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, RpmVisualizerRelInfo relInfo)
 	{
 		String group = UNSPECIFIED_ENUM
 		String targetCubeName = relInfo.targetCube.name
 
-		boolean cellValuesLoaded = relInfo.loadCellValues(visInfo)
+		boolean cellValuesLoaded = relInfo.loadCellValues(visInfo, scopeInfo)
 		if (cellValuesLoaded)
 		{
 			relInfo.targetTraits.each { String targetFieldName, Map targetTraits ->
@@ -155,7 +169,7 @@ class RpmVisualizer extends Visualizer
 			return
 		}
 
-		visInfo.nodes << relInfo.createNode(visInfo, group)
+		visInfo.nodes << relInfo.createNode(visInfo, scopeInfo, group)
 	}
 
 	private RpmVisualizerRelInfo addToStack(RpmVisualizerInfo visInfo, RpmVisualizerRelInfo relInfo, String nextTargetCubeName, String rpmType, String targetFieldName)
@@ -178,6 +192,12 @@ class RpmVisualizer extends Visualizer
 	protected VisualizerRelInfo getVisualizerRelInfo()
 	{
 		return new RpmVisualizerRelInfo(appId)
+	}
+
+	@Override
+	protected VisualizerScopeInfo getVisualizerScopeInfo()
+	{
+		return new RpmVisualizerScopeInfo(appId)
 	}
 
 	private boolean canLoadTraitsForTarget(RpmVisualizerRelInfo relInfo)
@@ -264,22 +284,6 @@ class RpmVisualizer extends Visualizer
 	protected RpmVisualizerHelper getVisualizerHelper()
 	{
 		helper =  new RpmVisualizerHelper()
-	}
-
-	@Override
-	protected void populateScopeDefaults(VisualizerInfo visInfo, String startCubeName)
-	{
-		RpmVisualizerInfo rpmVisInfo = (RpmVisualizerInfo) visInfo
-		defaultScopeEffectiveVersion = appId.version
-
-		if (NCubeManager.getCube(appId, startCubeName).getAxis(AXIS_TRAIT).findColumn(R_SCOPED_NAME))
-		{
-			defaultScopeDate = DATE_TIME_FORMAT.format(new Date())
-			rpmVisInfo.populateScopeDefaults(POLICY_CONTROL_DATE, defaultScopeDate)
-			rpmVisInfo.populateScopeDefaults(QUOTE_DATE, defaultScopeDate)
-		}
-		rpmVisInfo.populateScopeDefaults(EFFECTIVE_VERSION, defaultScopeEffectiveVersion)
-		rpmVisInfo.loadAvailableScopeValuesEffectiveVersion()
 	}
 
 	private static String getLoadTraitsForTargetMessage(RpmVisualizerRelInfo relInfo, String type) {

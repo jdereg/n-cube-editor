@@ -30,26 +30,29 @@ class Visualizer
 	 *           String startCubeName, name of the starting cube
 	 *           Map scope, the context for which the visualizer is loaded
 	 *           VisualizerInfo visInfo, information about the visualization
+	 *           VisualizerScopeInfo scopeInfo, information about the scope used in the visualization
 	 * @return a map containing:
 	 *           String status, status of the visualization
 	 *           VisualizerInfo visInfo, information about the visualization
+	 *           VisualizerScopeInfo scopeInfo, information about the scope used in the visualization
 	 */
 	Map<String, Object> buildGraph(ApplicationID applicationID, Map options)
 	{
 		appId = applicationID
 		String startCubeName = options.startCubeName as String
 		VisualizerInfo visInfo = getVisualizerInfo(options)
+		VisualizerScopeInfo scopeInfo = getVisualizerScopeInfo(options)
 
 		if (!isValidStartCube(visInfo, startCubeName))
 		{
-			return [status: STATUS_INVALID_START_CUBE, visInfo: visInfo]
+			return [status: STATUS_INVALID_START_CUBE, visInfo: visInfo, scopeInfo: scopeInfo]
 		}
 
-		populateScopeDefaults(visInfo, startCubeName)
-		getVisualization(visInfo, startCubeName)
-		visInfo.scopeInfo.createScopePrompt()
+		scopeInfo.populateScopeDefaults(startCubeName)
+		getVisualization(visInfo, scopeInfo, startCubeName)
+		scopeInfo.createScopePrompt()
 		visInfo.convertToSingleMessage()
-		return [status: STATUS_SUCCESS, visInfo: visInfo]
+		return [status: STATUS_SUCCESS, visInfo: visInfo, scopeInfo: scopeInfo]
 	}
 
 	/**
@@ -59,33 +62,37 @@ class Visualizer
 	 * @param options - a map containing:
 	 *            Map node, representing a cube and its scope
 	 *            VisualizerInfo visInfo, information about the visualization
+	 *            VisualizerScopeInfo scopeInfo, information about the scope used in the visualization
 	 * @return a map containing:
 	 *           String status, status of the visualization
 	 *           VisualizerInfo visInfo, information about the visualization
+	 *           VisualizerScopeInfo scopeInfo, information about the scope used in the visualization
 	 */
 	Map getCellValues(ApplicationID applicationID, Map options)
 	{
 		appId = applicationID
+
+		VisualizerInfo visInfo = options.visInfo as VisualizerInfo
+		VisualizerScopeInfo scopeInfo = options.scopeInfo as VisualizerScopeInfo
 		VisualizerRelInfo relInfo = new VisualizerRelInfo(appId, options.node as Map)
-		return getCellValues(relInfo, options)
+		return getCellValues(visInfo, scopeInfo, relInfo, options)
 	}
 
-	static protected Map getCellValues(VisualizerRelInfo relInfo, Map options)
+	static protected Map getCellValues(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo, Map options)
 	{
-		VisualizerInfo visInfo = options.visInfo as VisualizerInfo
 		visInfo.messages = new LinkedHashSet()
 		Map node = options.node as Map
 
-		relInfo.loadCellValues(visInfo)
-		node.details = relInfo.getDetails(visInfo)
+		relInfo.loadCellValues(visInfo, scopeInfo)
+		node.details = relInfo.getDetails(scopeInfo, visInfo.nodeCount)
 		node.showCellValuesLink = relInfo.showCellValuesLink
 		node.cellValuesLoaded = relInfo.cellValuesLoaded
 		boolean showCellValues = relInfo.showCellValues
 		node.showCellValues = showCellValues
 		visInfo.nodes = [node]
-		visInfo.scopeInfo.createScopePrompt()
+		scopeInfo.createScopePrompt()
 		visInfo.convertToSingleMessage()
-		return [status: STATUS_SUCCESS, visInfo: visInfo]
+		return [status: STATUS_SUCCESS, visInfo: visInfo, scopeInfo: scopeInfo]
 	}
 
 	protected VisualizerInfo getVisualizerInfo(Map options)
@@ -94,28 +101,41 @@ class Visualizer
 		if (!visInfo || visInfo.class.name != this.class.name)
 		{
 			visInfo = new VisualizerInfo(appId)
-			visInfo.scopeInfo = options.scopeInfo as VisualizerScopeInfo ?: new VisualizerScopeInfo()
 		}
 		visInfo.init()
 		return visInfo
 	}
 
-	protected void getVisualization(VisualizerInfo visInfo, String startCubeName)
+	protected VisualizerScopeInfo getVisualizerScopeInfo(Map options)
+	{
+		VisualizerScopeInfo scopeInfo = options.visInfo as VisualizerScopeInfo
+		if (!scopeInfo)
+		{
+			scopeInfo = new VisualizerScopeInfo(appId)
+		}
+		else if (!scopeInfo.scope)
+		{
+			scopeInfo.scope = new CaseInsensitiveMap()
+		}
+		return scopeInfo
+	}
+
+	protected void getVisualization(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, String startCubeName)
 	{
 		VisualizerRelInfo relInfo = visualizerRelInfo
-		loadFirstVisualizerRelInfo(visInfo, relInfo, startCubeName)
+		loadFirstVisualizerRelInfo(visInfo, scopeInfo, relInfo, startCubeName)
 		stack.push(relInfo)
 
 		while (!stack.empty)
 		{
-			processCube(visInfo, stack.pop())
+			processCube(visInfo, scopeInfo, stack.pop())
 		}
 	}
 
-	protected void loadFirstVisualizerRelInfo(VisualizerInfo visInfo, VisualizerRelInfo relInfo, String startCubeName)
+	protected void loadFirstVisualizerRelInfo(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo, String startCubeName)
 	{
 		relInfo.targetCube = NCubeManager.getCube(appId, startCubeName)
-		relInfo.availableTargetScope = new CaseInsensitiveMap(visInfo.scopeInfo.scope)
+		relInfo.availableTargetScope = new CaseInsensitiveMap(scopeInfo.scope)
 		relInfo.targetLevel = 1
 		relInfo.targetId = 1
 		relInfo.addRequiredAndOptionalScopeKeys(visInfo)
@@ -123,7 +143,7 @@ class Visualizer
 		relInfo.showCellValuesLink = true
 	}
 
-	protected void processCube(VisualizerInfo visInfo, VisualizerRelInfo relInfo)
+	protected void processCube(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo)
 	{
 		NCube targetCube = relInfo.targetCube
 		String targetCubeName = targetCube.name
@@ -138,7 +158,7 @@ class Visualizer
 			return
 		}
 
-		visInfo.nodes << relInfo.createNode(visInfo)
+		visInfo.nodes << relInfo.createNode(visInfo, scopeInfo)
 
 		Map<Map, Set<String>> refs = targetCube.referencedCubeNames
 
@@ -182,6 +202,11 @@ class Visualizer
 		return new VisualizerRelInfo(appId)
 	}
 
+	protected VisualizerScopeInfo getVisualizerScopeInfo()
+	{
+		return new VisualizerScopeInfo(appId)
+	}
+
 	protected VisualizerHelper getVisualizerHelper()
 	{
 		helper =  new VisualizerHelper()
@@ -190,9 +215,5 @@ class Visualizer
 	protected boolean isValidStartCube(VisualizerInfo visInfo, String cubeName)
 	{
 		return true
-	}
-
-	protected void populateScopeDefaults(VisualizerInfo visInfo, String startCubeName)
-	{
 	}
 }

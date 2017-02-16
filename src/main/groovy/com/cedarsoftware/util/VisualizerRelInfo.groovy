@@ -66,7 +66,7 @@ class VisualizerRelInfo
 		typesToAdd = node.typesToAdd as List
 	}
 
-	boolean loadCellValues(VisualizerInfo visInfo)
+	boolean loadCellValues(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo)
 	{
 		cellInfo = []
 		cellValuesLoaded = true
@@ -100,7 +100,7 @@ class VisualizerRelInfo
 		return targetCube.getRequiredScope(availableTargetScope, new CaseInsensitiveMap())
 	}
 
-	String getDetails(VisualizerInfo visInfo)
+	String getDetails(VisualizerScopeInfo scopeInfo, long nodeCount)
 	{
 		StringBuilder sb = new StringBuilder()
 
@@ -111,31 +111,31 @@ class VisualizerRelInfo
 		//Cell values
 		if (cellValuesLoaded && showCellValues)
 		{
-			addCellValueSection(visInfo, sb)
+			addCellValueSection(scopeInfo, nodeCount, sb)
 		}
 		return sb.toString()
 	}
 
-	private void addCellValueSection(VisualizerInfo visInfo, StringBuilder sb)
+	private void addCellValueSection(VisualizerScopeInfo scopeInfo, long nodeCount, StringBuilder sb)
 	{
 		StringBuilder cellValuesBuilder = new StringBuilder()
 		StringBuilder linkBuilder = new StringBuilder()
 		sb.append("<b>Cell values</b>")
-		getCellValues(visInfo, cellValuesBuilder, linkBuilder )
+		getCellValues(scopeInfo, nodeCount, cellValuesBuilder, linkBuilder )
 		sb.append(linkBuilder.toString())
 		sb.append("""<pre><ul class="${DETAILS_CLASS_CELL_VALUES}">""")
 		sb.append(cellValuesBuilder.toString())
 		sb.append("</ul></pre>")
 	}
 
-	private void getCellValues(VisualizerInfo visInfo, StringBuilder cellValuesBuilder, StringBuilder linkBuilder)
+	private void getCellValues(VisualizerScopeInfo scopeInfo, long nodeCount, StringBuilder cellValuesBuilder, StringBuilder linkBuilder)
 	{
 		Long id = 0l
 
 		if (cellInfo)
 		{
 			cellInfo.each { VisualizerCellInfo visCellInfo ->
-				visCellInfo.getCellValue(visInfo, this, id++, cellValuesBuilder)
+				visCellInfo.getCellValue(scopeInfo, nodeCount, this, id++, cellValuesBuilder)
 			}
 
 			linkBuilder.append(DOUBLE_BREAK)
@@ -229,7 +229,7 @@ class VisualizerRelInfo
 		return edge
 	}
 
-	Map<String, Object> createNode(VisualizerInfo visInfo, String group = null)
+	Map<String, Object> createNode(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, String group = null)
 	{
 		NCube targetCube = targetCube
 		String targetCubeName = targetCube.name
@@ -249,7 +249,7 @@ class VisualizerRelInfo
 		node.detailsTitle1 = cubeDetailsTitle1
 		node.detailsTitle2 = cubeDetailsTitle2
 		node.title = getCubeDisplayName(targetCubeName)
-		node.details = getDetails(visInfo)
+		node.details = getDetails(scopeInfo, visInfo.nodeCount )
 		group = group ?: getGroupName(visInfo)
 		node.group = group
 		node.typesToAdd = visInfo.getTypesToAdd(group)

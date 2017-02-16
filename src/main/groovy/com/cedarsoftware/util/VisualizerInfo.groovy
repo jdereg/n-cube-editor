@@ -29,8 +29,6 @@ class VisualizerInfo
     Set<String> availableGroupsAllLevels
     Set<String> messages
 
-    VisualizerScopeInfo scopeInfo = new VisualizerScopeInfo()
-
     Map<String, Object> networkOverridesBasic
     Map<String, Object> networkOverridesFull
     Map<String, Object> networkOverridesTopNode
@@ -50,11 +48,6 @@ class VisualizerInfo
 
     protected void init()
     {
-        scopeInfo.appId = appId
-        if (!scopeInfo.scope)
-        {
-            scopeInfo.scope = new CaseInsensitiveMap()
-        }
         maxLevel = 1
         nodeCount = 1
         relInfoCount = 1

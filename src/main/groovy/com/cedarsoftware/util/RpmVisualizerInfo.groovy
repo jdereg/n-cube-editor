@@ -29,26 +29,6 @@ class RpmVisualizerInfo extends VisualizerInfo
         return CUBE_TYPE_RPM
     }
 
-    protected void populateScopeDefaults(String scopeKey, String defaultValue)
-    {
-        Object scopeValue = scopeInfo.scope[scopeKey]
-        scopeValue =  scopeValue ?: defaultValue
-        scopeInfo.addRequiredStartScope(null, scopeKey, scopeValue, true)
-        scopeInfo.scope[scopeKey] = scopeValue
-    }
-
-    protected void loadAvailableScopeValuesEffectiveVersion()
-    {
-        if (!scopeInfo.requiredStartScopeAvailableValues[EFFECTIVE_VERSION])
-        {
-            Map<String, List<String>> versionsMap = NCubeManager.getVersions(appId.tenant, appId.app)
-            Set<Object>  values = new TreeSet<>(new VersionComparator())
-            values.addAll(versionsMap[ReleaseStatus.RELEASE.name()])
-            values.addAll(versionsMap[ReleaseStatus.SNAPSHOT.name()])
-            scopeInfo.requiredStartScopeAvailableValues[EFFECTIVE_VERSION] = new LinkedHashSet(values)
-        }
-    }
-
     @Override
     List getTypesToAdd(String group)
     {

@@ -13,8 +13,6 @@ import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_FORM_CONT
 import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_SCOPE_INPUT
 import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_SCOPE_SELECT
 import static com.cedarsoftware.util.VisualizerConstants.DOUBLE_BREAK
-import static com.cedarsoftware.util.VisualizerConstants.SPACE
-
 
 /**
  * Provides information about the scope used to visualize an n-cube.
@@ -26,9 +24,9 @@ class VisualizerScopeInfo
 	ApplicationID appId
 	Map<String, Object> scope  = new CaseInsensitiveMap()
 
-	Map<String, Set<Object>> requiredStartScopeAvailableValues = new CaseInsensitiveMap()
-	Map<String, Set<Object>> requiredStartScopeProvidedValues = new CaseInsensitiveMap()
-	Map<String, Set<String>> requiredStartScopeCubeNames = new CaseInsensitiveMap()
+	Map<String, Set<Object>> requiredGraphScopeAvailableValues = new CaseInsensitiveMap()
+	Map<String, Set<Object>> requiredGraphScopeProvidedValues = new CaseInsensitiveMap()
+	Map<String, Set<String>> requiredGraphScopeCubeNames = new CaseInsensitiveMap()
 
 	Map<String, Set<Object>> optionalGraphScopeAvailableValues = new CaseInsensitiveMap()
 	Map<String, Set<Object>> optionalGraphScopeProvidedValues = new CaseInsensitiveMap()
@@ -38,17 +36,18 @@ class VisualizerScopeInfo
 
 	VisualizerScopeInfo(){}
 
-	VisualizerScopeInfo(ApplicationID applicationID)
-	{
-		appId = applicationID
+	VisualizerScopeInfo(ApplicationID applicationId){
+		appId = applicationId
 	}
+	
+	protected void populateScopeDefaults(String startCubeName){}
 
-	Set<Object> addRequiredStartScope(String cubeName, String scopeKey, Object providedValue, boolean skipAvailableScopeValues = false)
+	Set<Object> addRequiredGraphScope(String cubeName, String scopeKey, Object providedValue, boolean skipAvailableScopeValues = false)
 	{
-		addRequiredStartScopeValues(cubeName, scopeKey, requiredStartScopeAvailableValues, skipAvailableScopeValues)
-		addValue(scopeKey, requiredStartScopeCubeNames, cubeName)
-		addValue(scopeKey, requiredStartScopeProvidedValues, providedValue)
-		return requiredStartScopeAvailableValues[scopeKey]
+		addRequiredGraphScopeValues(cubeName, scopeKey, requiredGraphScopeAvailableValues, skipAvailableScopeValues)
+		addValue(scopeKey, requiredGraphScopeCubeNames, cubeName)
+		addValue(scopeKey, requiredGraphScopeProvidedValues, providedValue)
+		return requiredGraphScopeAvailableValues[scopeKey]
 	}
 
 	Set<Object> addOptionalGraphScope(String cubeName, String scopeKey, Object providedValue, boolean skipAvailableScopeValues = false)
@@ -59,7 +58,7 @@ class VisualizerScopeInfo
 		return optionalGraphScopeAvailableValues[scopeKey]
 	}
 
-	private void addRequiredStartScopeValues(String cubeName, String scopeKey, Map scopeInfoMap, boolean skipAvailableScopeValues)
+	private void addRequiredGraphScopeValues(String cubeName, String scopeKey, Map scopeInfoMap, boolean skipAvailableScopeValues)
 	{
 		Set<Object> scopeValues = scopeInfoMap[scopeKey] as Set ?: new LinkedHashSet()
 		if (skipAvailableScopeValues)
@@ -116,11 +115,11 @@ class VisualizerScopeInfo
 	void createScopePrompt()
 	{
 		StringBuilder sb = new StringBuilder("${BREAK}")
-		if (requiredStartScopeAvailableValues)
+		if (requiredGraphScopeAvailableValues)
 		{
 			sb.append("<b>Required scope to load graph</b>")
 			sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
-			sb.append(requiredStartScopeMessage)
+			sb.append(requiredGraphScopeMessage)
 			sb.append("${DOUBLE_BREAK}")
 		}
 		if (optionalGraphScopeAvailableValues)
@@ -148,16 +147,16 @@ class VisualizerScopeInfo
 		return sb
 	}
 
-	private StringBuilder getRequiredStartScopeMessage()
+	private StringBuilder getRequiredGraphScopeMessage()
 	{
 		StringBuilder sb = new StringBuilder()
-		requiredStartScopeAvailableValues.keySet().each{ String scopeKey ->
+		requiredGraphScopeAvailableValues.keySet().each{ String scopeKey ->
 			sb.append(BREAK)
-			Set<String> cubeNames =  requiredStartScopeCubeNames[scopeKey]
+			Set<String> cubeNames =  requiredGraphScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
 			String providedValue = scope[scopeKey] as String
 			StringBuilder title = new StringBuilder("${scopeKey} is required to load the graph.")
-			sb.append(getScopeMessage(scopeKey, requiredStartScopeAvailableValues[scopeKey], title, providedValue))
+			sb.append(getScopeMessage(scopeKey, requiredGraphScopeAvailableValues[scopeKey], title, providedValue))
 		}
 		return sb
 	}

@@ -45,7 +45,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	}
 
 	@Override
-	String getDetails(VisualizerInfo visInfo)
+	String getDetails(VisualizerScopeInfo scopeInfo, long nodeCount)
 	{
 		StringBuilder sb = new StringBuilder()
 
@@ -213,9 +213,9 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	}
 
 	@Override
-	Map<String, Object> createNode(VisualizerInfo visInfo, String group = null)
+	Map<String, Object> createNode(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, String group = null)
 	{
-		Map<String, Object> node = super.createNode(visInfo, group)
+		Map<String, Object> node = super.createNode(visInfo, scopeInfo, group)
 		if (targetCube.name.startsWith(RPM_ENUM_DOT))
 		{
 			node.label = null
@@ -320,7 +320,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	}
 
 	@Override
-	boolean loadCellValues(VisualizerInfo visInfo)
+	boolean loadCellValues(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo)
 	{
 		try
 		{
@@ -336,7 +336,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			removeNotExistsFields()
 			addRequiredAndOptionalScopeKeys(visInfo)
 			retainUsedScope(visInfo, output)
-			handleUnboundScope(visInfo, targetCube.getRuleInfo(output))
+			handleUnboundScope(visInfo, scopeInfo, targetCube.getRuleInfo(output))
 			cellValuesLoaded = true
 			showCellValuesLink = true
 		}
@@ -347,11 +347,11 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			Throwable t = helper.getDeepestException(e)
 			if (t instanceof InvalidCoordinateException)
 			{
-				handleInvalidCoordinateException(t as InvalidCoordinateException, visInfo)
+				handleInvalidCoordinateException(t as InvalidCoordinateException, scopeInfo, visInfo.nodeCount)
 			}
 			else if (t instanceof CoordinateNotFoundException)
 			{
-				handleCoordinateNotFoundException(t as CoordinateNotFoundException, visInfo)
+				handleCoordinateNotFoundException(t as CoordinateNotFoundException, scopeInfo, visInfo.nodeCount)
 			}
 			else
 			{
@@ -361,28 +361,28 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		return true
 	}
 
-	private void handleUnboundScope(VisualizerInfo visInfo, RuleInfo ruleInfo)
+	private void handleUnboundScope(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, RuleInfo ruleInfo)
 	{
-		StringBuilder sb = helper.handleUnboundScope(visInfo, this, ruleInfo)
+		StringBuilder sb = helper.handleUnboundScope(visInfo, scopeInfo, this, ruleInfo)
 		if (sb)
 		{
 			notes << sb.toString()
 		}
 	}
 
-	private void handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerInfo visInfo)
+	private void handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo, long nodeCount)
 	{
 		StringBuilder sb = new StringBuilder("<b>A required scope value was not found for this node:</b> ${DOUBLE_BREAK}")
-		sb.append(helper.handleCoordinateNotFoundException(e, visInfo))
+		sb.append(helper.handleCoordinateNotFoundException(e, scopeInfo, nodeCount))
 		notes << sb.toString()
 		nodeLabelPrefix = 'Required scope value not found for '
 		targetTraits = new CaseInsensitiveMap()
 	}
 
-	private void handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerInfo visInfo)
+	private void handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerScopeInfo scopeInfo, long nodeCount)
 	{
 		StringBuilder sb = new StringBuilder("<b>Additional scope is required: </b> ${DOUBLE_BREAK}")
-		sb.append(helper.handleInvalidCoordinateException(e, visInfo, this, MANDATORY_SCOPE_KEYS))
+		sb.append(helper.handleInvalidCoordinateException(e, scopeInfo, nodeCount, this, MANDATORY_SCOPE_KEYS))
 		notes << sb.toString()
 		nodeLabelPrefix = 'Additional scope required for '
 		targetTraits = new CaseInsensitiveMap()

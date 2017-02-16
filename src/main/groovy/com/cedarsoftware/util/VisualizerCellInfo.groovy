@@ -35,14 +35,14 @@ class VisualizerCellInfo
 		this.nodeId = nodeId
 	}
 
-	void getCellValue(VisualizerInfo visInfo, VisualizerRelInfo visRelInfo, Long id, StringBuilder sb)
+	void getCellValue(VisualizerScopeInfo scopeInfo, long nodeCount, VisualizerRelInfo visRelInfo, Long id, StringBuilder sb)
 	{
 		String coordinateString = coordinateString
 
 		if (exception)
 		{
 			//An exception was caught during the execution of the cell.
-			sb.append(getExceptionDetails(visInfo, visRelInfo, id, coordinateString))
+			sb.append(getExceptionDetails( scopeInfo, nodeCount, visRelInfo, id, coordinateString))
 		}
 		else
 		{
@@ -91,7 +91,7 @@ class VisualizerCellInfo
 		return sb.toString()
 	}
 
-	private String getExceptionDetails(VisualizerInfo visInfo, VisualizerRelInfo relInfo, Long id, String coordinateString)
+	private String getExceptionDetails(VisualizerScopeInfo scopeInfo, long nodeCount, VisualizerRelInfo relInfo, Long id, String coordinateString)
 	{
 		StringBuilder sb = new StringBuilder()
 		StringBuilder mb = new StringBuilder()
@@ -105,7 +105,7 @@ class VisualizerCellInfo
 			title = 'The cell was executed with a missing or invalid coordinate.'
 			listItemClassName = t.class.simpleName
 			mb.append("Additional scope is required to load coordinate ${coordinateString}. ${DOUBLE_BREAK}")
-			mb.append(helper.handleInvalidCoordinateException(t as InvalidCoordinateException, visInfo, relInfo, new LinkedHashSet()).toString())
+			mb.append(helper.handleInvalidCoordinateException(t as InvalidCoordinateException, scopeInfo, nodeCount, relInfo, new LinkedHashSet()).toString())
 		}
 		else if (t instanceof CoordinateNotFoundException)
 		{
@@ -115,7 +115,7 @@ class VisualizerCellInfo
 			String scopeKey = exc.axisName
 			Object value = exc.value ?: 'null'
 			mb.append("The scope value ${value} for scope key ${scopeKey} cannot be found on axis ${scopeKey} for coordinate ${coordinateString}.${DOUBLE_BREAK}")
-			mb.append(helper.handleCoordinateNotFoundException(t as CoordinateNotFoundException, visInfo))
+			mb.append(helper.handleCoordinateNotFoundException(t as CoordinateNotFoundException, scopeInfo, nodeCount))
 		}
 		else
 		{
