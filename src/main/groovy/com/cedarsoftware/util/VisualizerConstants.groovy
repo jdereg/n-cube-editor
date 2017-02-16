@@ -43,7 +43,7 @@ class VisualizerConstants
 
 	static final String DETAILS_CLASS_CELL_VALUES = 'cellValues'
 	static final String DETAILS_CLASS_WORD_WRAP = 'wordwrap'
-	static final String DETAILS_CLASS_SCOPE_SELECT = 'scopeSelect'
+	static final String DETAILS_CLASS_SCOPE_CLICK = 'scopeClick'
 	static final String DETAILS_CLASS_SCOPE_INPUT = 'scopeInput'
 	static final String DETAILS_CLASS_EXCEPTION = 'Exception'
 	static final String DETAILS_CLASS_EXPAND_ALL = 'expandAll'

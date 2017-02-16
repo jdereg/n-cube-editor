@@ -96,13 +96,13 @@ var Visualizer = (function ($) {
             _layout = $('#visBody').layout({
                 name: 'visLayout'
                 ,	livePaneResizing:			true
-                ,   east__minSize:              EAST_MIN_SIZE
-                ,   east__maxSize:              EAST_MAX_SIZE
-                ,   east__size:                 EAST_SIZE
-                ,   east__closable:             true
-                ,   east__resizeable:           true
-                ,   east__initClosed:           true
-                ,   east__slidable:             true
+                ,   west__minSize:              EAST_MIN_SIZE
+                ,   west__maxSize:              EAST_MAX_SIZE
+                ,   west__size:                 EAST_SIZE
+                ,   west__closable:             true
+                ,   west__resizeable:           true
+                ,   west__initClosed:           true
+                ,   west__slidable:             true
                 ,   center__triggerEventsOnLoad: true
                 ,   center__maskContents:       true
                 ,   togglerLength_open:         EAST_LENGTH_OPEN
@@ -150,13 +150,15 @@ var Visualizer = (function ($) {
             });
 
             $('#scopeButton').click(function () {
-                var button = $('#scopeButton');
+                var button, scopeImage;
+                button = $('#scopeButton');
                 if (_nce.hasNote(STICKY_SCOPE_MESSAGE)){
                     _nce.clearNotes(STICKY_SCOPE_MESSAGE);
                     button.removeClass('active');
                 }
                 else{
-                    _nce.showNote(_scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, SCOPE_IMAGE);
+                    scopeImage =  $.extend({title: getScopeString()}, SCOPE_IMAGE);
+                    _nce.showNote(_scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, scopeImage);
                     button.addClass('active');
                 }
                 _scopeButton = button.hasClass('active');
@@ -213,8 +215,8 @@ var Visualizer = (function ($) {
 
     function onNoteEvent(e) {
         var target = e.target;
-        if (e.type === 'change' && target.className.indexOf('scopeSelect') > -1) {
-            scopeSelectEvent(target);
+        if (e.type === 'click' && target.className.indexOf('scopeClick') > -1) {
+            scopeClickEvent(target);
         }
         else if (e.type === 'change' && target.className.indexOf('scopeInput') > -1) {
             scopeInputEvent(target);
@@ -233,22 +235,32 @@ var Visualizer = (function ($) {
     }
 
     function scopeInputEvent(target) {
-        var key = target.id;
-        if (key) {
-            _scopeInfo.scope[key] = target.value;
-            scopeChange();
-        }
+        var key, value;
+        key = target.id;
+        value = target.value;
+        value = value ? value.trim() : value;
+        setScopeValue(key, value);
+        scopeChange();
     }
 
-    function scopeSelectEvent(target) {
+    function scopeClickEvent(target) {
         var id, scopeParts, key, value;
-        id = target.selectedOptions[0].id;
+        id = target.id;
         if (id) {
             scopeParts = id.split(':');
             key = scopeParts[0];
             value = scopeParts[1].trim();
-            _scopeInfo.scope[key] = value === 'null' ? null : value;
+            setScopeValue(key, value);
             scopeChange();
+        }
+    }
+
+    function setScopeValue(key, value){
+        if (value === null || value === 'Default' || value.length === 0){
+            delete _scopeInfo.scope[key];
+        }
+        else{
+            _scopeInfo.scope[key] = value;
         }
     }
 
@@ -574,7 +586,7 @@ var Visualizer = (function ($) {
 
     function loadGraph() {
         var options, result, json, message;
-        clearVisLayoutEast();
+        clearVisLayoutWest();
         destroyNetwork();
 
         if (!_nce.getSelectedCubeName()) {
@@ -645,7 +657,7 @@ var Visualizer = (function ($) {
             appIdA.branch === appIdB.branch;
     }
 
-    function clearVisLayoutEast(){
+    function clearVisLayoutWest(){
         _nodeDetailsTitle1[0].innerHTML = '';
         _nodeDetailsTitle2[0].innerHTML = '';
         _nodeCubeLink[0].innerHTML = '';
@@ -653,7 +665,7 @@ var Visualizer = (function ($) {
         _nodeCellValues[0].innerHTML = '';
         _nodeAddTypes.innerHTML = '';
         _nodeDetails[0].innerHTML = '';
-        _layout.close('east');
+        _layout.close('west');
     }
 
     function loadHierarchicalView() {
@@ -662,10 +674,12 @@ var Visualizer = (function ($) {
 
     function loadScopeView() {
         $('#scopeButton-div').prop('title', getScopeString());
-        var button = $('#scopeButton');
+        var button, scopeImage;
+        button = $('#scopeButton');
         button.addClass('active');
         _scopeButton = true;
-        _nce.showNote(_scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, SCOPE_IMAGE);
+        scopeImage =  $.extend({title: getScopeString()}, SCOPE_IMAGE);
+        _nce.showNote(_scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, scopeImage);
     }
 
     function loadGroupsView() {
@@ -1063,7 +1077,7 @@ var Visualizer = (function ($) {
             });
 
             _network.on('deselectNode', function() {
-                clearVisLayoutEast();
+                clearVisLayoutWest();
             });
 
             _network.on('dragStart', function () {
@@ -1216,7 +1230,7 @@ var Visualizer = (function ($) {
 
         _nodeDetails[0].innerHTML = node.details;
         addNodeDetailsListeners();
-        _layout.open('east');
+        _layout.open('west');
     }
 
     function addNodeDetailsListeners()
@@ -1226,17 +1240,17 @@ var Visualizer = (function ($) {
         {
             _nodeDetails.change(function (e) {
                 target = e.target;
-                if (target.className.indexOf('scopeSelect') > -1) {
-                    scopeSelectEvent(target);
-                }
-                else if (target.className.indexOf('scopeInput') > -1) {
+                if (target.className.indexOf('scopeInput') > -1) {
                     scopeInputEvent(target);
                 }
             });
             _nodeDetails.click(function (e) {
                 e.preventDefault();
                 target = e.target;
-                if (target.className.indexOf('scope') === -1) {
+                if (target.className.indexOf('scopeClick') > -1) {
+                    scopeClickEvent(target);
+                }
+                else if (target.className.indexOf('scope') === -1) {
                     executeCell(target);
                 }
             });

@@ -102,14 +102,14 @@ class VisualizerCellInfo
 
 		if (t instanceof InvalidCoordinateException)
 		{
-			title = 'The cell was executed with a missing or invalid coordinate.'
+			title = 'The cell was executed with a missing or invalid coordinate'
 			listItemClassName = t.class.simpleName
 			mb.append("Additional scope is required to load coordinate ${coordinateString}. ${DOUBLE_BREAK}")
 			mb.append(helper.handleInvalidCoordinateException(t as InvalidCoordinateException, scopeInfo, nodeCount, relInfo, new LinkedHashSet()).toString())
 		}
 		else if (t instanceof CoordinateNotFoundException)
 		{
-			title = 'The cell was executed with a missing or invalid coordinate.'
+			title = 'The cell was executed with a missing or invalid coordinate'
 			listItemClassName = t.class.simpleName
 			CoordinateNotFoundException exc = t as CoordinateNotFoundException
 			String scopeKey = exc.axisName
@@ -119,7 +119,7 @@ class VisualizerCellInfo
 		}
 		else
 		{
-			title = 'An error occurred during the execution of the cell.'
+			title = 'An error occurred during the execution of the cell'
 			listItemClassName = DETAILS_CLASS_EXCEPTION
 			mb.append("An exception was thrown while loading coordinate ${coordinateString}${DOUBLE_BREAK}")
 			mb.append(helper.handleException(t))

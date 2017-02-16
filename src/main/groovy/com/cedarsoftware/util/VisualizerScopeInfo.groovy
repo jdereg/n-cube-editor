@@ -11,7 +11,7 @@ import static com.cedarsoftware.util.VisualizerConstants.BREAK
 import static com.cedarsoftware.util.VisualizerConstants.COMMA_SPACE
 import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_FORM_CONTROL
 import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_SCOPE_INPUT
-import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_SCOPE_SELECT
+import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_SCOPE_CLICK
 import static com.cedarsoftware.util.VisualizerConstants.DOUBLE_BREAK
 
 /**
@@ -129,7 +129,7 @@ class VisualizerScopeInfo
 			sb.append(optionalGraphScopeMessage)
 			sb.append("${DOUBLE_BREAK}")
 		}
-		sb.append("""<a href="#" class="scopeReset">Reset scope</a>""")
+		sb.append("""<a href="#" title="Reset scope to original defaults" class="scopeReset">Reset scope</a>""")
 		scopeMessage = sb.toString()
 	}
 
@@ -141,7 +141,7 @@ class VisualizerScopeInfo
 			Set<String> cubeNames = optionalGraphScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
 			String providedValue = scope[scopeKey] as String
-			StringBuilder title = new StringBuilder("${scopeKey} is optional to load the graph, but may be required for some nodes.")
+			StringBuilder title = new StringBuilder("${scopeKey} is optional to load the graph, but may be required for some nodes")
 			sb.append(getScopeMessage(scopeKey, optionalGraphScopeAvailableValues[scopeKey], title, providedValue))
 		}
 		return sb
@@ -155,7 +155,7 @@ class VisualizerScopeInfo
 			Set<String> cubeNames =  requiredGraphScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
 			String providedValue = scope[scopeKey] as String
-			StringBuilder title = new StringBuilder("${scopeKey} is required to load the graph.")
+			StringBuilder title = new StringBuilder("${scopeKey} is required to load the graph")
 			sb.append(getScopeMessage(scopeKey, requiredGraphScopeAvailableValues[scopeKey], title, providedValue))
 		}
 		return sb
@@ -169,8 +169,8 @@ class VisualizerScopeInfo
 			providedValues.remove(null)
 			String providedValue = providedValues ? providedValues.join(COMMA_SPACE) : null
 			Set<String> cubeNames = nodeCubeNames[axisName]
-			StringBuilder title = new StringBuilder("${axisName} is optional to load this node.")
-			title.append(addCubeNamesList('Used on:', cubeNames))
+			StringBuilder title = new StringBuilder("${axisName} is optional to load this node")
+			title.append(addCubeNamesList('. Used on:', cubeNames))
 			sb.append(getScopeMessage(axisName, nodeAvailableValues[axisName], title, providedValue))
 		}
 		return sb
@@ -178,33 +178,51 @@ class VisualizerScopeInfo
 
 	static StringBuilder getScopeMessage(String scopeKey, Set<Object> scopeValues, StringBuilder title, String providedValue)
 	{
+		String value
 		StringBuilder sb = new StringBuilder()
-		boolean optionalScope = scopeValues.contains(null)
-		String nullValueOptionLabel = optionalScope ? 'Default' : null
 		boolean noMatch = true
-		String value = providedValue ?: ''
-
-		if (scopeValues || optionalScope)
+		String caret = scopeValues ? """<span class="caret"></span>""" : ''
+		String placeHolder = scopeValues ? 'Select or enter value...' : 'Enter value...'
+		if (scopeValues.contains(null))
 		{
-			sb.append("""<div class="input-group">""")
-			sb.append("""<div class="input-group-btn">""")
-			sb.append("""<button type="button" class="btn btn-default dropdown-toggle" title="${title}" data-toggle="dropdown">${scopeKey} <span class="caret"></span></button>""")
-			sb.append("""<ul class="dropdown-menu ${DETAILS_CLASS_SCOPE_SELECT}">""")
+			value = providedValue ?: 'Default'
+		}
+		else
+		{
+			value = providedValue ?: ''
+		}
+
+		sb.append("""<div class="input-group" title="${title}">""")
+		sb.append("""<div class="input-group-btn">""")
+		sb.append("""<button type="button" class="btn btn-default dropdown-toggle"  data-toggle="dropdown">${scopeKey} ${caret}</button>""")
+		if (scopeValues)
+		{
+			sb.append("""<ul class="dropdown-menu">""")
 			scopeValues.each {
 				if (it)
 				{
 					String scopeValue = it as String
-					if (scopeValue == providedValue){
+					if (scopeValue == providedValue)
+					{
 						noMatch = false
 					}
-					sb.append("""<li id="${scopeKey}: ${scopeValue}" style="color: black;">${scopeValue}</li>""")
+					sb.append("""<li id="${scopeKey}: ${scopeValue}" class="${DETAILS_CLASS_SCOPE_CLICK}" style="color: black;">${scopeValue}</li>""")
+				}
+				else
+				{
+					sb.append("""<li id="${scopeKey}: Default" class="${DETAILS_CLASS_SCOPE_CLICK}" style="color: black;">Default</li>""")
 				}
 			}
 			sb.append("""</ul>""")
-			sb.append("""</div>""")
-			sb.append("""<input id="${scopeKey}" style="color: black;" type="text" placeholder="Select or enter value..." value="${value}" class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_SCOPE_INPUT}">""")
-			sb.append("""</div>""")
 		}
+		else
+		{
+			noMatch = false
+		}
+
+		sb.append("""</div>""")
+		sb.append("""<input id="${scopeKey}" style="color: black;" type="text" placeholder="${placeHolder}" value="${value}" class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_SCOPE_INPUT}">""")
+		sb.append("""</div>""")
 
 		/*if (providedValue && noMatch)
 		{

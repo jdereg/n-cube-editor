@@ -153,7 +153,8 @@
             if (image != ''){
                 var imageWidth = image.width ? ' width="' + image.width + '"' : '';
                 var imageHeight = image.height ? ' height="' + image.height + '"' : '';
-                var image_str = '<img src="' + image.src + '"' + imageWidth + imageHeight + ' class="gritter-image" />';
+                var imageTitle = image.title ? ' title="' + image.title + '"' : '';
+                var image_str = '<img src="' + image.src + '"' + imageTitle + imageWidth + imageHeight + ' class="gritter-image" />';
             }
             else{
                 image_str = '';
