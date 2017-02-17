@@ -912,20 +912,19 @@ class VisualizerTest{
     {
         //Neither cube name nor axis name
         CoordinateNotFoundException e = new CoordinateNotFoundException('CoordinateNotFoundException', null, null, null, null)
-        VisualizerInfo visInfo = new VisualizerInfo()
         RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
         String message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l)
-        checkExceptionMessage(message)
+        checkExceptionMessage(message, 'CoordinateNotFoundException')
 
         //No cube name
         e = new CoordinateNotFoundException('CoordinateNotFoundException', null, null, 'dummyAxis', null)
         message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l)
-        checkExceptionMessage(message)
+        checkExceptionMessage(message, 'CoordinateNotFoundException')
 
         //No axis name
         e = new CoordinateNotFoundException('CoordinateNotFoundException', 'dummyCube', null, null, null)
         message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l)
-        checkExceptionMessage(message)
+        checkExceptionMessage(message, 'CoordinateNotFoundException')
     }
 
     @Test
@@ -935,28 +934,20 @@ class VisualizerTest{
         Map relInfoScope = [dummyRelInfoKey: 'dummyValue'] as CaseInsensitiveMap
         NCube cube = new NCube('dummyCube')
         InvalidCoordinateException e = new InvalidCoordinateException('InvalidCoordinateException', null, null, relInfoScope.keySet())
-        VisualizerInfo visInfo = new VisualizerInfo(appId)
         RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
         scopeInfo.scope = new CaseInsensitiveMap(visInfoScope)
         VisualizerRelInfo relInfo = new VisualizerRelInfo(appId)
         relInfo.targetCube = cube
         relInfo.availableTargetScope = new CaseInsensitiveMap(relInfoScope)
-        try
-        {
-            VisualizerHelper.handleInvalidCoordinateException(e, scopeInfo, 1l, relInfo, [] as Set)
-            fail('Expected IllegalStateException to be thrown.')
-        }
-        catch (IllegalStateException exc)
-        {
-            assert "InvalidCoordinateException thrown, but no missing scope keys found for ${cube.name} and scope ${visInfoScope.toString()}.".toString() == exc.message
-        }
+        String message = VisualizerHelper.handleInvalidCoordinateException(e, scopeInfo, 1l, relInfo, [] as Set)
+        checkExceptionMessage(message, 'InvalidCoordinateException')
     }
 
-    private static void checkExceptionMessage(String message)
+    private static void checkExceptionMessage(String message, String exceptionName)
     {
         assert message.contains(DETAILS_LABEL_MESSAGE)
         assert message.contains(DETAILS_LABEL_ROOT_CAUSE)
-        assert message.contains('CoordinateNotFoundException')
+        assert message.contains(exceptionName)
         assert message.contains(DETAILS_LABEL_STACK_TRACE)
     }
 
