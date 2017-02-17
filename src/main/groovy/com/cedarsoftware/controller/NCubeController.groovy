@@ -139,7 +139,7 @@ class NCubeController extends BaseController
             if (appIdParts.length > 1)
             {
                 ApplicationID appId = new ApplicationID(tenant, appIdParts[0], appIdParts[1], appIdParts[2], appIdParts[3])
-                if (isAppAdmin(appId, realId))
+                if (isAppAdmin(appId, true))
                 {
                     NCubeManager.fakeId = headers['fakeuser']
                 }
@@ -161,10 +161,10 @@ class NCubeController extends BaseController
         return nCubeService.checkPermissions(appId, resource, action == null ? Action.READ : Action.valueOf(action.toUpperCase()))
     }
 
-    Boolean isAppAdmin(ApplicationID appId, String userName = NCubeManager.impliedId)
+    Boolean isAppAdmin(ApplicationID appId, boolean useRealId = false)
     {
         appId = addTenant(appId)
-        return nCubeService.isAdmin(appId, userName)
+        return nCubeService.isAdmin(appId, useRealId)
     }
 
     String getAppLockedBy(ApplicationID appId)
