@@ -104,7 +104,7 @@ class VisualizerCellInfo
 		{
 			title = 'The cell was executed with a missing or invalid coordinate'
 			listItemClassName = t.class.simpleName
-			mb.append("Additional scope is required to load coordinate ${coordinateString}. ${DOUBLE_BREAK}")
+			mb.append("Additional scope is required:${DOUBLE_BREAK}")
 			mb.append(helper.handleInvalidCoordinateException(t as InvalidCoordinateException, scopeInfo, nodeCount, relInfo, new LinkedHashSet()).toString())
 		}
 		else if (t instanceof CoordinateNotFoundException)
@@ -114,14 +114,14 @@ class VisualizerCellInfo
 			CoordinateNotFoundException exc = t as CoordinateNotFoundException
 			String scopeKey = exc.axisName
 			Object value = exc.value ?: 'null'
-			mb.append("The scope value ${value} for scope key ${scopeKey} cannot be found on axis ${scopeKey} for coordinate ${coordinateString}.${DOUBLE_BREAK}")
+			mb.append("The value ${value} is not valid for ${scopeKey}. A different value must be provided:${DOUBLE_BREAK}")
 			mb.append(helper.handleCoordinateNotFoundException(t as CoordinateNotFoundException, scopeInfo, nodeCount))
 		}
 		else
 		{
 			title = 'An error occurred during the execution of the cell'
 			listItemClassName = DETAILS_CLASS_EXCEPTION
-			mb.append("An exception was thrown while loading coordinate ${coordinateString}${DOUBLE_BREAK}")
+			mb.append("An exception was thrown while loading the coordinate.${DOUBLE_BREAK}")
 			mb.append(helper.handleException(t))
 		}
 
@@ -134,7 +134,7 @@ class VisualizerCellInfo
 		sb.append(DOUBLE_BREAK)
 		sb.append("${noExecuteValue}")
 		sb.append(DOUBLE_BREAK)
-		sb.append("<b>'Exception:'</b>")
+		sb.append("<b>Exception:</b>")
 		sb.append(DOUBLE_BREAK)
 		sb.append("${mb.toString()}>")
 		sb.append("</pre>")

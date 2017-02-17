@@ -39,7 +39,7 @@ class VisualizerTest{
         assert STATUS_SUCCESS == graphInfo.status
         VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
         VisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as VisualizerScopeInfo
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
 
         assert 5 == visInfo.nodes.size()
         assert 4 == visInfo.edges.size()
@@ -84,7 +84,7 @@ class VisualizerTest{
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
         VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         assert 5 == visInfo.nodes.size()
         assert 4 == visInfo.edges.size()
 
@@ -161,7 +161,7 @@ class VisualizerTest{
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
         VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         assert !(graphInfo.visInfo as VisualizerInfo).messages
         List<Map<String, Object>> nodes = (graphInfo.visInfo as VisualizerInfo).nodes as List
         List<Map<String, Object>> edges = (graphInfo.visInfo as VisualizerInfo).edges as List
@@ -192,7 +192,7 @@ class VisualizerTest{
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
         VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
 
         assert 'VisualizerInfo' == visInfo.class.simpleName
         assert '' ==  visInfo.groupSuffix
@@ -230,7 +230,7 @@ class VisualizerTest{
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
         VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
 
@@ -269,7 +269,7 @@ class VisualizerTest{
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
         VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
 
         assert 2l == visInfo.maxLevel
@@ -300,7 +300,7 @@ class VisualizerTest{
         Map graphInfo = visualizer.buildGraph(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
         VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
 
@@ -356,11 +356,11 @@ class VisualizerTest{
         ]
 
         VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo]
+        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
 
         Map graphInfo = visualizer.getCellValues(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
         assert nodes.size() == 1
@@ -418,11 +418,11 @@ class VisualizerTest{
         ]
 
         VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo]
+        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
 
         Map graphInfo = visualizer.getCellValues(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
         assert nodes.size() == 1
@@ -476,11 +476,11 @@ class VisualizerTest{
         ]
 
         VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo]
+        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
 
         Map graphInfo = visualizer.getCellValues(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
         assert nodes.size() == 1
@@ -537,11 +537,11 @@ class VisualizerTest{
         ]
 
         VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo]
+        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
 
         Map graphInfo = visualizer.getCellValues(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
         assert nodes.size() == 1
@@ -588,11 +588,11 @@ class VisualizerTest{
         ]
 
         VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo]
+        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
 
         Map graphInfo = visualizer.getCellValues(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
         assert nodes.size() == 1
@@ -635,11 +635,11 @@ class VisualizerTest{
         ]
 
         VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo]
+        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
 
         Map graphInfo = visualizer.getCellValues(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
         assert nodes.size() == 1
@@ -686,11 +686,11 @@ class VisualizerTest{
         ]
 
         VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo]
+        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
 
         Map graphInfo = visualizer.getCellValues(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
         assert nodes.size() == 1
@@ -737,11 +737,11 @@ class VisualizerTest{
         ]
 
         VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo]
+        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
 
         Map graphInfo = visualizer.getCellValues(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
         assert nodes.size() == 1
@@ -768,7 +768,7 @@ class VisualizerTest{
         assert nodeDetails.contains("int b = 0")
         assert nodeDetails.contains("return a / b")
         assert nodeDetails.contains(DETAILS_LABEL_EXCEPTION)
-        assert nodeDetails.contains("An exception was thrown while loading coordinate")
+        assert nodeDetails.contains("An exception was thrown while loading the coordinate")
         assert nodeDetails.contains(DETAILS_LABEL_MESSAGE)
         assert nodeDetails.contains(DETAILS_LABEL_ROOT_CAUSE)
         assert nodeDetails.contains(DETAILS_LABEL_STACK_TRACE)
@@ -795,11 +795,11 @@ class VisualizerTest{
         ]
 
         VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo]
+        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
 
         Map graphInfo = visualizer.getCellValues(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
         assert nodes.size() == 1
@@ -826,16 +826,12 @@ class VisualizerTest{
         assert nodeDetails.contains("@CubeWithSingleValue[bogusAxisName:'CubeKAxis1Col1', CubeKAxis2: 'CubeKAxis2Col3']")
         assert nodeDetails.contains(DETAILS_LABEL_EXCEPTION)
 
-        assert nodeDetails.contains("${ADDITIONAL_SCOPE_REQUIRED_TO_LOAD}coordinate")
-        assert nodeDetails.contains("${ADD_SCOPE_VALUE_FOR_REQUIRED_KEY}CubeKAxis1")
-        assert nodeDetails.contains("Select...")
+        assert nodeDetails.contains(ADDITIONAL_SCOPE_REQUIRED)
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col1")
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col2")
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col3")
 
         //TODO: CubeKAxis2 should not get flagged as invalid
-        assert nodeDetails.contains("${ADD_SCOPE_VALUE_FOR_REQUIRED_KEY}CubeKAxis2")
-        assert nodeDetails.contains("Select...")
         assert nodeDetails.contains("CubeKAxis2: CubeKAxis2Col1")
         assert nodeDetails.contains("CubeKAxis2: CubeKAxis2Col2")
         assert nodeDetails.contains("CubeKAxis2: CubeKAxis2Col3")
@@ -866,11 +862,11 @@ class VisualizerTest{
         ]
 
         VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo]
+        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
 
         Map graphInfo = visualizer.getCellValues(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
         assert nodes.size() == 1
@@ -896,17 +892,12 @@ class VisualizerTest{
         assert nodeDetails.contains("@CubeWithSingleValue[bogusAxisName:'CubeKAxis1Col1', dummyAxisName: 'CubeKAxis2Col3']")
         assert nodeDetails.contains(DETAILS_LABEL_EXCEPTION)
 
-        assert nodeDetails.contains("${ADDITIONAL_SCOPE_REQUIRED_TO_LOAD}coordinate")
-        assert nodeDetails.contains("${ADD_SCOPE_VALUE_FOR_REQUIRED_KEY}CubeKAxis1")
+        assert nodeDetails.contains(ADDITIONAL_SCOPE_REQUIRED)
         assert nodeDetails.contains(DETAILS_CLASS_SCOPE_CLICK)
-        assert nodeDetails.contains("Select...")
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col1")
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col2")
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col3")
 
-        assert nodeDetails.contains("${ADD_SCOPE_VALUE_FOR_REQUIRED_KEY}CubeKAxis2")
-        assert nodeDetails.contains(DETAILS_CLASS_SCOPE_CLICK)
-        assert nodeDetails.contains("Select...")
         assert nodeDetails.contains("CubeKAxis2: CubeKAxis2Col1")
         assert nodeDetails.contains("CubeKAxis2: CubeKAxis2Col2")
         assert nodeDetails.contains("CubeKAxis2: CubeKAxis2Col3")
@@ -923,21 +914,18 @@ class VisualizerTest{
         CoordinateNotFoundException e = new CoordinateNotFoundException('CoordinateNotFoundException', null, null, null, null)
         VisualizerInfo visInfo = new VisualizerInfo()
         RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
-        String targetMsg = 'dummy1'
         String message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l)
-        checkExceptionMessage(message, targetMsg)
+        checkExceptionMessage(message)
 
         //No cube name
-        targetMsg = 'dummy2'
         e = new CoordinateNotFoundException('CoordinateNotFoundException', null, null, 'dummyAxis', null)
         message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l)
-        checkExceptionMessage(message, targetMsg)
+        checkExceptionMessage(message)
 
         //No axis name
-        targetMsg = 'dummy3'
         e = new CoordinateNotFoundException('CoordinateNotFoundException', 'dummyCube', null, null, null)
         message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l)
-        checkExceptionMessage(message, targetMsg)
+        checkExceptionMessage(message)
     }
 
     @Test
@@ -964,9 +952,8 @@ class VisualizerTest{
         }
     }
 
-    private static void checkExceptionMessage(String message, String targetMsg)
+    private static void checkExceptionMessage(String message)
     {
-        assert message.contains("An exception was thrown while loading ${targetMsg}")
         assert message.contains(DETAILS_LABEL_MESSAGE)
         assert message.contains(DETAILS_LABEL_ROOT_CAUSE)
         assert message.contains('CoordinateNotFoundException')
@@ -994,11 +981,11 @@ class VisualizerTest{
         ]
 
         VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo]
+        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
 
         Map graphInfo = visualizer.getCellValues(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
         assert nodes.size() == 1
@@ -1023,14 +1010,11 @@ class VisualizerTest{
         assert nodeDetails.contains(DETAILS_LABEL_NON_EXECUTED_VALUE)
         assert nodeDetails.contains("@CubeWithSingleValue[CubeKAxis1:'bogusScopeValue', CubeKAxis2: 'CubeKAxis2Col3']")
         assert nodeDetails.contains(DETAILS_LABEL_EXCEPTION)
-        assert nodeDetails.contains("The scope value bogusScopeValue for scope key CubeKAxis1 cannot be found on axis CubeKAxis1 for coordinate")
-        assert nodeDetails.contains("${ADD_SCOPE_VALUE_FOR_REQUIRED_KEY}CubeKAxis1")
+        assert nodeDetails.contains("The value bogusScopeValue is not valid for CubeKAxis1")
         assert nodeDetails.contains(DETAILS_CLASS_SCOPE_CLICK)
-        assert nodeDetails.contains("Select...")
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col1")
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col2")
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col3")
-        assert !nodeDetails.contains("${ADD_SCOPE_VALUE_FOR_REQUIRED_KEY}CubeKAxis2")
 
         assert !nodeDetails.contains(DETAILS_LABEL_MESSAGE)
         assert !nodeDetails.contains(DETAILS_LABEL_ROOT_CAUSE)
@@ -1059,11 +1043,11 @@ class VisualizerTest{
         ]
 
         VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo]
+        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
 
         Map graphInfo = visualizer.getCellValues(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
         assert nodes.size() == 1
@@ -1088,16 +1072,13 @@ class VisualizerTest{
         assert nodeDetails.contains(DETAILS_LABEL_NON_EXECUTED_VALUE)
         assert nodeDetails.contains("@CubeWithSingleValue[CubeKAxis1:'bogusScopeValue', CubeKAxis2: 'dummyScopeValue']")
         assert nodeDetails.contains(DETAILS_LABEL_EXCEPTION)
-        assert nodeDetails.contains("The scope value bogusScopeValue for scope key CubeKAxis1 cannot be found on axis CubeKAxis1 for coordinate")
-        assert nodeDetails.contains("${ADD_SCOPE_VALUE_FOR_REQUIRED_KEY}CubeKAxis1")
+        assert nodeDetails.contains("The value bogusScopeValue is not valid for CubeKAxis1")
         assert nodeDetails.contains(DETAILS_CLASS_SCOPE_CLICK)
-        assert nodeDetails.contains("Select...")
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col1")
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col2")
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col3")
 
         //TODO: Should have values for CubeKAxis2
-        assert !nodeDetails.contains("${ADD_SCOPE_VALUE_FOR_REQUIRED_KEY}CubeKAxis2")
         assert !nodeDetails.contains(DETAILS_LABEL_MESSAGE)
         assert !nodeDetails.contains(DETAILS_LABEL_ROOT_CAUSE)
         assert !nodeDetails.contains(DETAILS_LABEL_STACK_TRACE)
@@ -1125,11 +1106,11 @@ class VisualizerTest{
         ]
 
         VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo]
+        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
 
         Map graphInfo = visualizer.getCellValues(appId, options)
         assert STATUS_SUCCESS == graphInfo.status
-        assert null == visInfo.messages
+        assert 0 == visInfo.messages.size()
         List<Map<String, Object>> nodes = visInfo.nodes as List
         List<Map<String, Object>> edges = visInfo.edges as List
         assert nodes.size() == 1
