@@ -16,40 +16,40 @@ import static com.cedarsoftware.util.VisualizerConstants.*
 @CompileStatic
 class VisualizerRelInfo
 {
-	ApplicationID appId
+	protected ApplicationID appId
 
-	Set<String> notes = []
-	Map<String, Object> availableTargetScope
+	protected Set<String> notes = []
+	protected Map<String, Object> availableTargetScope
 
-	long targetId
-	NCube targetCube
-	Map<String, Object> targetScope
-	long targetLevel
-	String nodeLabelPrefix = ''
+	protected long targetId
+	protected NCube targetCube
+	protected Map<String, Object> targetScope
+	protected long targetLevel
+	protected String nodeLabelPrefix = ''
 
-	long sourceId
-	NCube sourceCube
-	Map<String, Object> sourceScope
-	String sourceFieldName
+	protected long sourceId
+	protected NCube sourceCube
+	protected Map<String, Object> sourceScope
+	protected String sourceFieldName
 
-	boolean cellValuesLoaded
-	boolean showCellValuesLink
-	boolean showCellValues
+	protected boolean cellValuesLoaded
+	protected boolean showCellValuesLink
+	protected boolean showCellValues
 
-	List<VisualizerCellInfo> cellInfo
+	protected List<VisualizerCellInfo> cellInfo
 
-	List<String> typesToAdd
+	protected List<String> typesToAdd
 
 	protected VisualizerHelper helper = new VisualizerHelper()
 
 	VisualizerRelInfo() {}
 
-	VisualizerRelInfo(ApplicationID applicationId)
+	protected VisualizerRelInfo(ApplicationID applicationId)
 	{
 		appId = applicationId
 	}
 
-	VisualizerRelInfo(ApplicationID applicationId, Map node)
+	protected VisualizerRelInfo(ApplicationID applicationId, Map node)
 	{
 		appId  = applicationId
 		targetCube = NCubeManager.getCube(appId, node.cubeName as String)
@@ -66,7 +66,7 @@ class VisualizerRelInfo
 		typesToAdd = node.typesToAdd as List
 	}
 
-	boolean loadCellValues(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo)
+	protected boolean loadCellValues(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo)
 	{
 		cellInfo = []
 		cellValuesLoaded = true
@@ -95,12 +95,12 @@ class VisualizerRelInfo
 		return true
 	}
 
-	Set<String> getRequiredScope()
+	protected Set<String> getRequiredScope()
 	{
 		return targetCube.getRequiredScope(availableTargetScope, new CaseInsensitiveMap())
 	}
 
-	String getDetails(VisualizerScopeInfo scopeInfo, long nodeCount)
+	protected String getDetails(VisualizerScopeInfo scopeInfo, long nodeCount)
 	{
 		StringBuilder sb = new StringBuilder()
 
@@ -150,7 +150,7 @@ class VisualizerRelInfo
 		}
 	}
 
-	static void getDetailsMap(StringBuilder sb, String title, Map<String, Object> map)
+	protected static void getDetailsMap(StringBuilder sb, String title, Map<String, Object> map)
 	{
 		sb.append("<b>${title}</b>")
 		sb.append("<pre><ul>")
@@ -167,7 +167,7 @@ class VisualizerRelInfo
 		sb.append("</ul></pre>${BREAK}")
 	}
 
-	static void getDetailsSet(StringBuilder sb, String title, Set<String> set)
+	private static void getDetailsSet(StringBuilder sb, String title, Set<String> set)
 	{
 		sb.append("<b>${title}</b>")
 		sb.append("<pre><ul>")
@@ -184,7 +184,7 @@ class VisualizerRelInfo
 		sb.append("</ul></pre>${BREAK}")
 	}
 
-	String getGroupName(VisualizerInfo visInfo = null, String cubeName = targetCube.name)
+	protected String getGroupName(VisualizerInfo visInfo = null, String cubeName = targetCube.name)
 	{
 		return targetCube.hasRuleAxis() ? RULE_NCUBE : NCUBE
 	}
@@ -214,7 +214,7 @@ class VisualizerRelInfo
 		}
 	}
 
-	Map<String, Object> createEdge(int edgeCount)
+	protected Map<String, Object> createEdge(int edgeCount)
 	{
 		String sourceFieldName = sourceFieldName
 		Map<String, Object> edge = [:]
@@ -229,7 +229,7 @@ class VisualizerRelInfo
 		return edge
 	}
 
-	Map<String, Object> createNode(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, String group = null)
+	protected Map<String, Object> createNode(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, String group = null)
 	{
 		NCube targetCube = targetCube
 		String targetCubeName = targetCube.name
@@ -263,7 +263,6 @@ class VisualizerRelInfo
 		return node
 	}
 
-
 	protected boolean includeUnboundScopeKey(VisualizerInfo visInfo, String scopeKey)
 	{
 		return true
@@ -274,22 +273,22 @@ class VisualizerRelInfo
 		cubeName
 	}
 
-	String getCubeDisplayName(String cubeName)
+	protected String getCubeDisplayName(String cubeName)
 	{
 		return cubeName
 	}
 
-	String getSourceDescription()
+	protected String getSourceDescription()
 	{
 		return sourceCube.name
 	}
 
-	String getCubeDetailsTitle1()
+	protected String getCubeDetailsTitle1()
 	{
 		return targetCube.name
 	}
 
-	String getCubeDetailsTitle2()
+	protected String getCubeDetailsTitle2()
 	{
 		return null
 	}

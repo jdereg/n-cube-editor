@@ -13,34 +13,34 @@ import static com.cedarsoftware.util.VisualizerConstants.*
 @CompileStatic
 class VisualizerInfo
 {
-    ApplicationID appId
-    List<Map<String, Object>> nodes = []
-    List<Map<String, Object>> edges = []
+    protected  ApplicationID appId
+    protected List<Map<String, Object>> nodes = []
+    protected List<Map<String, Object>> edges = []
 
-    long maxLevel
-    long nodeCount
-    long relInfoCount
-    long defaultLevel
-    String loadCellValuesLabel
+    protected long maxLevel
+    protected  long nodeCount
+    protected long relInfoCount
+    protected long defaultLevel
+    protected String loadCellValuesLabel
 
-    Map<String,String> allGroups
-    Set<String> allGroupsKeys
-    String groupSuffix
-    Set<String> availableGroupsAllLevels
-    Set<String> messages
+    protected  Map<String,String> allGroups
+    protected Set<String> allGroupsKeys
+    protected String groupSuffix
+    protected Set<String> availableGroupsAllLevels
+    protected Set<String> messages
 
-    Map<String, Object> networkOverridesBasic
-    Map<String, Object> networkOverridesFull
-    Map<String, Object> networkOverridesTopNode
+    protected Map<String, Object> networkOverridesBasic
+    protected Map<String, Object> networkOverridesFull
+    protected Map<String, Object> networkOverridesTopNode
 
-    Map<String, Set<String>> requiredScopeKeysByCube = [:]
-    Map<String, Set<String>> allOptionalScopeKeysByCube = [:]
+    protected Map<String, Set<String>> requiredScopeKeysByCube = [:]
+    protected Map<String, Set<String>> allOptionalScopeKeysByCube = [:]
 
-    Map<String, List<String>> typesToAddMap = [:]
+    protected Map<String, List<String>> typesToAddMap = [:]
 
     VisualizerInfo(){}
 
-    VisualizerInfo(ApplicationID applicationID)
+    protected VisualizerInfo(ApplicationID applicationID)
     {
         appId = applicationID
         loadConfigurations(cubeType)
@@ -60,7 +60,7 @@ class VisualizerInfo
         return CUBE_TYPE_DEFAULT
     }
 
-    NCube loadConfigurations(String cubeType)
+    protected NCube loadConfigurations(String cubeType)
     {
         String configJson = NCubeManager.getResourceAsString(JSON_FILE_PREFIX + VISUALIZER_CONFIG_CUBE_NAME + JSON_FILE_SUFFIX)
         NCube configCube = NCube.fromSimpleJson(configJson)
@@ -82,12 +82,12 @@ class VisualizerInfo
         return configCube
     }
 
-    List getTypesToAdd(String group)
+    protected List getTypesToAdd(String group)
     {
         return typesToAddMap[allGroups[group]]
     }
 
-    void loadTypesToAddMap(NCube configCube)
+    protected void loadTypesToAddMap(NCube configCube)
     {
         typesToAddMap = [:]
         Set<String> allTypes = configCube.getCell([(CONFIG_ITEM): CONFIG_ALL_TYPES, (CUBE_TYPE): cubeType]) as Set
@@ -104,7 +104,7 @@ class VisualizerInfo
         'cell values'
     }
 
-    void convertToSingleMessage()
+    protected void convertToSingleMessage()
     {
         if (messages)
         {

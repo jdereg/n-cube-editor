@@ -686,7 +686,9 @@ var Visualizer = (function ($) {
         button.addClass('active');
         _scopeButton = true;
         scopeImage =  $.extend({title: getScopeString()}, SCOPE_IMAGE);
-        _nce.showNote(_scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, scopeImage);
+        if (_scopeInfo.displayScopeMessage){
+            _nce.showNote(_scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, scopeImage);
+        }
     }
 
     function loadGroupsView() {

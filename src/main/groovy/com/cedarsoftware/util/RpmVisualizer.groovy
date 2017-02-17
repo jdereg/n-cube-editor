@@ -15,7 +15,7 @@ import static com.cedarsoftware.util.RpmVisualizerConstants.*
 @CompileStatic
 class RpmVisualizer extends Visualizer
 {
-	protected RpmVisualizerHelper helper
+	private RpmVisualizerHelper helper
 
 	/**
 	 * Loads all cell values available for a given rpm class.

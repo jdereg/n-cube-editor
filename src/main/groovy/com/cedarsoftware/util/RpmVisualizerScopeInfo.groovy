@@ -22,7 +22,7 @@ class RpmVisualizerScopeInfo extends VisualizerScopeInfo
 {
 	RpmVisualizerScopeInfo(){}
 
-    RpmVisualizerScopeInfo(ApplicationID applicationId){
+	protected RpmVisualizerScopeInfo(ApplicationID applicationId){
 		appId = applicationId
 	}
 
@@ -34,22 +34,22 @@ class RpmVisualizerScopeInfo extends VisualizerScopeInfo
 		if (NCubeManager.getCube(appId, startCubeName).getAxis(AXIS_TRAIT).findColumn(R_SCOPED_NAME))
 		{
 			String defaultScopeDate = DATE_TIME_FORMAT.format(new Date())
-			populateScopeDefaults(POLICY_CONTROL_DATE, defaultScopeDate)
-			populateScopeDefaults(QUOTE_DATE, defaultScopeDate)
+			addScopeDefault(POLICY_CONTROL_DATE, defaultScopeDate)
+			addScopeDefault(QUOTE_DATE, defaultScopeDate)
 		}
-		populateScopeDefaults(EFFECTIVE_VERSION, defaultScopeEffectiveVersion)
+		addScopeDefault(EFFECTIVE_VERSION, defaultScopeEffectiveVersion)
 		loadAvailableScopeValuesEffectiveVersion()
 	}
 
-	protected void populateScopeDefaults(String scopeKey, String defaultValue)
+	private void addScopeDefault(String scopeKey, String defaultValue)
 	{
 		Object scopeValue = scope[scopeKey]
 		scopeValue =  scopeValue ?: defaultValue
-		addRequiredGraphScope(null, scopeKey, scopeValue, true)
+		addRequiredGraphScope(null, scopeKey, true)
 		scope[scopeKey] = scopeValue
 	}
 
-	protected void loadAvailableScopeValuesEffectiveVersion()
+	private void loadAvailableScopeValuesEffectiveVersion()
 	{
 		if (!requiredGraphScopeAvailableValues[EFFECTIVE_VERSION])
 		{

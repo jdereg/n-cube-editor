@@ -16,10 +16,9 @@ import static com.cedarsoftware.util.VisualizerConstants.*
 @CompileStatic
 class VisualizerHelper
 {
-	static StringBuilder handleUnboundScope(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo, RuleInfo ruleInfo)
+	protected static StringBuilder handleUnboundScope(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo, RuleInfo ruleInfo)
 	{
 		Map<String, Set<Object>> nodeAvailableValues = new CaseInsensitiveMap()
-		Map<String, Set<Object>> nodeProvidedValues = new CaseInsensitiveMap()
 		Map<String, Set<String>> nodeCubeNames = new CaseInsensitiveMap()
 		List unboundAxesList = ruleInfo.getUnboundAxesList()
 		if (unboundAxesList)
@@ -29,33 +28,31 @@ class VisualizerHelper
 				String cubeName = unboundAxis.key as String
 				MapEntry axisEntry = unboundAxis.value as MapEntry
 				String axisName = axisEntry.key as String
-				Object unBoundValue = axisEntry.value
 				if (relInfo.includeUnboundScopeKey(visInfo, axisName))
 				{
-					Set<Object> availableValues = scopeInfo.addOptionalGraphScope(cubeName, axisName, unBoundValue)
+					Set<Object> availableValues = scopeInfo.addOptionalGraphScope(cubeName, axisName)
 					availableValues.each{Object availableValue ->
 						scopeInfo.addValue(axisName, nodeAvailableValues, availableValue)
 					}
-					scopeInfo.addValue(axisName, nodeProvidedValues, unBoundValue)
 					scopeInfo.addValue(axisName, nodeCubeNames, cubeName)
 				}
 			}
 
 			if (nodeAvailableValues)
 			{
-				return scopeInfo.getOptionalNodeScopeMessage(nodeAvailableValues, nodeProvidedValues, nodeCubeNames)
+				return scopeInfo.getOptionalNodeScopeMessage(nodeAvailableValues, nodeCubeNames)
 			}
 		}
 		return null
 	}
 
-	static StringBuilder handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo, long nodeCount)
+	protected static StringBuilder handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo, long nodeCount)
 	{
 		String cubeName = e.cubeName
 		String scopeKey = e.axisName
 		if (cubeName && scopeKey)
 		{
-			return getAdditionalRequiredNodeScopeMessage(scopeInfo, nodeCount, scopeKey, e.value as String, cubeName)
+			return getAdditionalRequiredNodeScopeMessage(scopeInfo, nodeCount, scopeKey, null, cubeName)
 		}
 		else
 		{
@@ -64,7 +61,7 @@ class VisualizerHelper
 		}
 	}
 
-	static StringBuilder handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerScopeInfo scopeInfo, long nodeCount, VisualizerRelInfo relInfo, Set mandatoryScopeKeys)
+	protected static StringBuilder handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerScopeInfo scopeInfo, long nodeCount, VisualizerRelInfo relInfo, Set mandatoryScopeKeys)
 	{
 		Set<String> missingScope = findMissingScope(relInfo.availableTargetScope, e.requiredKeys, mandatoryScopeKeys)
 		if (missingScope)
@@ -82,30 +79,30 @@ class VisualizerHelper
 		}
 	}
 
-	protected static StringBuilder getAdditionalRequiredNodeScopeMessage(VisualizerScopeInfo scopeInfo, long nodeCount, String scopeKey, String providedValue, String cubeName)
+	private static StringBuilder getAdditionalRequiredNodeScopeMessage(VisualizerScopeInfo scopeInfo, long nodeCount, String scopeKey, Object providedScopeValue, String cubeName)
 	{
 		StringBuilder sb = new StringBuilder()
 		Set<Object> availableValues
 		if (nodeCount == 1l)
 		{
-			availableValues = scopeInfo.addRequiredGraphScope(cubeName, scopeKey, providedValue)
+			availableValues = scopeInfo.addRequiredGraphScope(cubeName, scopeKey)
 		}
 		else
 		{
-			availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey, providedValue)
+			availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey)
 		}
 		StringBuilder title = new StringBuilder("${scopeKey} is required by ${cubeName} to load this node")
-		sb.append(scopeInfo.getScopeMessage(scopeKey, availableValues, title, providedValue))
+		sb.append(scopeInfo.getScopeMessage(scopeKey, availableValues, title, providedScopeValue))
 		return sb.append(BREAK)
 	}
 
-	static String handleException(Throwable e)
+	protected static String handleException(Throwable e)
 	{
 		Throwable t = getDeepestException(e)
 		return getExceptionMessage(t, e)
 	}
 
-	static protected Throwable getDeepestException(Throwable e)
+	protected static Throwable getDeepestException(Throwable e)
 	{
 		while (e.cause != null)
 		{
@@ -121,7 +118,7 @@ class VisualizerHelper
 		}
 	}
 
-	static String getExceptionMessage(Throwable t, Throwable e)
+	protected static String getExceptionMessage(Throwable t, Throwable e)
 	{
 		"""\
 <b>Message:</b> ${DOUBLE_BREAK}${e.message}${DOUBLE_BREAK}<b>Root cause: </b>\

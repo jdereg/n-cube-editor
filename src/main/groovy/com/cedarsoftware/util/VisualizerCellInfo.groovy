@@ -16,26 +16,26 @@ import static com.cedarsoftware.util.VisualizerConstants.*
 @CompileStatic
 class VisualizerCellInfo
 {
-	ApplicationID appId
-	String nodeId
+	protected ApplicationID appId
+	protected String nodeId
 
-	Map<String, Object> coordinate
-	Object noExecuteCell
-	Object cell
-	Exception exception
+	protected Map<String, Object> coordinate
+	protected Object noExecuteCell
+	protected Object cell
+	protected Exception exception
 
 	protected Joiner.MapJoiner mapJoiner = Joiner.on(", ").withKeyValueSeparator(": ")
-	VisualizerHelper helper = new VisualizerHelper()
+	protected VisualizerHelper helper = new VisualizerHelper()
 
-	VisualizerCellInfo(){}
+	protected VisualizerCellInfo(){}
 
-	VisualizerCellInfo(String nodeId, Map<String, Object> coordinate)
+	protected VisualizerCellInfo(String nodeId, Map<String, Object> coordinate)
 	{
 		this.coordinate = coordinate
 		this.nodeId = nodeId
 	}
 
-	void getCellValue(VisualizerScopeInfo scopeInfo, long nodeCount, VisualizerRelInfo visRelInfo, Long id, StringBuilder sb)
+	protected void getCellValue(VisualizerScopeInfo scopeInfo, long nodeCount, VisualizerRelInfo visRelInfo, Long id, StringBuilder sb)
 	{
 		String coordinateString = coordinateString
 

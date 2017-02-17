@@ -19,7 +19,7 @@ class Visualizer
 	protected Set<String> visited = []
 	protected Deque<VisualizerRelInfo> stack = new ArrayDeque<>()
 	protected Joiner.MapJoiner mapJoiner = Joiner.on(", ").withKeyValueSeparator(": ")
-	VisualizerHelper helper
+	protected VisualizerHelper helper
 
 	/**
 	 * Processes an n-cube and all its referenced n-cubes and provides information to
@@ -50,7 +50,7 @@ class Visualizer
 
 		scopeInfo.populateScopeDefaults(startCubeName)
 		getVisualization(visInfo, scopeInfo, startCubeName)
-		scopeInfo.createScopePrompt()
+		scopeInfo.createGraphScopePrompt()
 		visInfo.convertToSingleMessage()
 		return [status: STATUS_SUCCESS, visInfo: visInfo, scopeInfo: scopeInfo]
 	}
@@ -78,19 +78,19 @@ class Visualizer
 		return getCellValues(visInfo, scopeInfo, relInfo, options)
 	}
 
-	static protected Map getCellValues(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo, Map options)
+	protected static Map getCellValues(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo, Map options)
 	{
 		visInfo.messages = new LinkedHashSet()
-		Map node = options.node as Map
-
 		relInfo.loadCellValues(visInfo, scopeInfo)
+
+		Map node = options.node as Map
 		node.details = relInfo.getDetails(scopeInfo, visInfo.nodeCount)
 		node.showCellValuesLink = relInfo.showCellValuesLink
 		node.cellValuesLoaded = relInfo.cellValuesLoaded
 		boolean showCellValues = relInfo.showCellValues
 		node.showCellValues = showCellValues
 		visInfo.nodes = [node]
-		scopeInfo.createScopePrompt()
+		scopeInfo.createGraphScopePrompt()
 		visInfo.convertToSingleMessage()
 		return [status: STATUS_SUCCESS, visInfo: visInfo, scopeInfo: scopeInfo]
 	}
@@ -108,8 +108,8 @@ class Visualizer
 
 	protected VisualizerScopeInfo getVisualizerScopeInfo(Map options)
 	{
-		VisualizerScopeInfo scopeInfo = options.visInfo as VisualizerScopeInfo
-		if (!scopeInfo)
+		VisualizerScopeInfo scopeInfo = options.scopeInfo as VisualizerScopeInfo
+		if (!scopeInfo || scopeInfo.class.name != this.class.name)
 		{
 			scopeInfo = new VisualizerScopeInfo(appId)
 		}
@@ -120,7 +120,7 @@ class Visualizer
 		return scopeInfo
 	}
 
-	protected void getVisualization(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, String startCubeName)
+	private void getVisualization(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, String startCubeName)
 	{
 		VisualizerRelInfo relInfo = visualizerRelInfo
 		loadFirstVisualizerRelInfo(visInfo, scopeInfo, relInfo, startCubeName)

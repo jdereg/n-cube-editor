@@ -17,25 +17,25 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class RpmVisualizerRelInfo extends VisualizerRelInfo
 {
-	RpmVisualizerHelper helper = new RpmVisualizerHelper()
-	String sourceFieldRpmType
-	Map<String, Map<String, Object>> sourceTraits
-	Map<String, Map<String, Object>> targetTraits
+	protected RpmVisualizerHelper helper = new RpmVisualizerHelper()
+	protected String sourceFieldRpmType
+	protected Map<String, Map<String, Object>> sourceTraits
+	protected Map<String, Map<String, Object>> targetTraits
 
-	RpmVisualizerRelInfo(){}
+	protected RpmVisualizerRelInfo(){}
 
-	RpmVisualizerRelInfo(ApplicationID appId)
+	protected RpmVisualizerRelInfo(ApplicationID appId)
 	{
 		super(appId)
 	}
 
-	RpmVisualizerRelInfo(ApplicationID appId, Map node)
+	protected RpmVisualizerRelInfo(ApplicationID appId, Map node)
 	{
 		super(appId, node)
 	}
 
 	@Override
-	Set<String> getRequiredScope()
+	protected Set<String> getRequiredScope()
 	{
 		Set<String> requiredScope = super.requiredScope
 		requiredScope.remove(AXIS_FIELD)
@@ -45,7 +45,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	}
 
 	@Override
-	String getDetails(VisualizerScopeInfo scopeInfo, long nodeCount)
+	protected String getDetails(VisualizerScopeInfo scopeInfo, long nodeCount)
 	{
 		StringBuilder sb = new StringBuilder()
 
@@ -139,20 +139,20 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	}
 
 	@Override
-	String getGroupName(VisualizerInfo visInfo, String cubeName = targetCube.name)
+	protected String getGroupName(VisualizerInfo visInfo, String cubeName = targetCube.name)
 	{
 		Iterable<String> splits = Splitter.on('.').split(cubeName)
 		String group = splits[2].toUpperCase()
 		return visInfo.allGroupsKeys.contains(group) ? group : UNSPECIFIED
 	}
 
-	String getTargetScopedName()
+	private String getTargetScopedName()
 	{
 		Map<String, Object> classTraitsTraitMap = targetTraits ? targetTraits[CLASS_TRAITS] as Map : null
 		return classTraitsTraitMap ? classTraitsTraitMap[R_SCOPED_NAME] : null
 	}
 
-	String getNextTargetCubeName(String targetFieldName)
+	protected String getNextTargetCubeName(String targetFieldName)
 	{
 		if (sourceCube.getAxis(AXIS_TRAIT).findColumn(R_SCOPED_NAME))
 		{
@@ -162,8 +162,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		return RPM_CLASS_DOT + targetFieldName
 	}
 
-
-	void retainUsedScope(VisualizerInfo visInfo, Map output)
+	private void retainUsedScope(VisualizerInfo visInfo, Map output)
 	{
 		Set<String> scopeCollector = new CaseInsensitiveSet<>()
 		scopeCollector.addAll(visInfo.requiredScopeKeysByCube[targetCube.name])
@@ -178,18 +177,18 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		cullScope(targetScope.keySet(), scopeCollector)
 	}
 
-	void removeNotExistsFields()
+	private void removeNotExistsFields()
 	{
 		targetTraits.keySet().removeAll { String fieldName -> !targetTraits[fieldName][R_EXISTS] }
 	}
 
-	static void cullScope(Set<String> scopeKeys, Set scopeCollector)
+	private static void cullScope(Set<String> scopeKeys, Set scopeCollector)
 	{
 		scopeKeys.removeAll { String item -> !(scopeCollector.contains(item) || item.startsWith(SYSTEM_SCOPE_KEY_PREFIX)) }
 	}
 
 	@Override
-	Map<String, Object> createEdge(int edgeCount)
+	protected Map<String, Object> createEdge(int edgeCount)
 	{
 		Map<String, Object> edge = super.createEdge(edgeCount)
 		Map<String, Map<String, Object>> sourceTraits = sourceTraits
@@ -212,7 +211,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	}
 
 	@Override
-	Map<String, Object> createNode(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, String group = null)
+	protected Map<String, Object> createNode(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, String group = null)
 	{
 		Map<String, Object> node = super.createNode(visInfo, scopeInfo, group)
 		if (targetCube.name.startsWith(RPM_ENUM_DOT))
@@ -224,7 +223,6 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		}
 		return node
 	}
-
 
 	@Override
 	protected boolean includeUnboundScopeKey(VisualizerInfo visInfo, String scopeKey)
@@ -252,7 +250,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	}
 
 	@Override
-	String getCubeDisplayName(String cubeName)
+	protected String getCubeDisplayName(String cubeName)
 	{
 		if (cubeName.startsWith(RPM_CLASS_DOT))
 		{
@@ -268,7 +266,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	}
 
 	@Override
-	String getSourceDescription()
+	protected String getSourceDescription()
 	{
 		String sourceCubeName = sourceCube.name
 		if (sourceCubeName.startsWith(RPM_CLASS_DOT))
@@ -293,7 +291,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	}
 
 	@Override
-	String getCubeDetailsTitle1()
+	protected String getCubeDetailsTitle1()
 	{
 		String targetCubeName = targetCube.name
 		if (targetCubeName.startsWith(RPM_CLASS_DOT))
@@ -308,7 +306,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	}
 
 	@Override
-	String getCubeDetailsTitle2()
+	protected String getCubeDetailsTitle2()
 	{
 		String cubeName = targetCube.name
 		if (cubeName.startsWith(RPM_CLASS_DOT) && targetScopedName)
@@ -319,7 +317,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	}
 
 	@Override
-	boolean loadCellValues(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo)
+	protected boolean loadCellValues(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo)
 	{
 		try
 		{
@@ -371,7 +369,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 
 	private void handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo, long nodeCount)
 	{
-		StringBuilder sb = new StringBuilder("<b>A required scope value was not found for this node:</b> ${DOUBLE_BREAK}")
+		StringBuilder sb = new StringBuilder("The value ${e.value} is not valid for ${e.axisName}. A different value must be provided:${DOUBLE_BREAK}")
 		sb.append(helper.handleCoordinateNotFoundException(e, scopeInfo, nodeCount))
 		notes << sb.toString()
 		nodeLabelPrefix = 'Required scope value not found for '
