@@ -609,12 +609,12 @@ var Visualizer = (function ($) {
         _selectedCubeName = _nce.getSelectedCubeName().replace(/_/g, '.');
 
         getAllFromLocalStorage();
-        if (_visInfo) { //Re-loading
+        if (_visInfo) {
             _visInfo.nodes = {};
             _visInfo.edges = {};
             options = {startCubeName: _selectedCubeName, visInfo: _visInfo, scopeInfo: _scopeInfo};
         }
-        else{ //First load for this session
+        else{
             options =  {startCubeName: _selectedCubeName, scopeInfo: _scopeInfo};
         }
 

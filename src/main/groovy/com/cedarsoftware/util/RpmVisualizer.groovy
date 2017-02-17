@@ -231,7 +231,6 @@ class RpmVisualizer extends Visualizer
 	 * Sets the basic scope required to load a target class based on scoped source class,
 	 * source field name, target class name, and current scope.
 	 * Retains all other scope.
-	 * If the source class is not a scoped class, returns the scope unchanged.
 	 *
 	 * @param targetCube String target cube
 	 * @param sourceFieldRpmType String source field type
@@ -293,7 +292,6 @@ class RpmVisualizer extends Visualizer
 
 		"""\
 ${sourceCubeDisplayName} points directly to ${targetCubeDisplayName} via field ${relInfo.sourceFieldName}, but \
-there is no ${type.toLowerCase()} named ${relInfo.sourceFieldName} on ${type}.  ${DOUBLE_BREAK}Therefore \
-it cannot be loaded in the visualization.${BREAK}"""
+there is no ${type.toLowerCase()} named ${relInfo.sourceFieldName} on ${type}.  ${DOUBLE_BREAK}"""
 	}
 }

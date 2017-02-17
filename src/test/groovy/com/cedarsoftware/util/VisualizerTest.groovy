@@ -112,8 +112,6 @@ class VisualizerTest{
        // assert nodeDetails.contains("${DETAILS_LABEL_REQUIRED_SCOPE_KEYS}</b><pre><ul><li>none</li></ul></pre><br><b>")
        // assert nodeDetails.contains("${DETAILS_LABEL_OPTIONAL_SCOPE_KEYS}</b><pre><ul><li>CubeDAxis1</li><li>CubeDAxis2</li></ul></pre><br>")
         assert nodeDetails.contains("${DETAILS_LABEL_AXES}</b><pre><ul><li>CubeDAxis1</li><li>CubeDAxis2</li></ul></pre><br>")
-        assert !nodeDetails.contains(DETAILS_LABEL_REASON)
-        assert !nodeDetails.contains(DETAILS_LABEL_NOTE)
         assert !nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
 
         //Check one target node
@@ -139,8 +137,6 @@ class VisualizerTest{
        // assert nodeDetails.contains("${DETAILS_LABEL_REQUIRED_SCOPE_KEYS}</b><pre><ul><li>none</li></ul></pre><br><b>")
        // assert nodeDetails.contains("${DETAILS_LABEL_OPTIONAL_SCOPE_KEYS}</b><pre><ul><li>CubeEAxis1</li><li>CubeEAxis2</li></ul></pre><br><b>")
         assert nodeDetails.contains("${DETAILS_LABEL_AXES}</b><pre><ul><li>CubeEAxis1</li><li>CubeEAxis2</li></ul></pre><br>")
-        assert !nodeDetails.contains(DETAILS_LABEL_REASON)
-        assert !nodeDetails.contains(DETAILS_LABEL_NOTE)
         assert !nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
 
         //Check edge between top node and target node above
@@ -1137,8 +1133,6 @@ class VisualizerTest{
       //  assert nodeDetails.contains(DETAILS_LABEL_REQUIRED_SCOPE_KEYS)
       //  assert nodeDetails.contains(DETAILS_LABEL_OPTIONAL_SCOPE_KEYS)
         assert nodeDetails.contains(DETAILS_LABEL_AXES)
-        assert !nodeDetails.contains(DETAILS_LABEL_REASON)
-        assert !nodeDetails.contains(DETAILS_LABEL_NOTE)
     }
 
     class OtherVisualizerInfo extends VisualizerInfo {}

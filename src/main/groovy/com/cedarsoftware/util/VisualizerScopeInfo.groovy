@@ -22,6 +22,7 @@ class VisualizerScopeInfo
 {
 	protected ApplicationID appId
 	protected Map<String, Object> scope  = new CaseInsensitiveMap()
+	protected Set<String> derivedScopeKeys  = new CaseInsensitiveSet()
 
 	protected Map<String, Set<Object>> requiredGraphScopeAvailableValues = new CaseInsensitiveMap()
 	protected Map<String, Set<String>> requiredGraphScopeCubeNames = new CaseInsensitiveMap()
