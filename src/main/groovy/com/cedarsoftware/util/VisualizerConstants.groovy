@@ -17,9 +17,12 @@ class VisualizerConstants
 	static final String UNSPECIFIED = 'UNSPECIFIED'
 	static final String NCUBE = 'NCUBE'
 	static final String RULE_NCUBE = 'RULE_NCUBE'
-	static final String STATUS_MISSING_START_SCOPE = 'missingStartScope'
 	static final String STATUS_SUCCESS = 'success'
 	static final String STATUS_INVALID_START_CUBE = 'invalidStartCube'
+
+	static final String REQUIRED_SCOPE_TO_LOAD_GRAPH = 'Required scope to load graph'
+	static final String OPTIONAL_SCOPE_IN_GRAPH = 'Optional scope in graph'
+	static final String NO_OPTIONAL_SCOPE_IN_GRAPH = 'No optional scope in the graph'
 
 	static final SafeSimpleDateFormat DATE_TIME_FORMAT = new SafeSimpleDateFormat('yyyy-MM-dd')
 	static final String HTTP = 'http:'
