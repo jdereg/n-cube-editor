@@ -29,7 +29,6 @@ class RpmVisualizerTest
     static final String VALID_VALUES_FOR_FIELD_LOWER_CASE = 'valid values for field '
 
     static final String defaultScopeDate = DATE_TIME_FORMAT.format(new Date())
-    static final Map defaultStartScope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
 
     RpmVisualizer visualizer
     RpmVisualizerScopeInfo inputScopeInfo
@@ -40,7 +39,7 @@ class RpmVisualizerTest
     Set messages
     List<Map<String, Object>> nodes
     List<Map<String, Object>> edges
-    
+
     @Before
     void beforeTest(){
         appId = new ApplicationID(ApplicationID.DEFAULT_TENANT, 'test.visualizer', ApplicationID.DEFAULT_VERSION, ReleaseStatus.SNAPSHOT.name(), ApplicationID.HEAD)
@@ -951,7 +950,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_initialPromptForScope()
+    void testBuildGraph_scopeInfo_graphScopePrompt_initial()
     {
         String startCubeName = 'rpm.class.Product'
         inputScopeInfo.scope = new CaseInsensitiveMap()
@@ -960,141 +959,44 @@ class RpmVisualizerTest
         assert 0 == messages.size()
         assert 1 == nodes.size()
         assert 0 == edges.size()
-       // checkMissingMinimumGraphScope(scopeInfo)
-        checkMissingMinimumNodeScope(nodes)
+
+        Map expectedAvailableScope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert scopeInfo.scope == expectedAvailableScope
+        assert scopeInfo.displayScopeMessage
+        assert scopeInfo.scopeMessage.contains('Reset scope')
+
+        checkRequiredGraphScope()
+        checkOptionalGraphScope()
+        Map expectedNodeScope = new CaseInsensitiveMap()
+        checkStartNodeScope(expectedAvailableScope, expectedNodeScope)
+
     }
 
     @Test 
-    void testBuildGraph_missingMinimumTypeScope()
+    void testBuildGraph_scopeInfo_graphScopePrompt_afterProductSelected()
     {
-        Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
-                     policyControlDate:'2017-01-01',
-                     quoteDate:'2017-01-01'] as CaseInsensitiveMap
-        inputScopeInfo.scope = scope
-
+        //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
+        inputScopeInfo.scope = new CaseInsensitiveMap()
         Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+        buildGraph(options)
 
+        //User picks AProduct. Reload.
+        scopeInfo.scope.product = 'AProduct'
         buildGraph(options)
         assert 0 == messages.size()
+        assert 8 == nodes.size()
+        assert 7 == edges.size()
 
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
-        assert 0 == nodes.size()
-        assert 0 == edges.size()
+        Map expectedScopeAvailableScope = [product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert scopeInfo.scope == expectedScopeAvailableScope
+        assert scopeInfo.displayScopeMessage
+        assert scopeInfo.scopeMessage.contains('Reset scope')
 
-        checkMissingMinimumGraphScope(scopeInfo)
-    }
-
-    @Test //TODO:
-    void testBuildGraph_missingMinimumTypeScopeAfterClear()
-    {
-        Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
-                     product: null,
-                     policyControlDate:'2017-01-01',
-                     quoteDate:'2017-01-01']
-
-        String startCubeName = 'rpm.class.Product'
-        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
-
-        buildGraph(options)
-        assert 0 == messages.size()
-
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
-        assert 0 == nodes.size()
-        assert 0 == edges.size()
-
-        checkMissingMinimumGraphScope(scopeInfo)
-    }
-
-    @Test
-    void testBuildGraph_missingMinimumDateScope()
-    {
-        Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
-                     product:'WProduct']
-
-        String startCubeName = 'rpm.class.Product'
-        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
-
-        buildGraph(options)
-        assert 0 == messages.size()
-
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
-        assert 0 == nodes.size()
-        assert 0 == edges.size()
-
-        String scopeMessage = scopeInfo.scopeMessage
-        //TODO:
-        //assert message.contains('Scope for policyControlDate was added since required. The scope value may be changed as desired.')
-        //assert message.contains('Scope for quoteDate was added since required. The scope value may be changed as desired.')
-        assert DATE_TIME_FORMAT.format(new Date()) == scopeInfo.scope.policyControlDate
-        assert DATE_TIME_FORMAT.format(new Date()) == scopeInfo.scope.quoteDate
-    }
-
-    @Test  //TODO:
-    void testBuildGraph_missingMinimumEffectiveVersionScope()
-    {
-        Map scope = [product: 'WProduct',
-                     policyControlDate:'2017-01-01',
-                     quoteDate:'2017-01-01']
-
-        String startCubeName = 'rpm.class.Product'
-        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
-
-        buildGraph(options)
-        assert 0 == messages.size()
-
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
-        assert 0 == nodes.size()
-        assert 0 == edges.size()
-
-        String scopeMessage = scopeInfo.scopeMessage
-        //TODO:
-        //assert scopeMessage.contains('Scope for _effectiveVersion was added since required. The scope value may be changed as desired.')
-        assert appId.version == scopeInfo.scope._effectiveVersion
-    }
-
-    @Test //TODO
-    void testBuildGraph_missingMinimumTypeScopeUnChanged()
-    {
-        Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
-                     policyControlDate:'2017-01-01',
-                     quoteDate:'2017-01-01']
-
-        String startCubeName = 'rpm.class.Product'
-        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
-
-        buildGraph(options)
-        assert 0 == messages.size()
-
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
-        assert 0 == nodes.size()
-        assert 0 == edges.size()
-
-        checkMissingMinimumGraphScope(scopeInfo)
-    }
-
-    @Test //TODO
-    void testBuildGraph_missingRequiredScope()
-    {
-        Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
-                     policyControlDate:'2017-01-01',
-                     quoteDate:'2017-01-01',
-                     product: 'AProduct',
-                     risk: 'BRisk']
-
-        String startCubeName = 'rpm.class.Risk'
-        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
-
-        buildGraph(options)
-        assert 0 == messages.size()
-        checkAdditionalScopeIsRequiredMessage(scopeInfo.scopeMessage)
-
-
+        checkRequiredGraphScope('AProduct')
+        checkOptionalGraphScope('AProduct')
+        Map expectedNodeScope = [product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
+        checkStartNodeScope(expectedScopeAvailableScope, expectedNodeScope, 'AProduct')
     }
 
     @Test //TODO
@@ -1684,17 +1586,17 @@ class RpmVisualizerTest
         edges = visInfo.edges as List
     }
     
-    private static void checkMissingMinimumGraphScope(VisualizerScopeInfo scopeInfo)
+    private void checkRequiredGraphScope(String selectedProductName = '')
     {
         Set<String> scopeKeys = ['policyControlDate', 'quoteDate', '_effectiveVersion', 'product'] as CaseInsensitiveSet
         Set<String> products = ['AProduct', 'BProduct', 'GProduct', 'UProduct', 'WProduct'] as CaseInsensitiveSet
-        assert defaultStartScope == scopeInfo.scope
+
         assert 4 == scopeInfo.requiredGraphScopeAvailableValues.keySet().size()
         assert scopeInfo.requiredGraphScopeAvailableValues.keySet().containsAll(scopeKeys)
         assert 0 == scopeInfo.requiredGraphScopeAvailableValues.policyControlDate.size()
         assert 0 == scopeInfo.requiredGraphScopeAvailableValues.quoteDate.size()
         assert 1 == scopeInfo.requiredGraphScopeAvailableValues._effectiveVersion.size()
-        assert ['999.99.9'] as Set == scopeInfo.requiredGraphScopeAvailableValues._effectiveVersion as Set
+        assert [ApplicationID.DEFAULT_VERSION] as Set == scopeInfo.requiredGraphScopeAvailableValues._effectiveVersion as Set
         assert 5 == scopeInfo.requiredGraphScopeAvailableValues.product.size()
         assert scopeInfo.requiredGraphScopeAvailableValues.product.containsAll(products)
 
@@ -1706,47 +1608,132 @@ class RpmVisualizerTest
         assert 1 == scopeInfo.requiredGraphScopeCubeNames.product.size()
         assert ['rpm.scope.class.Product.traits'] as Set== scopeInfo.requiredGraphScopeCubeNames.product as Set
 
-        assert 0 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
-        assert 0 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
-
-        assert scopeInfo.displayScopeMessage
         String scopeMessage = scopeInfo.scopeMessage
         assert scopeMessage.contains(REQUIRED_SCOPE_TO_LOAD_GRAPH)
-        assert scopeMessage.contains(NO_OPTIONAL_SCOPE_IN_GRAPH)
-        assert scopeMessage.contains('policyControlDate')
-        assert scopeMessage.contains('quoteDate')
-        assert scopeMessage.contains(defaultScopeDate)
-        assert scopeMessage.contains('_effectiveVersion')
-        assert scopeMessage.contains('999.99.9')
-        assert scopeMessage.contains('product')
-        assert scopeMessage.contains('AProduct')
-        assert scopeMessage.contains('BProduct')
-        assert scopeMessage.contains('GProduct')
-        assert scopeMessage.contains('UProduct')
-        assert scopeMessage.contains('WProduct')
-        assert !scopeMessage.contains('<option>Default</option>')
+        assert scopeMessage.contains('title="policyControlDate is required to load the graph"')
+        assert scopeMessage.contains('title="quoteDate is required to load the graph"')
+        assert scopeMessage.contains('title="_effectiveVersion is required to load the graph"')
+        assert scopeMessage.contains('title="product is required to load the graph"')
+        assert scopeMessage.contains("""<input id="policyControlDate" value="${defaultScopeDate}" placeholder="Enter value..." class="scopeInput form-control" """)
+        assert scopeMessage.contains("""<input id="quoteDate" value="${defaultScopeDate}" placeholder="Enter value..." class="scopeInput form-control" """)
+        assert scopeMessage.contains("""<input id="_effectiveVersion" value="${ApplicationID.DEFAULT_VERSION}" placeholder="Select or enter value..." class="scopeInput form-control" """)
+        assert scopeMessage.contains("""<input id="product" value="${selectedProductName}" placeholder="Select or enter value..." class="scopeInput form-control" """)
+        assert scopeMessage.contains('<li id="product: AProduct" class="scopeClick"')
+        assert scopeMessage.contains('<li id="product: BProduct" class="scopeClick"')
+        assert scopeMessage.contains('<li id="product: GProduct" class="scopeClick"')
+        assert scopeMessage.contains('<li id="product: UProduct" class="scopeClick"')
+        assert scopeMessage.contains('<li id="product: WProduct" class="scopeClick"')
     }
 
-    private static void checkMissingMinimumNodeScope(List<Map<String, Object>> nodes)
+    private void checkOptionalGraphScope(String selectedProductName = '', String selectedPgmName = '', String selectedStateName = 'Default', selectedDivName = 'Default')
     {
-        Map node = nodes.find {Map node ->  "${ADDITIONAL_SCOPE_REQUIRED_FOR}Product".toString() == node.label}
+        Set<String> scopeKeys = ['pgm', 'state', 'div'] as CaseInsensitiveSet
+        String scopeMessage = scopeInfo.scopeMessage
+
+        if (selectedProductName)
+        {
+            assert scopeMessage.contains(OPTIONAL_SCOPE_IN_GRAPH)
+            assert 3 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
+            assert scopeInfo.optionalGraphScopeAvailableValues.keySet().containsAll(scopeKeys)
+            assert 3 == scopeInfo.optionalGraphScopeAvailableValues.pgm.size()
+            assert ['pgm1', 'pgm2', 'pgm3'] as Set == scopeInfo.optionalGraphScopeAvailableValues.pgm as Set
+            assert 6 == scopeInfo.optionalGraphScopeAvailableValues.state.size()
+            assert [null, 'KY', 'NY', 'OH', 'GA', 'IN'] as Set == scopeInfo.optionalGraphScopeAvailableValues.state as Set
+            assert 3 == scopeInfo.optionalGraphScopeAvailableValues.div.size()
+            assert [null, 'div1', 'div2'] as Set == scopeInfo.optionalGraphScopeAvailableValues.div as Set
+
+            assert 3 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
+            assert scopeInfo.optionalGraphScopeCubeNames.keySet().containsAll(scopeKeys)
+            assert 2 == scopeInfo.optionalGraphScopeCubeNames.pgm.size()
+            assert ['rpm.scope.class.Risk.traits.fieldBRisk', 'rpm.scope.class.Coverage.traits.fieldACoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.pgm as Set
+            assert 3 == scopeInfo.optionalGraphScopeCubeNames.state.size()
+            assert ['rpm.scope.class.Risk.traits.fieldARisk', 'rpm.scope.class.Coverage.traits.fieldCCoverage', 'rpm.scope.class.Coverage.traits.fieldBCoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.state as Set
+            assert 2 == scopeInfo.optionalGraphScopeCubeNames.div.size()
+            assert ['rpm.scope.class.Risk.traits.fieldARisk', 'rpm.scope.class.Coverage.traits.fieldACoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.div as Set
+
+            assert scopeMessage.contains('title="pgm is optional to load the graph, but may be required for some nodes"')
+            assert scopeMessage.contains('title="state is optional to load the graph, but may be required for some nodes"')
+            assert scopeMessage.contains('title="div is optional to load the graph, but may be required for some nodes"')
+
+            assert scopeMessage.contains("""<input id="div" value="${selectedDivName}" placeholder="Select or enter value..." class="scopeInput form-control" """)
+            assert scopeMessage.contains('<li id="div: Default" class="scopeClick"')
+            assert scopeMessage.contains('<li id="div: div1" class="scopeClick"')
+            assert scopeMessage.contains('<li id="div: div2" class="scopeClick"')
+
+            assert scopeMessage.contains("""<input id="state" value="${selectedStateName}" placeholder="Select or enter value..." class="scopeInput form-control" """)
+            assert scopeMessage.contains('<li id="state: Default" class="scopeClick"')
+            assert scopeMessage.contains('<li id="state: KY" class="scopeClick"')
+            assert scopeMessage.contains('<li id="state: NY" class="scopeClick"')
+            assert scopeMessage.contains('<li id="state: OH" class="scopeClick"')
+            assert scopeMessage.contains('<li id="state: GA" class="scopeClick"')
+            assert scopeMessage.contains('<li id="state: IN" class="scopeClick"')
+
+            assert scopeMessage.contains("""<input id="pgm" value="${selectedPgmName}" placeholder="Select or enter value..." class="scopeInput form-control" """)
+            assert scopeMessage.contains('<li id="pgm: pgm1" class="scopeClick"')
+            assert scopeMessage.contains('<li id="pgm: pgm2" class="scopeClick"')
+            assert scopeMessage.contains('<li id="pgm: pgm3" class="scopeClick"')
+        }
+        else
+        {
+            assert scopeMessage.contains(NO_OPTIONAL_SCOPE_IN_GRAPH)
+            assert 0 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
+            assert 0 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
+        }
+
+
+    }
+
+    private void checkStartNodeScope(Map expectedAvailableScope = null, Map expectedNodeScope = null, String selectedProductName = '')
+    {
+        Map node
+        String nodeDetails
+        if (selectedProductName)
+        {
+            node = nodes.find {Map node1 ->  selectedProductName == node1.label}
+            nodeDetails = node.details as String
+            assert true == node.showCellValuesLink
+            assert selectedProductName == node.detailsTitle2
+            assert true == node.cellValuesLoaded
+            assert !nodeDetails.contains("${UNABLE_TO_LOAD}fields and traits for Product")
+            assert !nodeDetails.contains(ADDITIONAL_SCOPE_REQUIRED)
+            assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
+            assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
+            assert nodeDetails.contains(DETAILS_LABEL_FIELDS)
+            assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
+            assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
+            assert node.scope == expectedNodeScope
+            assert node.availableScope == expectedAvailableScope
+            assert !nodeDetails.contains('title="product is required by rpm.scope.class.Product.traits to load this node"')
+            assert !nodeDetails.contains("""<input id="product" value="${selectedProductName}" placeholder="Select or enter value..." class="scopeInput form-control" """)
+        }
+        else
+        {
+            node = nodes.find {Map node1 ->  "${ADDITIONAL_SCOPE_REQUIRED_FOR}Product".toString() == node1.label}
+            assert false == node.showCellValuesLink
+            assert null == node.detailsTitle2
+            assert false == node.cellValuesLoaded
+            nodeDetails = node.details as String
+            assert nodeDetails.contains("${UNABLE_TO_LOAD}fields and traits for Product")
+            assert nodeDetails.contains(ADDITIONAL_SCOPE_REQUIRED)
+            assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
+            assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
+            assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
+            assert !nodeDetails.contains(DETAILS_LABEL_FIELDS)
+            assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
+            assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
+            assert node.scope == expectedNodeScope
+            assert node.availableScope == expectedAvailableScope
+            assert nodeDetails.contains('title="product is required by rpm.scope.class.Product.traits to load this node"')
+            assert nodeDetails.contains("""<input id="product" value="" placeholder="Select or enter value..." class="scopeInput form-control" """)
+            assert nodeDetails.contains('<li id="product: AProduct" class="scopeClick"')
+            assert nodeDetails.contains('<li id="product: BProduct" class="scopeClick"')
+            assert nodeDetails.contains('<li id="product: GProduct" class="scopeClick"')
+            assert nodeDetails.contains('<li id="product: UProduct" class="scopeClick"')
+            assert nodeDetails.contains('<li id="product: WProduct" class="scopeClick"')
+        }
         assert 'Product' == node.title
         assert 'Product' == node.detailsTitle1
-        assert null == node.detailsTitle2
-        assert false == node.showCellValuesLink
         assert false == node.showCellValues
-        assert false == node.cellValuesLoaded
-        assert defaultStartScope == node.availableScope
-        assert node.scope == new CaseInsensitiveMap()
-        String nodeDetails = node.details as String
-        assert nodeDetails.contains("${UNABLE_TO_LOAD}fields and traits for Product")
-        assert nodeDetails.contains(ADDITIONAL_SCOPE_REQUIRED)
-        assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
-        assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
-        assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
-        assert !nodeDetails.contains(DETAILS_LABEL_FIELDS)
-        assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
-        assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
     }
 
     private static void checkAdditionalScopeIsRequiredNonEPMMessage(String message)

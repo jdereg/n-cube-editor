@@ -230,7 +230,7 @@ class VisualizerScopeInfo
 			sb.append("""</ul>""")
 		}
 		sb.append("""</div>""")
-		sb.append("""<input id="${scopeKey}" style="color: black;" type="text" placeholder="${placeHolder}" value="${value}" class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_SCOPE_INPUT}">""")
+		sb.append("""<input id="${scopeKey}" value="${value}" placeholder="${placeHolder}" class="${DETAILS_CLASS_SCOPE_INPUT} ${DETAILS_CLASS_FORM_CONTROL}" style="color: black;" type="text">""")
 		sb.append("""</div>""")
 		return sb
 	}
