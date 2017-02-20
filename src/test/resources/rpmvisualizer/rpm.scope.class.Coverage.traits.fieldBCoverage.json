@@ -1,101 +1,121 @@
 {
-  "ncube":"rpm.scope.class.Coverage.traits.fieldBCoverage",
-  "defaultCellValueType":"string",
-  "defaultCellValue":"#NOT_DEFINED",
-  "cube_tags":"EPM",
-  "axes":[
+  "ncube": "rpm.scope.class.Coverage.traits.fieldBCoverage",
+  "defaultCellValueType": "string",
+  "defaultCellValue": "#NOT_DEFINED",
+  "cube_tags": "EPM",
+  "axes": [
     {
-      "id":1,
-      "name":"coverage",
-      "hasDefault":false,
-      "isRef":true,
-      "referenceTenant":"NONE",
-      "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.4",
-      "referenceStatus":"RELEASE",
-      "referenceBranch":"HEAD",
-      "referenceCubeName":"Coverage",
-      "referenceAxisName":"coverage",
-      "columns":[]
+      "id": 1,
+      "name": "coverage",
+      "hasDefault": false,
+      "isRef": true,
+      "referenceTenant": "NONE",
+      "referenceApp": "test.visualizer",
+      "referenceVersion": "1.0.4",
+      "referenceStatus": "RELEASE",
+      "referenceBranch": "HEAD",
+      "referenceCubeName": "Coverage",
+      "referenceAxisName": "coverage",
+      "columns": []
     },
     {
-      "id":3,
-      "name":"trait",
-      "hasDefault":false,
-      "type":"DISCRETE",
-      "valueType":"STRING",
-      "preferredOrder":0,
-      "fireAll":true,
-      "columns":[
+      "id": 3,
+      "name": "trait",
+      "hasDefault": false,
+      "type": "DISCRETE",
+      "valueType": "STRING",
+      "preferredOrder": 0,
+      "fireAll": true,
+      "columns": [
         {
-          "id":3000000000035,
-          "type":"string",
-          "value":"r:exists"
+          "id": 3000000000035,
+          "type": "string",
+          "value": "r:exists"
         }
       ]
     },
     {
-      "id":5,
-      "name":"state",
-      "hasDefault":true,
-      "type":"DISCRETE",
-      "valueType":"STRING",
-      "preferredOrder":1,
-      "fireAll":true,
-      "columns":[
+      "id": 5,
+      "name": "state",
+      "hasDefault": true,
+      "type": "DISCRETE",
+      "valueType": "STRING",
+      "preferredOrder": 1,
+      "fireAll": true,
+      "columns": [
         {
-          "id":5001683995653,
-          "type":"string",
-          "value":"IN"
+          "id": 5001683995653,
+          "type": "string",
+          "value": "IN"
         },
         {
-          "id":5001175698947,
-          "type":"string",
-          "value":"KY"
+          "id": 5001175698947,
+          "type": "string",
+          "value": "KY"
         },
         {
-          "id":5001479111097,
-          "type":"string",
-          "value":"NY"
+          "id": 5001479111097,
+          "type": "string",
+          "value": "NY"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "div",
+      "hasDefault": false,
+      "type": "DISCRETE",
+      "valueType": "STRING",
+      "preferredOrder": 1,
+      "fireAll": true,
+      "columns": [
+        {
+          "id": 6001337748306,
+          "type": "string",
+          "value": "div3"
         }
       ]
     }
   ],
-  "cells":[
+  "cells": [
     {
-      "id":[
+      "id": [
         1001808802272,
         3000000000035,
-        5001479111097
+        6001337748306
       ],
-      "type":"exp",
-      "value":"true"
+      "type": "exp",
+      "value": "true"
     },
     {
-      "id":[
-        1001808802272,
-        3000000000035
-      ],
-      "type":"exp",
-      "value":"true"
-    },
-    {
-      "id":[
+      "id": [
         1001808802272,
         3000000000035,
-        5001683995653
+        5001683995653,
+        6001337748306
       ],
-      "type":"exp",
-      "value":"true"
+      "type": "exp",
+      "value": "true"
     },
     {
-      "id":[
+      "id": [
         1001808802272,
         3000000000035,
-        5001175698947
+        5001479111097,
+        6001337748306
       ],
-      "type":"exp",
-      "value":"true"
+      "type": "exp",
+      "value": "true"
+    },
+    {
+      "id": [
+        1001808802272,
+        3000000000035,
+        5001175698947,
+        6001337748306
+      ],
+      "type": "exp",
+      "value": "true"
     }
   ]
 }

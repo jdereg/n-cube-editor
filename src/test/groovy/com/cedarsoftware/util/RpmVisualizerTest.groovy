@@ -1039,6 +1039,7 @@ class RpmVisualizerTest
         //AProduct has no scope prompt
         Map node = checkScopePromptOnNode('AProduct', '', 'Product', '', false)
         String nodeDetails = node.details as String
+        checkNoScopePrompt(node, 'product')
         assert !nodeDetails.contains('title="product')
         assert !nodeDetails.contains('<input id="product')
         assert !nodeDetails.contains('<li id="product')
@@ -1063,7 +1064,13 @@ class RpmVisualizerTest
         assert node.availableScope == [coverage: 'ACoverage', sourceFieldName: 'Coverages', risk: 'ARisk', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
         assert node.scope == new CaseInsensitiveMap()
 
-        //TODO: Add check for a node with one required, one default
+        //BCoverage has one required scope prompt, one default scope prompt. The default scope prompt doesn't show yet since
+        //there is currently a required scope prompt for the node.
+        node = checkScopePromptOnNode('BCoverage', ADDITIONAL_SCOPE_REQUIRED_FOR, 'Coverage', ADDITIONAL_SCOPE_REQUIRED, true)
+        checkScopePromptTitle(node, 'div', true, 'rpm.scope.class.Coverage.traits.fieldBCoverage')
+        checkScopePromptDropdown(node, 'div', '', ['div3'], ['div1', 'div2', DEFAULT], SELECT_OR_ENTER_VALUE)
+        assert node.availableScope == [coverage: 'BCoverage', sourceFieldName: 'Coverages', risk: 'ARisk', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert node.scope == new CaseInsensitiveMap()
     }
 
     @Test
@@ -1722,17 +1729,17 @@ class RpmVisualizerTest
             assert ['pgm1', 'pgm2', 'pgm3'] as Set == scopeInfo.optionalGraphScopeAvailableValues.pgm as Set
             assert 6 == scopeInfo.optionalGraphScopeAvailableValues.state.size()
             assert [null, 'KY', 'NY', 'OH', 'GA', 'IN'] as Set == scopeInfo.optionalGraphScopeAvailableValues.state as Set
-            assert 3 == scopeInfo.optionalGraphScopeAvailableValues.div.size()
-            assert [null, 'div1', 'div2'] as Set == scopeInfo.optionalGraphScopeAvailableValues.div as Set
+            assert 4 == scopeInfo.optionalGraphScopeAvailableValues.div.size()
+            assert [null, 'div1', 'div2', 'div3'] as Set == scopeInfo.optionalGraphScopeAvailableValues.div as Set
 
             assert 3 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
             assert scopeInfo.optionalGraphScopeCubeNames.keySet().containsAll(scopeKeys)
             assert 2 == scopeInfo.optionalGraphScopeCubeNames.pgm.size()
             assert ['rpm.scope.class.Risk.traits.fieldBRisk', 'rpm.scope.class.Coverage.traits.fieldACoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.pgm as Set
-            assert 3 == scopeInfo.optionalGraphScopeCubeNames.state.size()
-            assert ['rpm.scope.class.Risk.traits.fieldARisk', 'rpm.scope.class.Coverage.traits.fieldCCoverage', 'rpm.scope.class.Coverage.traits.fieldBCoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.state as Set
-            assert 2 == scopeInfo.optionalGraphScopeCubeNames.div.size()
-            assert ['rpm.scope.class.Risk.traits.fieldARisk', 'rpm.scope.class.Coverage.traits.fieldACoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.div as Set
+            assert 2 == scopeInfo.optionalGraphScopeCubeNames.state.size()
+            assert ['rpm.scope.class.Risk.traits.fieldARisk', 'rpm.scope.class.Coverage.traits.fieldCCoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.state as Set
+            assert 3 == scopeInfo.optionalGraphScopeCubeNames.div.size()
+            assert ['rpm.scope.class.Risk.traits.fieldARisk', 'rpm.scope.class.Coverage.traits.fieldACoverage', 'rpm.scope.class.Coverage.traits.fieldBCoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.div as Set
 
             assert scopeMessage.contains('title="pgm is optional to load the graph, but may be required for some nodes"')
             assert scopeMessage.contains('title="state is optional to load the graph, but may be required for some nodes"')
@@ -1880,6 +1887,14 @@ class RpmVisualizerTest
         unavailableScopeValues.each{String scopeValue ->
             assert !nodeDetails.contains("""<li id="${scopeKey}: ${scopeValue}" class="scopeClick" """)
         }
+    }
+
+    private static void checkNoScopePrompt(Map node, String scopeKey)
+    {
+        String nodeDetails = node.details as String
+        assert !nodeDetails.contains("""title="${scopeKey}""")
+        assert !nodeDetails.contains("""<input id="${scopeKey}""")
+        assert !nodeDetails.contains("""<li id="${scopeKey}""")
     }
 
     private static void checkUnboundAxesMessage_CCCoverage(String message)
