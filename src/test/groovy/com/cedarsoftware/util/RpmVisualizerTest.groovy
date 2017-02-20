@@ -1147,7 +1147,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_graphScopePrompt_afterProductSelected_afterOptionalGraphScopeSelected()
+    void testBuildGraph_graphScopePrompt_afterProductSelected_afterOptionalGraphScopeSelected_once()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -1160,7 +1160,7 @@ class RpmVisualizerTest
         options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
         buildGraph(options)
 
-        //User picks pgm, state and div. Reload.
+        //User picks pgm = pgm1, state = OH and div = div1. Reload.
         inputScopeInfo.scope.pgm = 'pgm1'
         inputScopeInfo.scope.state = 'OH'
         inputScopeInfo.scope.div = 'div1'
@@ -1177,6 +1177,45 @@ class RpmVisualizerTest
         assert scopeInfo.scopeMessage.contains('Reset scope')
         checkRequiredGraphScope('AProduct')
         checkOptionalGraphScope('AProduct', 'pgm1', 'OH', 'div1')
+    }
+
+    @Test
+    void testBuildGraph_graphScopePrompt_afterProductSelected_afterOptionalGraphScopeSelected_twice()
+    {
+        //Load graph with no scope
+        String startCubeName = 'rpm.class.Product'
+        inputScopeInfo.scope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+        buildGraph(options)
+
+        //User picks AProduct. Reload.
+        inputScopeInfo.scope.product = 'AProduct'
+        options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
+        buildGraph(options)
+
+        //User picks pgm = pgm1, state = OH and div = div1. Reload.
+        inputScopeInfo.scope.pgm = 'pgm1'
+        inputScopeInfo.scope.state = 'OH'
+        inputScopeInfo.scope.div = 'div1'
+        options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
+        buildGraph(options)
+
+        //User changes to div = div3. Reload.
+        inputScopeInfo.scope.div = 'div3'
+        options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
+        buildGraph(options)
+        assert 0 == messages.size()
+        assert 8 == nodes.size()
+        assert 7 == edges.size()
+
+        //Check graph scope prompt - BCoverage no longer has missing required scope since div=div3, and as a result exposes a
+        //new optional scope value for state (NM).
+        Map expectedAvailableScope = [pgm: 'pgm1', state: 'OH', div: 'div3', product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert scopeInfo.scope == expectedAvailableScope
+        assert scopeInfo.displayScopeMessage
+        assert scopeInfo.scopeMessage.contains('Reset scope')
+        checkRequiredGraphScope('AProduct')
+        checkOptionalGraphScope('AProduct', 'pgm1', 'OH', 'div3', true)
     }
 
     @Test
@@ -1218,12 +1257,12 @@ class RpmVisualizerTest
         //BRisk has required scope prompt since requires pgm=pgm3
         node = checkScopePromptOnNode('BRisk', REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR, 'Risk', DIFFERENT_VALUE_MUST_BE_PROVIDED, true)
         checkScopePromptTitle(node, 'pgm', true, 'rpm.scope.class.Risk.traits.fieldBRisk')
-        checkScopePromptDropdown(node, '', '', ['pgm3'], ['pgm1', 'pgm2', DEFAULT], SELECT_OR_ENTER_VALUE)
+        checkScopePromptDropdown(node, 'pgm', '', ['pgm3'], ['pgm1', 'pgm2', DEFAULT], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node, 'product')
         checkNoScopePrompt(node, 'div')
         checkNoScopePrompt(node, 'state')
         assert node.availableScope == [pgm: 'pgm1', div: 'div1', state: 'OH', sourceFieldName: 'Risks', risk: 'BRisk', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
-        assert node.scope == [div: 'div1', state: 'OH', risk: 'BRisk', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert node.scope == new CaseInsensitiveMap()
 
         //ACoverage has no scope prompts
         node = checkScopePromptOnNode('ACoverage', '', 'Coverage', '', false)
@@ -1899,7 +1938,7 @@ class RpmVisualizerTest
         assert scopeMessage.contains('<li id="product: WProduct" class="scopeClick"')
     }
 
-    private void checkOptionalGraphScope(String selectedProductName = '', String selectedPgmName = '', String selectedStateName = 'Default', selectedDivName = 'Default')
+    private void checkOptionalGraphScope(String selectedProductName = '', String selectedPgmName = '', String selectedStateName = 'Default', selectedDivName = 'Default', boolean includeStateNM = false)
     {
         Set<String> scopeKeys = ['pgm', 'state', 'div'] as CaseInsensitiveSet
         String scopeMessage = scopeInfo.scopeMessage
@@ -1911,8 +1950,15 @@ class RpmVisualizerTest
             assert scopeInfo.optionalGraphScopeAvailableValues.keySet().containsAll(scopeKeys)
             assert 3 == scopeInfo.optionalGraphScopeAvailableValues.pgm.size()
             assert ['pgm1', 'pgm2', 'pgm3'] as Set == scopeInfo.optionalGraphScopeAvailableValues.pgm as Set
-            assert 6 == scopeInfo.optionalGraphScopeAvailableValues.state.size()
-            assert [null, 'KY', 'NY', 'OH', 'GA', 'IN'] as Set == scopeInfo.optionalGraphScopeAvailableValues.state as Set
+            if (includeStateNM)
+            {
+                assert 7 == scopeInfo.optionalGraphScopeAvailableValues.state.size()
+                assert [null, 'KY', 'NY', 'OH', 'GA', 'IN', 'NM'] as Set == scopeInfo.optionalGraphScopeAvailableValues.state as Set
+            }
+            else{
+                assert 6 == scopeInfo.optionalGraphScopeAvailableValues.state.size()
+                assert [null, 'KY', 'NY', 'OH', 'GA', 'IN'] as Set == scopeInfo.optionalGraphScopeAvailableValues.state as Set
+            }
             assert 4 == scopeInfo.optionalGraphScopeAvailableValues.div.size()
             assert [null, 'div1', 'div2', 'div3'] as Set == scopeInfo.optionalGraphScopeAvailableValues.div as Set
 
@@ -1920,8 +1966,17 @@ class RpmVisualizerTest
             assert scopeInfo.optionalGraphScopeCubeNames.keySet().containsAll(scopeKeys)
             assert 2 == scopeInfo.optionalGraphScopeCubeNames.pgm.size()
             assert ['rpm.scope.class.Risk.traits.fieldBRisk', 'rpm.scope.class.Coverage.traits.fieldACoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.pgm as Set
-            assert 2 == scopeInfo.optionalGraphScopeCubeNames.state.size()
-            assert ['rpm.scope.class.Risk.traits.fieldARisk', 'rpm.scope.class.Coverage.traits.fieldCCoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.state as Set
+            if (includeStateNM)
+            {
+                assert 3 == scopeInfo.optionalGraphScopeCubeNames.state.size()
+                assert ['rpm.scope.class.Risk.traits.fieldARisk', 'rpm.scope.class.Coverage.traits.fieldCCoverage', 'rpm.scope.class.Coverage.traits.fieldBCoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.state as Set
+            }
+            else
+            {
+                assert 2 == scopeInfo.optionalGraphScopeCubeNames.state.size()
+                assert ['rpm.scope.class.Risk.traits.fieldARisk', 'rpm.scope.class.Coverage.traits.fieldCCoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.state as Set
+            }
+
             assert 3 == scopeInfo.optionalGraphScopeCubeNames.div.size()
             assert ['rpm.scope.class.Risk.traits.fieldARisk', 'rpm.scope.class.Coverage.traits.fieldACoverage', 'rpm.scope.class.Coverage.traits.fieldBCoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.div as Set
 
@@ -1941,6 +1996,14 @@ class RpmVisualizerTest
             assert scopeMessage.contains('<li id="state: OH" class="scopeClick"')
             assert scopeMessage.contains('<li id="state: GA" class="scopeClick"')
             assert scopeMessage.contains('<li id="state: IN" class="scopeClick"')
+            if (includeStateNM)
+            {
+                assert scopeMessage.contains('<li id="state: NM" class="scopeClick"')
+            }
+            else
+            {
+                assert !scopeMessage.contains('<li id="state: NM" class="scopeClick"')
+            }
 
             assert scopeMessage.contains("""<input id="pgm" value="${selectedPgmName}" placeholder="Select or enter value..." class="scopeInput form-control" """)
             assert scopeMessage.contains('<li id="pgm: pgm1" class="scopeClick"')
