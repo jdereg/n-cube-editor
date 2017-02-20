@@ -30,6 +30,9 @@ class RpmVisualizerTest
 
     static final String defaultScopeDate = DATE_TIME_FORMAT.format(new Date())
 
+    static final Map defaultScope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+
+
     RpmVisualizer visualizer
     RpmVisualizerScopeInfo inputScopeInfo
     RpmVisualizerScopeInfo scopeInfo
@@ -950,7 +953,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_scopeInfo_graphScopePrompt_initial()
+    void testBuildGraph_graphScopePrompt_initial()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -968,14 +971,28 @@ class RpmVisualizerTest
         assert scopeInfo.scopeMessage.contains('Reset scope')
         checkRequiredGraphScope()
         checkOptionalGraphScope()
-
-        //Check starting node scope prompt
-        Map expectedStartNodeScope = new CaseInsensitiveMap()
-        checkStartNodeScope(expectedAvailableScope, expectedStartNodeScope)
     }
 
+    @Test
+    void testBuildGraph_nodeScopePrompt_initial()
+    {
+        //Load graph with no scope
+        String startCubeName = 'rpm.class.Product'
+        inputScopeInfo.scope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+        buildGraph(options)
+        assert 0 == messages.size()
+        assert 1 == nodes.size()
+        assert 0 == edges.size()
+        
+        //Check starting node scope prompt
+        Map expectedAvailableScope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        Map expectedNodeScope = new CaseInsensitiveMap()
+        checkStartNodeScope(expectedAvailableScope, expectedNodeScope)
+    }
+    
     @Test 
-    void testBuildGraph_scopeInfo_graphScopePrompt_afterProductSelected()
+    void testBuildGraph_graphScopePrompt_afterProductSelected()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -992,20 +1009,156 @@ class RpmVisualizerTest
         assert 7 == edges.size()
 
         //Check graph scope prompt
-        Map expectedScopeAvailableScope = [product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
-        assert scopeInfo.scope == expectedScopeAvailableScope
+        Map expectedAvailableScope = [product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert scopeInfo.scope == expectedAvailableScope
         assert scopeInfo.displayScopeMessage
         assert scopeInfo.scopeMessage.contains('Reset scope')
         checkRequiredGraphScope('AProduct')
         checkOptionalGraphScope('AProduct')
 
         //Check starting node scope prompt
-        Map expectedStartNodeScope = [product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
-        checkStartNodeScope(expectedScopeAvailableScope, expectedStartNodeScope, 'AProduct')
+        Map expectedNodeScope = [product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
+        checkStartNodeScope(expectedAvailableScope, expectedNodeScope, 'AProduct')
     }
 
     @Test
-    void testBuildGraph_scopeInfo_graphScopePrompt_afterInvalidProductEntered()
+    void testBuildGraph_nodeScopePrompt_afterProductSelected()
+    {
+        //Load graph with no scope
+        String startCubeName = 'rpm.class.Product'
+        inputScopeInfo.scope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+        buildGraph(options)
+
+        //User picks AProduct. Reload.
+        inputScopeInfo.scope.product = 'AProduct'
+        options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
+        buildGraph(options)
+        assert 0 == messages.size()
+        assert 8 == nodes.size()
+        assert 7 == edges.size()
+        
+        //Check starting node scope prompt - AProduct
+        Map expectedAvailableScope = [product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        Map expectedNodeScope = [product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
+        checkStartNodeScope(expectedAvailableScope, expectedNodeScope, 'AProduct')
+
+        //ARisk has two default scope prompts, no required prompts
+        Map node = checkScopePromptOnNode('ARisk', '', 'Risk', DEFAULTS_WERE_USED, false)
+        checkScopePromptTitle(node, 'div', false, 'rpm.scope.class.Risk.traits.fieldARisk')
+        checkScopePromptDropdown(node, 'div', DEFAULT, ['div1', DEFAULT], ['div2'], SELECT_OR_ENTER_VALUE)
+        checkScopePromptTitle(node, 'state', false, 'rpm.scope.class.Risk.traits.fieldARisk')
+        checkScopePromptDropdown(node, 'state', DEFAULT, ['KY', 'NY', 'OH', DEFAULT], ['IN', 'GA'], SELECT_OR_ENTER_VALUE)
+        assert node.availableScope == [sourceFieldName: 'Risks', risk: 'ARisk', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert node.scope == [risk: 'ARisk', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+
+        //ACoverage has two required scope prompts, no default prompts
+        node = checkScopePromptOnNode('ACoverage', ADDITIONAL_SCOPE_REQUIRED_FOR, 'Coverage', ADDITIONAL_SCOPE_REQUIRED, true)
+        checkScopePromptTitle(node, 'div', true, 'rpm.scope.class.Coverage.traits.fieldACoverage')
+        checkScopePromptDropdown(node, 'div', '', ['div1', 'div2'], [DEFAULT], SELECT_OR_ENTER_VALUE)
+        checkScopePromptTitle(node, 'pgm', true, 'rpm.scope.class.Coverage.traits.fieldACoverage')
+        checkScopePromptDropdown(node, 'pgm', '', ['pgm1', 'pgm2', 'pgm3'], [DEFAULT], SELECT_OR_ENTER_VALUE)
+        assert node.availableScope == [coverage: 'ACoverage', sourceFieldName: 'Coverages', risk: 'ARisk', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert node.scope == new CaseInsensitiveMap()
+
+        // Map node = checkScopePromptOnNode('ARisk', 'Risk', ADDITIONAL_SCOPE_REQUIRED_FOR, ADDITIONAL_SCOPE_REQUIRED, true)
+        // Map node = checkScopePromptOnNode('ARisk', 'Risk', REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR, DIFFERENT_VALUE_MUST_BE_PROVIDED, true)
+
+
+    }
+
+    private Map checkScopePromptOnNode(String nodeName, String nodeNamePrefix, String nodeType, String nodeDetailsMessage, boolean required, boolean showCellValues = false)
+    {
+        Map node = nodes.find {Map node1 ->  "${nodeNamePrefix}${nodeName}".toString() == node1.label}
+        String nodeDetails = node.details as String
+        assert nodeType == node.title
+        assert nodeType == node.detailsTitle1
+        assert nodeDetails.contains(nodeDetailsMessage)
+        if (required)
+        {
+            assert null == node.detailsTitle2
+            assert nodeDetails.contains("${UNABLE_TO_LOAD}fields and traits for ${nodeName}")
+            assert false == node.showCellValuesLink
+            assert false == node.cellValuesLoaded
+            assert false == node.showCellValues
+            assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
+            assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
+            assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
+            assert !nodeDetails.contains(DETAILS_LABEL_FIELDS)
+            assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
+            assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
+        }
+        else if (showCellValues)
+        {
+            assert nodeName == node.detailsTitle2
+            assert !nodeDetails.contains(UNABLE_TO_LOAD)
+            assert true == node.showCellValuesLink
+            assert true == node.cellValuesLoaded
+            assert true == node.showCellValues
+            assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
+            assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
+            assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
+            assert nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
+            assert nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
+        }
+        else
+        {
+            assert nodeName == node.detailsTitle2
+            assert !nodeDetails.contains(UNABLE_TO_LOAD)
+            assert true == node.showCellValuesLink
+            assert true == node.cellValuesLoaded
+            assert false == node.showCellValues
+            assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
+            assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
+            assert nodeDetails.contains(DETAILS_LABEL_FIELDS)
+            assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
+            assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
+        }
+        return node
+    }
+
+    private static void checkScopePromptTitle(Map node, String scopeKey, boolean required, String cubeNames)
+    {
+        String nodeDetails = node.details as String
+        if (required)
+        {
+            if (cubeNames)
+            {
+                assert nodeDetails.contains("""title="${scopeKey} is required by ${cubeNames} to load this node""")
+            }
+            else
+            {
+                assert nodeDetails.contains("""title="${scopeKey} is required to load the graph""")
+            }
+        }
+        else
+        {
+            if (cubeNames)
+            {
+                assert nodeDetails.contains("""title="${scopeKey} is optional to load this node. Used on:""")
+                assert nodeDetails.contains(cubeNames)
+            }
+            else
+            {
+                assert nodeDetails.contains("""title="${scopeKey} is optional to load the graph, but may be required for some nodes""")
+            }
+        }
+    }
+
+    private static void checkScopePromptDropdown(Map node, String scopeKey, String selectedScopeValue, List<String> availableScopeValues, List<String> unavailableScopeValues, String placeHolder)
+    {
+        String nodeDetails = node.details as String
+        assert nodeDetails.contains("""<input id="${scopeKey}" value="${selectedScopeValue}" placeholder="${placeHolder}" class="scopeInput form-control" """)
+        availableScopeValues.each{String scopeValue ->
+            assert nodeDetails.contains("""<li id="${scopeKey}: ${scopeValue}" class="scopeClick" """)
+        }
+        unavailableScopeValues.each{String scopeValue ->
+            assert !nodeDetails.contains("""<li id="${scopeKey}: ${scopeValue}" class="scopeClick" """)
+        }
+    }
+
+    @Test
+    void testBuildGraph_graphScopePrompt_afterInvalidProductEntered()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -1022,17 +1175,35 @@ class RpmVisualizerTest
         assert 0 == edges.size()
 
         //Check graph scope prompt
-        Map expectedScopeAvailableScope = [product: 'XXXProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
         checkRequiredGraphScope('XXXProduct')
         checkOptionalGraphScope()
-
-        //Check starting node scope prompt
-        Map expectedStartNodeScope = new CaseInsensitiveMap()
-        checkStartNodeScope(expectedScopeAvailableScope, expectedStartNodeScope, 'XXXProduct', true)
     }
 
     @Test
-    void testBuildGraph_scopeInfo_graphScopePrompt_afterProductSelected_afterOptionalGraphScopeSelected()
+    void testBuildGraph_nodeScopePrompt_afterInvalidProductEntered()
+    {
+        //Load graph with no scope
+        String startCubeName = 'rpm.class.Product'
+        inputScopeInfo.scope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+        buildGraph(options)
+
+        //User enters invalid XXXProduct. Reload.
+        inputScopeInfo.scope.product = 'XXXProduct'
+        options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
+        buildGraph(options)
+        assert 0 == messages.size()
+        assert 1 == nodes.size()
+        assert 0 == edges.size()
+
+        //Check starting node scope prompt
+        Map expectedAvailableScope = [product: 'XXXProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        Map expectedNodeScope = new CaseInsensitiveMap()
+        checkStartNodeScope(expectedAvailableScope, expectedNodeScope, 'XXXProduct', true)
+    }
+
+    @Test
+    void testBuildGraph_graphScopePrompt_afterProductSelected_afterOptionalGraphScopeSelected()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -1056,21 +1227,21 @@ class RpmVisualizerTest
         assert 7 == edges.size()
 
         //Check graph scope prompt
-        Map expectedScopeAvailableScope = [pgm: 'pgm1', state: 'OH', div: 'div1', product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
-        assert scopeInfo.scope == expectedScopeAvailableScope
+        Map expectedAvailableScope = [pgm: 'pgm1', state: 'OH', div: 'div1', product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert scopeInfo.scope == expectedAvailableScope
         assert scopeInfo.displayScopeMessage
         assert scopeInfo.scopeMessage.contains('Reset scope')
         checkRequiredGraphScope('AProduct')
         checkOptionalGraphScope('AProduct', 'pgm1', 'OH', 'div1')
 
         //Check starting node scope prompt
-        //TODO: Why is OH now utilized scope on product? Was never shown as default or required scope.
-        Map expectedStartNodeScope = [state: 'OH', product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
-        checkStartNodeScope(expectedScopeAvailableScope, expectedStartNodeScope, 'AProduct')
+        //OH is added to scope because it's declared as optional scope in the meta-properties of rpm.class.Product
+        Map expectedNodeScope = [state: 'OH', product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
+        checkStartNodeScope(expectedAvailableScope, expectedNodeScope, 'AProduct')
     }
 
     @Test
-    void testBuildGraph_scopeInfo_graphScopePrompt_initial_nonEPM()
+    void testBuildGraph_graphScopePrompt_initial_nonEPM()
     {
         String startCubeName = 'rpm.class.partyrole.LossPrevention'
         inputScopeInfo.scope = new CaseInsensitiveMap()
@@ -1086,6 +1257,45 @@ class RpmVisualizerTest
         assert scopeInfo.scopeMessage.contains('Reset scope')
         checkGraphScopeNonEPM()
         checkStartNodeScopeNonEpm()
+    }
+
+
+    @Test
+    void testBuildGraph_nodeScopePrompt()
+    {
+        //Load graph with no scope
+        String startCubeName = 'rpm.class.Product'
+        inputScopeInfo.scope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+        buildGraph(options)
+
+        //User picks AProduct. Reload.
+        inputScopeInfo.scope.product = 'AProduct'
+        options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
+        buildGraph(options)
+
+        //User picks pgm, state and div. Reload.
+        inputScopeInfo.scope.pgm = 'pgm1'
+        inputScopeInfo.scope.state = 'OH'
+        inputScopeInfo.scope.div = 'div1'
+        options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
+        buildGraph(options)
+        assert 0 == messages.size()
+        assert 8 == nodes.size()
+        assert 7 == edges.size()
+
+        //Check graph scope prompt
+        Map expectedAvailableScope = [pgm: 'pgm1', state: 'OH', div: 'div1', product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert scopeInfo.scope == expectedAvailableScope
+        assert scopeInfo.displayScopeMessage
+        assert scopeInfo.scopeMessage.contains('Reset scope')
+        checkRequiredGraphScope('AProduct')
+        checkOptionalGraphScope('AProduct', 'pgm1', 'OH', 'div1')
+
+        //Check starting node scope prompt
+        //OH is added to scope because it's declared as optional scope in the meta-properties of rpm.class.Product
+        Map expectedNodeScope = [state: 'OH', product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
+        checkStartNodeScope(expectedAvailableScope, expectedNodeScope, 'AProduct')
     }
 
     @Test //TODO

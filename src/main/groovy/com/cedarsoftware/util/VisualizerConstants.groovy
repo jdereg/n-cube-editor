@@ -20,10 +20,6 @@ class VisualizerConstants
 	static final String STATUS_SUCCESS = 'success'
 	static final String STATUS_INVALID_START_CUBE = 'invalidStartCube'
 
-	static final String REQUIRED_SCOPE_TO_LOAD_GRAPH = 'Required scope to load graph'
-	static final String OPTIONAL_SCOPE_IN_GRAPH = 'Optional scope in graph'
-	static final String NO_OPTIONAL_SCOPE_IN_GRAPH = 'No optional scope in the graph'
-
 	static final SafeSimpleDateFormat DATE_TIME_FORMAT = new SafeSimpleDateFormat('yyyy-MM-dd')
 	static final String HTTP = 'http:'
 	static final String HTTPS = 'https:'

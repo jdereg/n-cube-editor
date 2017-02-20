@@ -240,7 +240,7 @@ class VisualizerScopeInfo
 		StringBuilder sb = new StringBuilder()
 		if (cubeNames)
 		{
-			sb.append(" ${prefix}\n")
+			sb.append("${prefix}\n")
 			cubeNames.each { String cubeName ->
 				sb.append("${cubeName}\n")
 			}
