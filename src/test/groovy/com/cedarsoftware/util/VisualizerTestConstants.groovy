@@ -10,6 +10,7 @@ import groovy.transform.CompileStatic
 class VisualizerTestConstants
 {
 	public static final String ADDITIONAL_SCOPE_REQUIRED_FOR = 'Additional scope required for '
+	public static final String REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR = 'Required scope value not found for '
 	public static final String UNABLE_TO_LOAD = 'Unable to load '
 	public static final String ADDITIONAL_SCOPE_REQUIRED = 'Additional scope is required'
 	public static final String NONE = 'none'
