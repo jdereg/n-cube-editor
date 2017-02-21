@@ -1,0 +1,87 @@
+{
+  "ncube": "rpm.scope.enum.Product.Risks.traits.exists",
+  "defaultCellValueType": "string",
+  "defaultCellValue": "#NOT_DEFINED",
+  "cube_tags": "EPM",
+  "axes": [
+    {
+      "id": 3,
+      "name": "trait",
+      "hasDefault": false,
+      "type": "DISCRETE",
+      "valueType": "STRING",
+      "preferredOrder": 0,
+      "fireAll": true,
+      "columns": [
+        {
+          "id": 3000000000035,
+          "type": "string",
+          "value": "r:exists"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "name",
+      "hasDefault": true,
+      "isRef": true,
+      "referenceTenant": "NONE",
+      "referenceApp": "test.visualizer",
+      "referenceVersion": "1.0.5",
+      "referenceStatus": "RELEASE",
+      "referenceBranch": "HEAD",
+      "referenceCubeName": "Risk",
+      "referenceAxisName": "risk",
+      "columns": []
+    },
+    {
+      "id": 5,
+      "name": "div",
+      "hasDefault": true,
+      "type": "DISCRETE",
+      "valueType": "STRING",
+      "preferredOrder": 1,
+      "fireAll": true,
+      "columns": [
+        {
+          "id": 5001683995653,
+          "type": "string",
+          "value": "div1"
+        },
+        {
+          "id": 5001175698947,
+          "type": "string",
+          "value": "div2"
+        }
+      ]
+    }
+  ],
+  "cells": [
+    {
+      "id": [
+        3000000000035,
+        6001107612492
+      ],
+      "type": "boolean",
+      "value": true
+    },
+    {
+      "id": [
+        3000000000035,
+        5001683995653,
+        6001107612492
+      ],
+      "type": "boolean",
+      "value": true
+    },
+    {
+      "id": [
+        3000000000035,
+        5001175698947,
+        6001107612492
+      ],
+      "type": "boolean",
+      "value": true
+    }
+  ]
+}

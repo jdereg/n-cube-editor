@@ -813,11 +813,22 @@ class RpmVisualizerTest
         assert node.availableScope == [product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
         assert node.scope == [product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
 
+        //Product.Risks enum has one default scope prompt, no required prompts
+        node = checkEnumNodeBasics("${VALID_VALUES_FOR_FIELD_SENTENCE_CASE}Risks on AProduct", '', false)
+        String nodeDetails = node.details as String
+        checkScopePromptTitle(nodeDetails, 'div', false, 'rpm.scope.enum.Product.Risks.traits.exists')
+        checkScopePromptDropdown(nodeDetails, 'div', DEFAULT, ['div1', 'div2', DEFAULT], ['div3'], SELECT_OR_ENTER_VALUE)
+        checkNoScopePrompt(node.details as String, 'state')
+        checkNoScopePrompt(node.details as String, 'product')
+        checkNoScopePrompt(node.details as String, 'pgm')
+        assert node.availableScope == [sourceFieldName: 'Risks', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert node.scope == [sourceFieldName: 'Risks', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
+
         //ARisk has two default scope prompts, no required prompts
         node = checkNodeBasics('ARisk', 'Risk', '', DEFAULTS_WERE_USED, false)
-        String nodeDetails = node.details as String
+        nodeDetails = node.details as String
         checkScopePromptTitle(nodeDetails, 'div', false, 'rpm.scope.class.Risk.traits.fieldARisk')
-        checkScopePromptDropdown(nodeDetails, 'div', DEFAULT, ['div1', DEFAULT], ['div2'], SELECT_OR_ENTER_VALUE)
+        checkScopePromptDropdown(nodeDetails, 'div', DEFAULT, ['div1', DEFAULT], ['div2', 'div3'], SELECT_OR_ENTER_VALUE)
         checkScopePromptTitle(nodeDetails, 'state', false, 'rpm.scope.class.Risk.traits.fieldARisk')
         checkScopePromptDropdown(nodeDetails, 'state', DEFAULT, ['KY', 'NY', 'OH', DEFAULT], ['IN', 'GA'], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node.details as String, 'product')
@@ -840,7 +851,7 @@ class RpmVisualizerTest
         node = checkNodeBasics('ACoverage', 'Coverage', ADDITIONAL_SCOPE_REQUIRED_FOR, ADDITIONAL_SCOPE_REQUIRED, true)
         nodeDetails = node.details as String
         checkScopePromptTitle(nodeDetails, 'div', true, 'rpm.scope.class.Coverage.traits.fieldACoverage')
-        checkScopePromptDropdown(nodeDetails, 'div', '', ['div1', 'div2'], [DEFAULT], SELECT_OR_ENTER_VALUE)
+        checkScopePromptDropdown(nodeDetails, 'div', '', ['div1', 'div2'], [DEFAULT, 'div3'], SELECT_OR_ENTER_VALUE)
         checkScopePromptTitle(nodeDetails, 'pgm', true, 'rpm.scope.class.Coverage.traits.fieldACoverage')
         checkScopePromptDropdown(nodeDetails, 'pgm', '', ['pgm1', 'pgm2', 'pgm3'], [DEFAULT], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node.details as String, 'product')
@@ -1592,8 +1603,8 @@ class RpmVisualizerTest
                 assert ['rpm.scope.class.Risk.traits.fieldARisk', 'rpm.scope.class.Coverage.traits.fieldCCoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.state as Set
             }
 
-            assert 3 == scopeInfo.optionalGraphScopeCubeNames.div.size()
-            assert ['rpm.scope.class.Risk.traits.fieldARisk', 'rpm.scope.class.Coverage.traits.fieldACoverage', 'rpm.scope.class.Coverage.traits.fieldBCoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.div as Set
+            assert 4 == scopeInfo.optionalGraphScopeCubeNames.div.size()
+            assert ['rpm.scope.enum.Product.Risks.traits.exists', 'rpm.scope.class.Risk.traits.fieldARisk', 'rpm.scope.class.Coverage.traits.fieldACoverage', 'rpm.scope.class.Coverage.traits.fieldBCoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.div as Set
 
             checkScopePromptTitle(scopeMessage, 'pgm', false)
             checkScopePromptTitle(scopeMessage, 'state', false)
