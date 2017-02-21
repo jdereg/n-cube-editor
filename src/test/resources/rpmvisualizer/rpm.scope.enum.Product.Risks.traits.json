@@ -1,109 +1,109 @@
 {
-  "ncube": "rpm.scope.enum.Product.Risks.traits",
-  "defaultCellValueType": "string",
-  "defaultCellValue": "#NOT_DEFINED",
-  "axes": [
+  "ncube":"rpm.scope.enum.Product.Risks.traits",
+  "defaultCellValueType":"string",
+  "defaultCellValue":"#NOT_DEFINED",
+  "axes":[
     {
-      "id": 1,
-      "name": "sourceFieldName",
-      "hasDefault": false,
-      "type": "DISCRETE",
-      "valueType": "STRING",
-      "preferredOrder": 1,
-      "fireAll": true,
-      "columns": [
+      "id":1,
+      "name":"sourceFieldName",
+      "hasDefault":false,
+      "type":"DISCRETE",
+      "valueType":"STRING",
+      "preferredOrder":1,
+      "fireAll":true,
+      "columns":[
         {
-          "id": 1000000000001,
-          "type": "string",
-          "value": "Risks"
+          "id":1000000000001,
+          "type":"string",
+          "value":"Risks"
         }
       ]
     },
     {
-      "id": 2,
-      "name": "trait",
-      "hasDefault": false,
-      "type": "DISCRETE",
-      "valueType": "STRING",
-      "preferredOrder": 0,
-      "fireAll": true,
-      "columns": [
+      "id":2,
+      "name":"trait",
+      "hasDefault":false,
+      "type":"DISCRETE",
+      "valueType":"STRING",
+      "preferredOrder":0,
+      "fireAll":true,
+      "columns":[
         {
-          "id": 2000000000004,
-          "type": "string",
-          "value": "r:exists"
+          "id":2000000000004,
+          "type":"string",
+          "value":"r:exists"
         }
       ]
     },
     {
-      "id": 3,
-      "name": "name",
-      "hasDefault": false,
-      "isRef": true,
-      "referenceTenant": "NONE",
-      "referenceApp": "test.visualizer",
-      "referenceVersion": "1.0.4",
-      "referenceStatus": "RELEASE",
-      "referenceBranch": "HEAD",
-      "referenceCubeName": "Risk",
-      "referenceAxisName": "risk",
-      "columns": []
+      "id":3,
+      "name":"name",
+      "hasDefault":false,
+      "isRef":true,
+      "referenceTenant":"NONE",
+      "referenceApp":"test.visualizer",
+      "referenceVersion":"1.0.4",
+      "referenceStatus":"RELEASE",
+      "referenceBranch":"HEAD",
+      "referenceCubeName":"Risk",
+      "referenceAxisName":"risk",
+      "columns":[]
     },
     {
-      "id": 4,
-      "name": "product",
-      "hasDefault": false,
-      "isRef": true,
-      "referenceTenant": "NONE",
-      "referenceApp": "test.visualizer",
-      "referenceVersion": "1.0.4",
-      "referenceStatus": "RELEASE",
-      "referenceBranch": "HEAD",
-      "referenceCubeName": "Product",
-      "referenceAxisName": "product",
-      "columns": []
+      "id":4,
+      "name":"product",
+      "hasDefault":false,
+      "isRef":true,
+      "referenceTenant":"NONE",
+      "referenceApp":"test.visualizer",
+      "referenceVersion":"1.0.4",
+      "referenceStatus":"RELEASE",
+      "referenceBranch":"HEAD",
+      "referenceCubeName":"Product",
+      "referenceAxisName":"product",
+      "columns":[]
     }
   ],
-  "cells": [
+  "cells":[
     {
-      "id": [
+      "id":[
         1000000000001,
         2000000000004,
         3001427128926,
         4001108369471
       ],
-      "type": "boolean",
-      "value": true
+      "type":"boolean",
+      "value":true
     },
     {
-      "id": [
+      "id":[
         1000000000001,
         2000000000004,
         3000000000002,
         4000000000001
       ],
-      "type": "boolean",
-      "value": true
+      "type":"boolean",
+      "value":true
     },
     {
-      "id": [
+      "id":[
         1000000000001,
         2000000000004,
         3001107612492,
         4001108369471
       ],
-      "type": "exp",
-      "value": "@rpm.scope.enum.Product.Risks.traits.exists[:]"
+      "type":"exp",
+      "value":"@rpm.scope.enum.Product.Risks.traits.exists[:]"
     },
     {
-      "id": [
+      "id":[
         1000000000001,
         2000000000004,
         3001961257272,
         4001778566436
       ],
-      "type": "boolean",
-      "value": true
+      "type":"boolean",
+      "value":true
     }
   ]
 }
