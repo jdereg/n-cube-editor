@@ -26,7 +26,6 @@ class RpmVisualizerTest
     static final String DETAILS_LABEL_FIELDS_AND_TRAITS = 'Fields and traits'
     static final String DETAILS_LABEL_CLASS_TRAITS = 'Class traits'
     static final String VALID_VALUES_FOR_FIELD_SENTENCE_CASE = 'Valid values for field '
-    static final String VALID_VALUES_FOR_FIELD_LOWER_CASE = 'valid values for field '
 
     static final String defaultScopeDate = DATE_TIME_FORMAT.format(new Date())
     
