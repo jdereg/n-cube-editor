@@ -29,10 +29,7 @@ class RpmVisualizerTest
     static final String VALID_VALUES_FOR_FIELD_LOWER_CASE = 'valid values for field '
 
     static final String defaultScopeDate = DATE_TIME_FORMAT.format(new Date())
-
-    static final Map defaultScope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
-
-
+    
     RpmVisualizer visualizer
     RpmVisualizerScopeInfo inputScopeInfo
     RpmVisualizerScopeInfo scopeInfo
@@ -96,40 +93,6 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_withVisualizerInfoAsArgument()
-    {
-        Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
-                     product          : 'WProduct',
-                     policyControlDate: '2017-01-01',
-                     quoteDate        : '2017-01-01',
-                     coverage         : 'FCoverage',
-                     risk             : 'WProductOps']
-
-        inputScopeInfo.scope = new CaseInsensitiveMap(scope)
-
-        //Execute buildGraph with no visInfo as argument first
-        String startCubeName = 'rpm.class.Coverage'
-        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
-        buildGraph(options)
-
-        //Execute buildGraph a second time with visInfo as an argument
-        nodes = []
-        edges = []
-        options = [startCubeName: startCubeName, visInfo: visInfo, scopeInfo: inputScopeInfo]
-        visualizer = new RpmVisualizer()
-        buildGraph(options)
-
-        //Check visInfo
-        assert 5 == nodes.size()
-        assert 4 == edges.size()
-        assert 4l == visInfo.maxLevel
-        assert 6l == visInfo.nodeCount
-        assert 5l == visInfo.relInfoCount
-        assert 3l == visInfo.defaultLevel
-        assert scope == scopeInfo.scope
-    }
-
-    @Test
     void testBuildGraph_canLoadTargetAsRpmClass()
     {
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
@@ -143,19 +106,14 @@ class RpmVisualizerTest
         inputScopeInfo.scope = new CaseInsensitiveMap(scope)
         String startCubeName = 'rpm.class.Coverage'
         Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
-
         buildGraph(options)
 
-        Map node = nodes.find {Map node -> "${UNABLE_TO_LOAD}Location".toString() == node.label}
-        assert false == node.showCellValuesLink
-        assert false == node.showCellValues
-        assert false == node.cellValuesLoaded
-        String nodeDetails = node.details as String
-        assert nodeDetails.contains("Coverage points directly to Risk via field Location, but there is no risk named Location on Risk.")
-        assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
-        assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
-        assert !nodeDetails.contains(DETAILS_LABEL_FIELDS)
-        assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
+        Map node = checkNodeBasics('Location', 'Risk', UNABLE_TO_LOAD, 'Coverage points directly to Risk via field Location, but there is no risk named Location on Risk.', true)
+        checkNoScopePrompt(node)
+        Map availableScope = new CaseInsensitiveMap(scope)
+        availableScope.putAll([risk: 'Location', sourceRisk: 'WProductOps'])
+        assert node.availableScope == availableScope
+        assert node.scope == new CaseInsensitiveMap()
     }
 
     @Test
@@ -165,32 +123,19 @@ class RpmVisualizerTest
         inputScopeInfo.scope = new CaseInsensitiveMap(scope)
         String startCubeName = 'rpm.class.partyrole.LossPrevention'
         Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
-
         buildGraph(options)
 
         //Top level source node
-        Map node = nodes.find { Map node1 -> startCubeName == node1.cubeName}
+        Map node = checkNodeBasics('partyrole.LossPrevention', 'partyrole.LossPrevention', '', '', false)
         assert null == node.fromFieldName
-        assert 'partyrole.LossPrevention' == node.title
-        assert 'partyrole.LossPrevention' == node.detailsTitle1
-        assert null == node.detailsTitle2
         assert 'UNSPECIFIED' == node.group
         assert '1' == node.level
-        assert 'partyrole.LossPrevention' == node.label
         assert null == node.sourceCubeName
         assert null == node.sourceDescription
         assert null == node.typesToAdd
-        assert true == node.showCellValuesLink
-        assert false == node.showCellValues
-        assert true == node.cellValuesLoaded
         assert scope == node.scope
         assert scope == node.availableScope
-        String nodeDetails = node.details as String
-        assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
-        assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
-        assert nodeDetails.contains("${DETAILS_LABEL_FIELDS}</b><pre><ul><li>roleRefCode</li><li>Parties</li></ul></pre>")
-        assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
-        assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
+        assert (node.details as String).contains("${DETAILS_LABEL_FIELDS}</b><pre><ul><li>roleRefCode</li><li>Parties</li></ul></pre>")
 
         //Edge from top level node to enum
         Map edge = edges.find { Map edge -> 'partyrole.LossPrevention' == edge.fromName && 'partyrole.BasePartyRole.Parties' == edge.toName}
@@ -200,28 +145,16 @@ class RpmVisualizerTest
         assert "Field Parties cardinality ${V_MIN_CARDINALITY}:${V_MAX_CARDINALITY}".toString() == edge.title
 
         //Enum node under top level node
-        node = nodes.find { Map nodeEnum ->'rpm.enum.partyrole.BasePartyRole.Parties' == nodeEnum.cubeName}
+        node = checkEnumNodeBasics("${VALID_VALUES_FOR_FIELD_SENTENCE_CASE}Parties on partyrole.LossPrevention", '', false)
         assert 'Parties' == node.fromFieldName
-        assert "${VALID_VALUES_FOR_FIELD_SENTENCE_CASE}Parties on partyrole.LossPrevention".toString() == node.title
-        assert "${VALID_VALUES_FOR_FIELD_SENTENCE_CASE}Parties on partyrole.LossPrevention".toString() == node.detailsTitle1
-        assert null == node.detailsTitle2
         assert 'PARTY_ENUM' == node.group
         assert '2' == node.level
-        assert null == node.label
         assert 'rpm.class.partyrole.LossPrevention' == node.sourceCubeName
         assert [_effectiveVersion: ApplicationID.DEFAULT_VERSION, sourceFieldName: 'Parties'] == node.scope
         assert [_effectiveVersion: ApplicationID.DEFAULT_VERSION, sourceFieldName: 'Parties'] == node.availableScope
         assert 'LossPrevention' == node.sourceDescription
         assert null == node.typesToAdd
-        assert true == node.showCellValuesLink
-        assert false == node.showCellValues
-        assert true == node.cellValuesLoaded
-        nodeDetails = node.details as String
-        assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
-        assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
-        assert nodeDetails.contains("${DETAILS_LABEL_FIELDS}</b><pre><ul><li>party.MoreNamedInsured</li><li>party.ProfitCenter</li></ul></pre>")
-        assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
-        assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
+        assert (node.details as String).contains("${DETAILS_LABEL_FIELDS}</b><pre><ul><li>party.MoreNamedInsured</li><li>party.ProfitCenter</li></ul></pre>")
 
         //Edge from enum to target node
         edge = edges.find { Map edge1 -> 'partyrole.BasePartyRole.Parties' == edge1.fromName && 'party.ProfitCenter' == edge1.toName}
@@ -231,28 +164,16 @@ class RpmVisualizerTest
         assert 'Valid value party.ProfitCenter cardinality 0:1' == edge.title
 
         //Target node under enum
-        node = nodes.find { Map node2 ->'rpm.class.party.ProfitCenter' == node2.cubeName}
+        node = checkNodeBasics('party.ProfitCenter', 'party.ProfitCenter', '', '', false)
         assert 'party.ProfitCenter' == node.fromFieldName
-        assert 'party.ProfitCenter' == node.title
-        assert 'party.ProfitCenter' == node.detailsTitle1
-        assert null == node.detailsTitle2
         assert 'PARTY' == node.group
         assert '3' == node.level
-        assert 'party.ProfitCenter' == node.label
         assert 'rpm.enum.partyrole.BasePartyRole.Parties' == node.sourceCubeName
         assert 'partyrole.BasePartyRole.Parties' == node.sourceDescription
         assert  [] == node.typesToAdd
-        assert true == node.showCellValuesLink
-        assert false == node.showCellValues
-        assert true == node.cellValuesLoaded
         assert scope == node.scope
         assert [_effectiveVersion: ApplicationID.DEFAULT_VERSION, sourceFieldName: 'Parties'] == node.availableScope
-        nodeDetails = node.details as String
-        assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
-        assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
-        assert nodeDetails.contains("${DETAILS_LABEL_FIELDS}</b><pre><ul><li>roleRefCode</li><li>fullName</li><li>fein</li></ul></pre>")
-        assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
-        assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
+        assert (node.details as String).contains("${DETAILS_LABEL_FIELDS}</b><pre><ul><li>roleRefCode</li><li>fullName</li><li>fein</li></ul></pre>")
     }
 
     @Test
@@ -333,33 +254,20 @@ class RpmVisualizerTest
 
         String startCubeName = 'rpm.class.Coverage'
         Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
-
         buildGraph(options)
 
         //Top level source node
-        Map node = nodes.find { Map node1 -> 'FCoverage' == node1.label}
+        Map node = checkNodeBasics('FCoverage', 'Coverage', '', '', false)
         assert 'rpm.class.Coverage' == node.cubeName
         assert null == node.fromFieldName
-        assert 'Coverage' == node.title
-        assert 'Coverage' == node.detailsTitle1
-        assert 'FCoverage' == node.detailsTitle2
         assert 'COVERAGE' == node.group
         assert '1' == node.level
-        assert 'FCoverage' == node.label
         assert null == node.sourceCubeName
         assert null == node.sourceDescription
         assert ['Coverage', 'Deductible', 'Limit', 'Premium', 'Rate', 'Ratefactor', 'Role'] == node.typesToAdd
-        assert true == node.showCellValuesLink
-        assert false == node.showCellValues
-        assert true == node.cellValuesLoaded
         assert scope == node.scope
         assert scope == node.availableScope
-        String nodeDetails = node.details as String
-        assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
-        assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
-        assert nodeDetails.contains("${DETAILS_LABEL_FIELDS}</b><pre><ul><li>Coverages</li><li>Exposure</li><li>StatCode</li></ul></pre>")
-        assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
-        assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
+        assert (node.details as String).contains("${DETAILS_LABEL_FIELDS}</b><pre><ul><li>Coverages</li><li>Exposure</li><li>StatCode</li></ul></pre>")
 
         //Edge from top level node to enum
         Map edge = edges.find { Map edge -> 'FCoverage' == edge.fromName && 'Coverage.Coverages' == edge.toName}
@@ -369,12 +277,9 @@ class RpmVisualizerTest
         assert "Field Coverages cardinality ${V_MIN_CARDINALITY}:${V_MAX_CARDINALITY}".toString() == edge.title
 
         //Enum node under top level node
-        node = nodes.find { Map node1 -> "${VALID_VALUES_FOR_FIELD_SENTENCE_CASE}Coverages on FCoverage".toString() == node1.title}
+        node = checkEnumNodeBasics("${VALID_VALUES_FOR_FIELD_SENTENCE_CASE}Coverages on FCoverage", '', false)
         assert 'rpm.enum.Coverage.Coverages' == node.cubeName
-        assert null == node.label
         assert 'Coverages' == node.fromFieldName
-        assert "${VALID_VALUES_FOR_FIELD_SENTENCE_CASE}Coverages on FCoverage".toString() == node.detailsTitle1
-        assert null == node.detailsTitle2
         assert 'COVERAGE_ENUM' == node.group
         assert '2' == node.level
         assert 'rpm.class.Coverage' == node.sourceCubeName
@@ -382,15 +287,7 @@ class RpmVisualizerTest
         assert enumScope == node.scope
         assert enumScope == node.availableScope
         assert null == node.typesToAdd
-        assert true == node.showCellValuesLink
-        assert false == node.showCellValues
-        assert true == node.cellValuesLoaded
-        nodeDetails = node.details as String
-        assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
-        assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
-        assert nodeDetails.contains("${DETAILS_LABEL_FIELDS}</b><pre><ul><li>CCCoverage</li><li>ICoverage</li></ul></pre>")
-        assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
-        assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
+        assert (node.details as String).contains("${DETAILS_LABEL_FIELDS}</b><pre><ul><li>CCCoverage</li><li>ICoverage</li></ul></pre>")
 
         //Edge from enum to target node
         edge = edges.find { Map edge1 -> 'Coverage.Coverages' == edge1.fromName && 'CCCoverage' == edge1.toName}
@@ -400,28 +297,17 @@ class RpmVisualizerTest
         assert "Valid value CCCoverage cardinality ${V_MIN_CARDINALITY}:${V_MAX_CARDINALITY}".toString() == edge.title
 
         //Target node of top level node
-        node = nodes.find { Map node1 -> 'CCCoverage' == node1.label}
+        node = checkNodeBasics('CCCoverage', 'Coverage', '', '', false)
         assert 'rpm.class.Coverage' == node.cubeName
         assert 'CCCoverage' == node.fromFieldName
-        assert 'Coverage' == node.title
-        assert 'Coverage' == node.detailsTitle1
-        assert 'CCCoverage' == node.detailsTitle2
         assert 'COVERAGE' == node.group
         assert '3' == node.level
         assert 'rpm.enum.Coverage.Coverages' == node.sourceCubeName
         assert 'field Coverages on FCoverage' == node.sourceDescription
         assert ['Coverage', 'Deductible', 'Limit', 'Premium', 'Rate', 'Ratefactor', 'Role'] == node.typesToAdd
-        assert true == node.showCellValuesLink
-        assert false == node.showCellValues
-        assert true == node.cellValuesLoaded
         assert cCoverageScope == node.scope
         assert availableCCCoverageScope == node.availableScope
-        nodeDetails = node.details as String
-        assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
-        assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
-        assert nodeDetails.contains("${DETAILS_LABEL_FIELDS}</b><pre><ul><li>Exposure</li><li>Location</li><li>StatCode</li><li>field1</li><li>field2</li><li>field3</li><li>field4</li></ul></pre>")
-        assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
-        assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
+        assert (node.details as String).contains("${DETAILS_LABEL_FIELDS}</b><pre><ul><li>Exposure</li><li>Location</li><li>StatCode</li><li>field1</li><li>field2</li><li>field3</li><li>field4</li></ul></pre>")
     }
 
     @Test
@@ -471,17 +357,10 @@ class RpmVisualizerTest
         assert nodes.size() == 1
         assert edges.size() == 0
 
-        Map node = nodes.find { Map node -> 'CCCoverage' == node.label}
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
+        Map node = checkNodeBasics('CCCoverage', 'Coverage', '', '', false, true)
         assert nodeScope == node.scope
         assert scope == node.availableScope
         String nodeDetails = node.details as String
-        assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
-        assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
-        assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
-        assert nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
         assert nodeDetails.contains("Exposure</b></li><pre><ul><li>r:declared: true</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
         assert nodeDetails.contains("Location</b></li><pre><ul><li>r:declared: true</li><li>r:exists: true</li><li>r:rpmType: Risk</li><li>v:max: 1</li><li>v:min: 0</li></ul></pre><li><b>")
         assert nodeDetails.contains("StatCode</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: 1133</li><li>r:exists: true</li><li>r:extends: DataElementInventory[StatCode]</li><li>r:rpmType: string</li></ul></pre>")
@@ -986,7 +865,7 @@ class RpmVisualizerTest
         assert 0 == edges.size()
         
         //Check starting node scope prompt
-        Map node = checkScopePromptOnNode('Product', ADDITIONAL_SCOPE_REQUIRED_FOR, 'Product', ADDITIONAL_SCOPE_REQUIRED, true)
+        Map node = checkNodeBasics('Product', 'Product', ADDITIONAL_SCOPE_REQUIRED_FOR, ADDITIONAL_SCOPE_REQUIRED, true)
         checkScopePromptTitle(node, 'product', true, 'rpm.scope.class.Product.traits')
         checkScopePromptDropdown(node, 'product', '', ['AProduct', 'BProduct', 'GProduct', 'UProduct', 'WProduct'], [DEFAULT], SELECT_OR_ENTER_VALUE)
         assert node.availableScope == [_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
@@ -1037,13 +916,13 @@ class RpmVisualizerTest
         assert 7 == edges.size()
         
         //AProduct has no scope prompt
-        Map node = checkScopePromptOnNode('AProduct', '', 'Product', '', false)
+        Map node = checkNodeBasics('AProduct', 'Product', '', '', false)
         checkNoScopePrompt(node)
         assert node.availableScope == [product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
         assert node.scope == [product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
 
         //ARisk has two default scope prompts, no required prompts
-        node = checkScopePromptOnNode('ARisk', '', 'Risk', DEFAULTS_WERE_USED, false)
+        node = checkNodeBasics('ARisk', 'Risk', '', DEFAULTS_WERE_USED, false)
         checkScopePromptTitle(node, 'div', false, 'rpm.scope.class.Risk.traits.fieldARisk')
         checkScopePromptDropdown(node, 'div', DEFAULT, ['div1', DEFAULT], ['div2'], SELECT_OR_ENTER_VALUE)
         checkScopePromptTitle(node, 'state', false, 'rpm.scope.class.Risk.traits.fieldARisk')
@@ -1054,7 +933,7 @@ class RpmVisualizerTest
         assert node.scope == [risk: 'ARisk', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
 
         //BRisk has one required scope prompt, no default prompts
-        node = checkScopePromptOnNode('BRisk', ADDITIONAL_SCOPE_REQUIRED_FOR, 'Risk', ADDITIONAL_SCOPE_REQUIRED, true)
+        node = checkNodeBasics('BRisk', 'Risk', ADDITIONAL_SCOPE_REQUIRED_FOR, ADDITIONAL_SCOPE_REQUIRED, true)
         checkScopePromptTitle(node, 'pgm', true, 'rpm.scope.class.Risk.traits.fieldBRisk')
         checkScopePromptDropdown(node, 'pgm', '', ['pgm3'], ['pgm1', 'pgm2', DEFAULT], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node, 'product')
@@ -1064,7 +943,7 @@ class RpmVisualizerTest
         assert node.scope == new CaseInsensitiveMap()
 
         //ACoverage has two required scope prompts, no default prompts
-        node = checkScopePromptOnNode('ACoverage', ADDITIONAL_SCOPE_REQUIRED_FOR, 'Coverage', ADDITIONAL_SCOPE_REQUIRED, true)
+        node = checkNodeBasics('ACoverage', 'Coverage', ADDITIONAL_SCOPE_REQUIRED_FOR, ADDITIONAL_SCOPE_REQUIRED, true)
         checkScopePromptTitle(node, 'div', true, 'rpm.scope.class.Coverage.traits.fieldACoverage')
         checkScopePromptDropdown(node, 'div', '', ['div1', 'div2'], [DEFAULT], SELECT_OR_ENTER_VALUE)
         checkScopePromptTitle(node, 'pgm', true, 'rpm.scope.class.Coverage.traits.fieldACoverage')
@@ -1076,7 +955,7 @@ class RpmVisualizerTest
 
         //BCoverage has one required scope prompt, one default scope prompt. The default scope prompt doesn't show yet since
         //there is currently a required scope prompt for the node.
-        node = checkScopePromptOnNode('BCoverage', ADDITIONAL_SCOPE_REQUIRED_FOR, 'Coverage', ADDITIONAL_SCOPE_REQUIRED, true)
+        node = checkNodeBasics('BCoverage', 'Coverage', ADDITIONAL_SCOPE_REQUIRED_FOR, ADDITIONAL_SCOPE_REQUIRED, true)
         checkScopePromptTitle(node, 'div', true, 'rpm.scope.class.Coverage.traits.fieldBCoverage')
         checkScopePromptDropdown(node, 'div', '', ['div3'], ['div1', 'div2', DEFAULT], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node, 'product')
@@ -1086,7 +965,7 @@ class RpmVisualizerTest
         assert node.scope == new CaseInsensitiveMap()
 
         //CCoverage has one default scope prompt, no required prompts
-        node = checkScopePromptOnNode('CCoverage', '', 'Coverage', DEFAULTS_WERE_USED, false)
+        node = checkNodeBasics('CCoverage', 'Coverage', '', DEFAULTS_WERE_USED, false)
         checkScopePromptTitle(node, 'state', false, 'rpm.scope.class.Coverage.traits.fieldCCoverage')
         checkScopePromptDropdown(node, 'state', 'Default', ['GA', 'IN', 'NY', DEFAULT], ['KY', 'OH'], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node, 'product')
@@ -1136,7 +1015,7 @@ class RpmVisualizerTest
         assert 0 == edges.size()
 
         //Check starting node scope prompt
-        Map node = checkScopePromptOnNode('XXXProduct', REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR, 'Product', DIFFERENT_VALUE_MUST_BE_PROVIDED, true)
+        Map node = checkNodeBasics('XXXProduct', 'Product', REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR, DIFFERENT_VALUE_MUST_BE_PROVIDED, true)
         checkScopePromptTitle(node, 'product', true, 'rpm.scope.class.Product.traits')
         checkScopePromptDropdown(node, 'product', '', ['AProduct', 'BProduct', 'GProduct', 'UProduct', 'WProduct'], [DEFAULT], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node, 'div')
@@ -1243,19 +1122,19 @@ class RpmVisualizerTest
         assert 7 == edges.size()
 
         //AProduct has no scope prompt
-        Map node = checkScopePromptOnNode('AProduct', '', 'Product', '', false)
+        Map node = checkNodeBasics('AProduct', 'Product', '', '', false)
         checkNoScopePrompt(node)
         assert node.availableScope == [pgm: 'pgm1', div: 'div1', state: 'OH', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
         assert node.scope == [state: 'OH', product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
 
         //ARisk has no scope prompts
-        node = checkScopePromptOnNode('ARisk', '', 'Risk', '', false)
+        node = checkNodeBasics('ARisk', 'Risk', '', '', false)
         checkNoScopePrompt(node)
         assert node.availableScope == [pgm: 'pgm1', div: 'div1', state: 'OH', sourceFieldName: 'Risks', risk: 'ARisk', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
         assert node.scope == [div: 'div1', state: 'OH', risk: 'ARisk', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
 
         //BRisk has required scope prompt since requires pgm=pgm3
-        node = checkScopePromptOnNode('BRisk', REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR, 'Risk', DIFFERENT_VALUE_MUST_BE_PROVIDED, true)
+        node = checkNodeBasics('BRisk', 'Risk', REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR, DIFFERENT_VALUE_MUST_BE_PROVIDED, true)
         checkScopePromptTitle(node, 'pgm', true, 'rpm.scope.class.Risk.traits.fieldBRisk')
         checkScopePromptDropdown(node, 'pgm', '', ['pgm3'], ['pgm1', 'pgm2', DEFAULT], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node, 'product')
@@ -1265,13 +1144,13 @@ class RpmVisualizerTest
         assert node.scope == new CaseInsensitiveMap()
 
         //ACoverage has no scope prompts
-        node = checkScopePromptOnNode('ACoverage', '', 'Coverage', '', false)
+        node = checkNodeBasics('ACoverage', 'Coverage', '', '', false)
         checkNoScopePrompt(node)
         assert node.availableScope == [pgm: 'pgm1', div: 'div1', state: 'OH', coverage: 'ACoverage', sourceFieldName: 'Coverages', risk: 'ARisk', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
         assert node.scope == [pgm: 'pgm1', div: 'div1', coverage: 'ACoverage', risk: 'ARisk', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
 
         //BCoverage has one required scope prompt since requires div=div3.
-        node = checkScopePromptOnNode('BCoverage', REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR, 'Coverage', DIFFERENT_VALUE_MUST_BE_PROVIDED, true)
+        node = checkNodeBasics('BCoverage', 'Coverage', REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR, DIFFERENT_VALUE_MUST_BE_PROVIDED, true)
         checkScopePromptTitle(node, 'div', true, 'rpm.scope.class.Coverage.traits.fieldBCoverage')
         checkScopePromptDropdown(node, 'div', '', ['div3'], ['div1', 'div2', DEFAULT], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node, 'product')
@@ -1281,7 +1160,7 @@ class RpmVisualizerTest
         assert node.scope == new CaseInsensitiveMap()
 
         //CCoverage has one default scope prompt since it doesn't have OH as an optional scope value.
-        node = checkScopePromptOnNode('CCoverage', '', 'Coverage', DEFAULTS_WERE_USED, false)
+        node = checkNodeBasics('CCoverage', 'Coverage', '', DEFAULTS_WERE_USED, false)
         checkScopePromptTitle(node, 'state', false, 'rpm.scope.class.Coverage.traits.fieldCCoverage')
         checkScopePromptDropdown(node, 'state', 'OH', ['GA', 'IN', 'NY', DEFAULT], ['KY', 'OH'], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node, 'product')
@@ -1321,13 +1200,13 @@ class RpmVisualizerTest
         assert 7 == edges.size()
 
         //AProduct has no scope prompt
-        Map node = checkScopePromptOnNode('AProduct', '', 'Product', '', false)
+        Map node = checkNodeBasics('AProduct', 'Product', '', '', false)
         checkNoScopePrompt(node)
         assert node.availableScope == [pgm: 'pgm1', div: 'div3', state: 'OH', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
         assert node.scope == [state: 'OH', product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
 
         //ARisk has default scope prompt since it doesn't have div3 as an optional scope value.
-        node = checkScopePromptOnNode('ARisk', '', 'Risk', DEFAULTS_WERE_USED, false)
+        node = checkNodeBasics('ARisk', 'Risk', '', DEFAULTS_WERE_USED, false)
         checkScopePromptTitle(node, 'div', false, 'rpm.scope.class.Risk.traits.fieldARisk')
         checkScopePromptDropdown(node, 'div', 'div3', ['div1', DEFAULT], ['div2', 'div3'], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node, 'product')
@@ -1337,7 +1216,7 @@ class RpmVisualizerTest
         assert node.scope == [div: 'div3', state: 'OH', risk: 'ARisk', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
 
         //BRisk has required scope prompt since requires pgm=pgm3
-        node = checkScopePromptOnNode('BRisk', REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR, 'Risk', DIFFERENT_VALUE_MUST_BE_PROVIDED, true)
+        node = checkNodeBasics('BRisk', 'Risk', REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR, DIFFERENT_VALUE_MUST_BE_PROVIDED, true)
         checkScopePromptTitle(node, 'pgm', true, 'rpm.scope.class.Risk.traits.fieldBRisk')
         checkScopePromptDropdown(node, 'pgm', '', ['pgm3'], ['pgm1', 'pgm2', DEFAULT], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node, 'product')
@@ -1347,7 +1226,7 @@ class RpmVisualizerTest
         assert node.scope == new CaseInsensitiveMap()
 
         //ACoverage has required scope prompt since requires div1 or div2
-        node = checkScopePromptOnNode('ACoverage', REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR, 'Coverage', DIFFERENT_VALUE_MUST_BE_PROVIDED, true)
+        node = checkNodeBasics('ACoverage', 'Coverage', REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR, DIFFERENT_VALUE_MUST_BE_PROVIDED, true)
         checkScopePromptTitle(node, 'div', true, 'rpm.scope.class.Coverage.traits.fieldACoverage')
         checkScopePromptDropdown(node, 'div', '', ['div1', 'div2'], ['div3', DEFAULT], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node, 'product')
@@ -1357,7 +1236,7 @@ class RpmVisualizerTest
         assert node.scope == new CaseInsensitiveMap()
 
         //BCoverage has one default scope prompt since it doesn't have OH as an optional scope value.
-        node = checkScopePromptOnNode('BCoverage', '', 'Coverage', DEFAULTS_WERE_USED, false)
+        node = checkNodeBasics('BCoverage', 'Coverage', '', DEFAULTS_WERE_USED, false)
         checkScopePromptTitle(node, 'state', false, 'rpm.scope.class.Coverage.traits.fieldBCoverage')
         checkScopePromptDropdown(node, 'state', 'OH', ['KY', 'IN', 'NY', DEFAULT], ['GA', 'OH'], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node, 'product')
@@ -1367,7 +1246,7 @@ class RpmVisualizerTest
         assert node.scope == [div: 'div3', state: 'OH', coverage: 'BCoverage', risk: 'ARisk', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
 
         //CCoverage has one default scope prompt since it doesn't have OH as an optional scope value.
-        node = checkScopePromptOnNode('CCoverage', '', 'Coverage', DEFAULTS_WERE_USED, false)
+        node = checkNodeBasics('CCoverage', 'Coverage', '', DEFAULTS_WERE_USED, false)
         checkScopePromptTitle(node, 'state', false, 'rpm.scope.class.Coverage.traits.fieldCCoverage')
         checkScopePromptDropdown(node, 'state', 'OH', ['GA', 'IN', 'NY', DEFAULT], ['KY', 'OH'], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node, 'product')
@@ -1408,14 +1287,14 @@ class RpmVisualizerTest
         assert edges.size() == 3
 
         //partyrole.LossPrevention has no scope prompt
-        Map node = checkScopePromptOnNode('partyrole.LossPrevention', '', 'partyrole.LossPrevention', '', false)
+        Map node = checkNodeBasics('partyrole.LossPrevention', 'partyrole.LossPrevention', '', '', false)
         String nodeDetails = node.details as String
         checkNoScopePrompt(node)
         assert node.availableScope == [_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
         assert node.scope == [_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
     }
 
-    @Test //TODO
+    @Test
     void testBuildGraph_missingRequiredScope_nonEPM()
     {
         NCube cube = NCubeManager.getCube(appId, 'rpm.class.party.ProfitCenter')
@@ -1423,33 +1302,27 @@ class RpmVisualizerTest
         {
             //Change cube to have declared required scope
             cube.setMetaProperty('requiredScopeKeys', ['dummyRequiredScopeKey'])
-            Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION]
             String startCubeName = 'rpm.class.partyrole.LossPrevention'
+            inputScopeInfo.scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
             Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
 
             buildGraph(options)
             assert 0 == messages.size()
+            String scopeMessage = scopeInfo.scopeMessage
 
-            assert nodes.size() == 4
-            assert edges.size() == 3
+            //Check graph scope prompt
+            assert 0 == scopeInfo.optionalGraphScopeAvailableValues.dummyRequiredScopeKey.size()
+            assert 1 == scopeInfo.optionalGraphScopeCubeNames.dummyRequiredScopeKey.size()
+            assert ['rpm.class.party.ProfitCenter'] as Set== scopeInfo.optionalGraphScopeCubeNames.dummyRequiredScopeKey as Set
+            assert scopeMessage.contains("""<input id="dummyRequiredScopeKey" value="" placeholder="Enter value..." class="scopeInput form-control" """)
+            assert !scopeMessage.contains('<li id="dummyRequiredScopeKey"')
 
-            Map node = nodes.find { Map node -> "${ADDITIONAL_SCOPE_REQUIRED_FOR}party.ProfitCenter".toString() == node.label}
-            assert 'party.ProfitCenter' == node.title
-            assert 'party.ProfitCenter' == node.detailsTitle1
-            assert null == node.detailsTitle2
-            assert false == node.showCellValuesLink
-            assert false == node.showCellValues
-            assert false == node.cellValuesLoaded
-            String nodeDetails = node.details as String
-            assert nodeDetails.contains("${UNABLE_TO_LOAD}fields and traits for party.ProfitCenter")
-            assert nodeDetails.contains('Additional scope is required to load this node')
-            assert nodeDetails.contains('dummyRequiredScopeKey')
-            assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
-            assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
-            assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
-            assert !nodeDetails.contains(DETAILS_LABEL_FIELDS)
-            assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
-            assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
+            //Check node scope prompt
+            Map node = checkNodeBasics('party.ProfitCenter', 'party.ProfitCenter', ADDITIONAL_SCOPE_REQUIRED_FOR, ADDITIONAL_SCOPE_REQUIRED, true)
+            checkScopePromptTitle(node, 'dummyRequiredScopeKey', true, 'rpm.class.party.ProfitCenter')
+            checkScopePromptDropdown(node, 'dummyRequiredScopeKey', '', [], [], ENTER_VALUE)
+            assert node.scope == new CaseInsensitiveMap()
+            assert node.availableScope == [sourceFieldName: 'Parties', _effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
         }
         finally
         {
@@ -1473,10 +1346,7 @@ class RpmVisualizerTest
                          risk             : 'WProductOps']
 
             Map availableNodeScope = new CaseInsensitiveMap(scope)
-            availableNodeScope.sourceFieldName = 'Coverages'
-            availableNodeScope.risk = 'StateOps'
-            availableNodeScope.sourceRisk = 'WProductOps'
-            availableNodeScope.Coverage = 'CCCoverage'
+            availableNodeScope.putAll([sourceFieldName: 'Coverages', risk: 'StateOps', sourceRisk: 'WProductOps', coverage: 'CCCoverage'])
 
             String startCubeName = 'rpm.class.Risk'
             inputScopeInfo.scope = new CaseInsensitiveMap(scope)
@@ -1493,16 +1363,12 @@ class RpmVisualizerTest
             assert !scopeMessage.contains('<li id="dummyRequiredScopeKey"')
 
             //Check node scope prompt
-            Map node = nodes.find {Map node1 ->  "${ADDITIONAL_SCOPE_REQUIRED_FOR}CCCoverage".toString() == node1.label}
-            String nodeDetails = node.details as String
-            assert nodeDetails.contains("${UNABLE_TO_LOAD}fields and traits for CCCoverage")
-            assert nodeDetails.contains(ADDITIONAL_SCOPE_REQUIRED)
-            assert new CaseInsensitiveMap() == node.scope
-            assert availableNodeScope == node.availableScope
-            assert nodeDetails.contains('title="dummyRequiredScopeKey is required by rpm.class.Coverage to load this node"')
-            assert nodeDetails.contains("""<input id="dummyRequiredScopeKey" value="" placeholder="Enter value..." class="scopeInput form-control" """)
-            assert !nodeDetails.contains('<li id="dummyRequiredScopeKey"')
-        }
+            Map node = checkNodeBasics('CCCoverage', 'Coverage', ADDITIONAL_SCOPE_REQUIRED_FOR, ADDITIONAL_SCOPE_REQUIRED, true)
+            checkScopePromptTitle(node, 'dummyRequiredScopeKey', true, 'rpm.class.Coverage')
+            checkScopePromptDropdown(node, 'dummyRequiredScopeKey', '', [], [], ENTER_VALUE)
+            assert node.scope == new CaseInsensitiveMap()
+            assert node.availableScope == availableNodeScope
+         }
         finally
         {
             //Reset cube
@@ -1898,7 +1764,19 @@ class RpmVisualizerTest
         nodes = visInfo.nodes as List
         edges = visInfo.edges as List
     }
-    
+
+    private void getCellValues(Map options)
+    {
+        visInfo?.nodes = []
+        visInfo?.edges = []
+        Map graphInfo = visualizer.getCellValues(appId, options)
+        visInfo = graphInfo.visInfo as RpmVisualizerInfo
+        scopeInfo = graphInfo.scopeInfo as RpmVisualizerScopeInfo
+        messages = visInfo.messages
+        nodes = visInfo.nodes as List
+        edges = visInfo.edges as List
+    }
+
     private void checkRequiredGraphScope(String selectedProductName = '')
     {
         Set<String> scopeKeys = ['policyControlDate', 'quoteDate', '_effectiveVersion', 'product'] as CaseInsensitiveSet
@@ -2039,16 +1917,41 @@ class RpmVisualizerTest
         assert 0 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
     }
 
-    private Map checkScopePromptOnNode(String nodeName, String nodeNamePrefix, String nodeType, String nodeDetailsMessage, boolean missingRequired, boolean showCellValues = false)
+    private Map checkNodeBasics(String nodeName, String nodeType, String nodeNamePrefix, String nodeDetailsMessage, boolean missingRequired = false, boolean showCellValues = false)
     {
         Map node = nodes.find {Map node1 ->  "${nodeNamePrefix}${nodeName}".toString() == node1.label}
-        String nodeDetails = node.details as String
+        checkNodeBasics(node, missingRequired, showCellValues)
         assert nodeType == node.title
         assert nodeType == node.detailsTitle1
-        assert nodeDetails.contains(nodeDetailsMessage)
+        assert (node.details as String).contains(nodeDetailsMessage)
+        if (nodeName == nodeType || missingRequired)  //No detailsTitle2 when missing required scope or a non-EPM class (i.e. nodeName equals nodeType)
+        {
+            assert null == node.detailsTitle2
+        }
+        else
+        {
+            assert nodeName == node.detailsTitle2
+        }
+        return node
+    }
+
+    private Map checkEnumNodeBasics(String nodeTitle, String nodeDetailsMessage, boolean missingRequired, boolean showCellValues = false)
+    {
+        Map node = nodes.find {Map node1 ->  nodeTitle == node1.title}
+        checkNodeBasics(node, missingRequired, showCellValues)
+        assert null == node.label
+        assert nodeTitle == node.detailsTitle1
+        assert null == node.detailsTitle2
+        assert (node.details as String).contains(nodeDetailsMessage)
+        return node
+    }
+
+    private void checkNodeBasics(Map node, boolean missingRequired = false, boolean showCellValues = false)
+    {
+        String nodeDetails = node.details as String
         if (missingRequired)
         {
-            assert nodeDetails.contains("${UNABLE_TO_LOAD}fields and traits for ${nodeName}")
+            assert nodeDetails.contains("${UNABLE_TO_LOAD}fields and traits")
             assert false == node.showCellValuesLink
             assert false == node.cellValuesLoaded
             assert false == node.showCellValues
@@ -2082,18 +1985,6 @@ class RpmVisualizerTest
             assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
             assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
         }
-
-        if (nodeName == nodeType || missingRequired)  //if non-EPM or missingRequired
-        {
-            assert null == node.detailsTitle2
-        }
-        else
-        {
-            assert nodeName == node.detailsTitle2
-        }
-
-
-        return node
     }
 
     private static void checkScopePromptTitle(Map node, String scopeKey, boolean required, String cubeNames)
@@ -2128,6 +2019,12 @@ class RpmVisualizerTest
     {
         String nodeDetails = node.details as String
         assert nodeDetails.contains("""<input id="${scopeKey}" value="${selectedScopeValue}" placeholder="${placeHolder}" class="scopeInput form-control" """)
+        if (!availableScopeValues && !unavailableScopeValues)
+        {
+            assert !nodeDetails.contains("""<li id=""")
+            return
+        }
+
         availableScopeValues.each{String scopeValue ->
             assert nodeDetails.contains("""<li id="${scopeKey}: ${scopeValue}" class="scopeClick" """)
         }
