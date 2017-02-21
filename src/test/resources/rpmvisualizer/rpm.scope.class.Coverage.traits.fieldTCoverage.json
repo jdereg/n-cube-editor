@@ -1,0 +1,93 @@
+{
+  "ncube": "rpm.scope.class.Coverage.traits.fieldTCoverage",
+  "defaultCellValueType": "string",
+  "defaultCellValue": "#NOT_DEFINED",
+  "cube_tags": "EPM",
+  "axes": [
+    {
+      "id": 1,
+      "name": "coverage",
+      "hasDefault": false,
+      "isRef": true,
+      "referenceTenant": "NONE",
+      "referenceApp": "test.visualizer",
+      "referenceVersion": "1.0.4",
+      "referenceStatus": "RELEASE",
+      "referenceBranch": "HEAD",
+      "referenceCubeName": "Coverage",
+      "referenceAxisName": "coverage",
+      "columns": []
+    },
+    {
+      "id": 3,
+      "name": "trait",
+      "hasDefault": false,
+      "type": "DISCRETE",
+      "valueType": "STRING",
+      "preferredOrder": 0,
+      "fireAll": true,
+      "columns": [
+        {
+          "id": 3000000000035,
+          "type": "string",
+          "value": "r:defaultValue"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "points",
+      "hasDefault": false,
+      "type": "DISCRETE",
+      "valueType": "STRING",
+      "preferredOrder": 1,
+      "fireAll": true,
+      "columns": [
+        {
+          "id": 5001683995653,
+          "type": "string",
+          "value": "A"
+        },
+        {
+          "id": 5001175698947,
+          "type": "string",
+          "value": "B"
+        },
+        {
+          "id": 5001479111097,
+          "type": "string",
+          "value": "C"
+        }
+      ]
+    }
+  ],
+  "cells": [
+    {
+      "id": [
+        1000000000060,
+        3000000000035,
+        5001175698947
+      ],
+      "type": "string",
+      "value": "bb"
+    },
+    {
+      "id": [
+        1000000000060,
+        3000000000035,
+        5001683995653
+      ],
+      "type": "string",
+      "value": "aa"
+    },
+    {
+      "id": [
+        1000000000060,
+        3000000000035,
+        5001479111097
+      ],
+      "type": "string",
+      "value": "cc"
+    }
+  ]
+}

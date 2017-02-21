@@ -1257,7 +1257,7 @@ class RpmVisualizerTest
         }
     }
 
-    @Test //TODO: check
+    @Test
     void testGetCellValues_classNode_showCellValues_unboundAxes()
     {
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
@@ -1268,57 +1268,39 @@ class RpmVisualizerTest
                      coverage         : 'CCCoverage',
                      sourceFieldName  : 'Coverages',
                      risk             : 'WProductOps'] as CaseInsensitiveMap
+        inputScopeInfo.scope = new CaseInsensitiveMap(scope)
 
         Map nodeScope = new CaseInsensitiveMap(scope)
         nodeScope.remove('sourceFieldName')
 
-        Map oldNode = [
-                id: '4',
-                cubeName: 'rpm.class.Coverage',
-                fromFieldName: 'CCCoverage',
-                title: 'rpm.class.Coverage',
-                level: '3',
-                label: 'CCCoverage',
-                scope: nodeScope,
-                showCellValues: true,
-                showCellValuesLink: true,
-                cellValuesLoaded: false,
-                availableScope: scope,
-                typesToAdd: [],
-        ]
+        //Build graph
+        String startCubeName = 'rpm.class.Coverage'
+        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+        buildGraph(options)
+        assert nodes.size() == 2
+        Map node = checkNodeBasics('CCCoverage', 'Coverage')
+        checkNoScopePrompt(node)
 
-        RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
-        RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
-        scopeInfo.appId = appId
-        scopeInfo.scope = scope
-        visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
-        visInfo.groupSuffix = '_ENUM'
-        visInfo.availableGroupsAllLevels = [] as Set
-
-        Map options = [node: oldNode, visInfo: visInfo]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        Set<String> messages = visInfo.messages
-        assert 0 == messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
-
-        //TODO: Check scope
-
+        //Simulate that the user clicks Show Traits for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: inputScopeInfo]
+        getCellValues(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
 
-        Map node = nodes.find { Map node -> 'CCCoverage' == node.label}
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
+        node = checkNodeBasics('CCCoverage', 'Coverage', '', DEFAULTS_WERE_USED, false, true)
+        checkScopePromptTitle(node, 'businessDivisionCode', false, 'rpm.scope.class.Coverage.traits.StatCode\nrpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field4')
+        checkScopePromptDropdown(node, 'businessDivisionCode', 'Default', ['AAADIV', 'BBBDIV', DEFAULT], [], SELECT_OR_ENTER_VALUE)
+
+        checkScopePromptTitle(node, 'program', false, 'rpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field4')
+        checkScopePromptDropdown(node, 'program', 'Default', ['program1', 'program2', 'program3', DEFAULT], [], SELECT_OR_ENTER_VALUE)
+
+        checkScopePromptTitle(node, 'type', false, 'rpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field3CovC\nrpm.scope.class.Coverage.traits.field4')
+        checkScopePromptDropdown(node, 'type', 'Default', ['type1', 'type2', 'type3', 'typeA', 'typeB', DEFAULT], [], SELECT_OR_ENTER_VALUE)
+
+        assert node.availableScope == scope
+        assert node.scope == nodeScope
+
         String nodeDetails = node.details as String
-        checkUnboundAxesMessage_CCCoverage(nodeDetails)
-        assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
-        assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
-        assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
-        assert nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
         assert nodeDetails.contains("Exposure</b></li><pre><ul><li>r:declared: true</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
         assert nodeDetails.contains("Location</b></li><pre><ul><li>r:declared: true</li><li>r:exists: true</li><li>r:rpmType: Risk</li><li>v:max: 1</li><li>v:min: 0</li></ul></pre><li><b>")
         assert nodeDetails.contains("StatCode</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: None</li><li>r:exists: true</li><li>r:extends: DataElementInventory[StatCode]</li><li>r:rpmType: string</li></ul></pre><li><b>")
@@ -1329,188 +1311,84 @@ class RpmVisualizerTest
         assert nodeDetails.contains("${DETAILS_LABEL_CLASS_TRAITS}</b><pre><ul><li>r:exists: true</li><li>r:name: CCCoverage</li><li>r:scopedName: CCCoverage</li></ul></pre><br><b>")
     }
 
-    @Test //TODO: check
+    @Test
     void testGetCellValues_classNode_showCellValues_withMissingRequiredScope()
     {
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
                      product          : 'WProduct',
                      policyControlDate: '2017-01-01',
                      quoteDate        : '2017-01-01',
-                     sourceCoverage   : 'FCoverage',
-                     coverage         : 'CCCoverage',
+                     sourceCoverage   : 'AdmCoverage',
+                     coverage         : 'TCoverage',
                      sourceFieldName  : 'Coverages',
                      risk             : 'WProductOps'] as CaseInsensitiveMap
+        inputScopeInfo.scope = new CaseInsensitiveMap(scope)
 
         Map nodeScope = new CaseInsensitiveMap(scope)
         nodeScope.remove('sourceFieldName')
 
-        Map oldNode = [
-                id: '4',
-                cubeName: 'rpm.class.Coverage',
-                fromFieldName: 'CCCoverage',
-                title: 'rpm.class.Coverage',
-                level: '3',
-                label: 'CCCoverage',
-                scope: nodeScope,
-                showCellValues: true,
-                showCellValuesLink: true,
-                cellValuesLoaded: false,
-                availableScope: scope,
-                typesToAdd: [],
-        ]
-
-        RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
-        RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
-        scopeInfo.appId = appId
-        scopeInfo.scope = scope
-        visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
-        visInfo.groupSuffix = '_ENUM'
-        visInfo.availableGroupsAllLevels = [] as Set
-
-        Map options = [node: oldNode, visInfo: visInfo]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        Set<String> messages = visInfo.messages
-        assert 0 == messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
-
-        //TODO: Check scope
-
+        //Build graph
+        String startCubeName = 'rpm.class.Coverage'
+        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+        buildGraph(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
+        Map node = checkNodeBasics('TCoverage', 'Coverage')
+        checkNoScopePrompt(node)
 
-        Map node = nodes.find { Map node -> 'CCCoverage' == node.label}
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
-        String nodeDetails = node.details as String
-        checkUnboundAxesMessage_CCCoverage(nodeDetails)
-        assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
-        assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
-        assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
-        assert nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
-        assert nodeDetails.contains("Exposure</b></li><pre><ul><li>r:declared: true</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("Location</b></li><pre><ul><li>r:declared: true</li><li>r:exists: true</li><li>r:rpmType: Risk</li><li>v:max: 1</li><li>v:min: 0</li></ul></pre><li><b>")
-        assert nodeDetails.contains("StatCode</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: None</li><li>r:exists: true</li><li>r:extends: DataElementInventory[StatCode]</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("field1</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field1</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("field2</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field2</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("field3</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field3</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("field4</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field4</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre></ul></pre>")
-        assert nodeDetails.contains("${DETAILS_LABEL_CLASS_TRAITS}</b><pre><ul><li>r:exists: true</li><li>r:name: CCCoverage</li><li>r:scopedName: CCCoverage</li></ul></pre><br><b>")
-    }
+        //Simulate that the user clicks Show Traits for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: inputScopeInfo]
+        getCellValues(options)
+        assert nodes.size() == 1
 
-    @Test //TODO: check
+        node = checkNodeBasics('TCoverage', 'Coverage', '', ADDITIONAL_SCOPE_REQUIRED, true, true)
+        checkScopePromptTitle(node, 'points', true, 'rpm.scope.class.Coverage.traits.fieldTCoverage')
+        checkScopePromptDropdown(node, 'points', '', ['A', 'B', 'C' ], [DEFAULT], SELECT_OR_ENTER_VALUE)
+
+        assert node.availableScope == scope
+        assert node.scope == nodeScope
+      }
+
+    @Test
     void testGetCellValues_classNode_showCellValues_withInvalidRequiredScope()
     {
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
                      product          : 'WProduct',
                      policyControlDate: '2017-01-01',
                      quoteDate        : '2017-01-01',
-                     sourceCoverage   : 'FCoverage',
-                     coverage         : 'CCCoverage',
+                     sourceCoverage   : 'AdmCoverage',
+                     coverage         : 'TCoverage',
                      sourceFieldName  : 'Coverages',
-                     risk             : 'WProductOps'] as CaseInsensitiveMap
+                     risk             : 'WProductOps',
+                     points           : 'bogus'] as CaseInsensitiveMap
+        inputScopeInfo.scope = new CaseInsensitiveMap(scope)
 
         Map nodeScope = new CaseInsensitiveMap(scope)
         nodeScope.remove('sourceFieldName')
+        nodeScope.remove('points')
 
-        Map oldNode = [
-                id: '4',
-                cubeName: 'rpm.class.Coverage',
-                fromFieldName: 'CCCoverage',
-                title: 'rpm.class.Coverage',
-                level: '3',
-                label: 'CCCoverage',
-                scope: nodeScope,
-                showCellValues: true,
-                showCellValuesLink: true,
-                cellValuesLoaded: false,
-                availableScope: scope,
-                typesToAdd: [],
-        ]
-
-        RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
-        RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
-        scopeInfo.appId = appId
-        scopeInfo.scope = scope
-        visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
-        visInfo.groupSuffix = '_ENUM'
-        visInfo.availableGroupsAllLevels = [] as Set
-
-        Map options = [node: oldNode, visInfo: visInfo]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        Set<String> messages = visInfo.messages
-        assert 0 == messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
-
-        //TODO: Check scope
-
-        assert nodes.size() == 1
-        assert edges.size() == 0
-
-        Map node = nodes.find { Map node -> 'CCCoverage' == node.label}
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
-        String nodeDetails = node.details as String
-        checkUnboundAxesMessage_CCCoverage(nodeDetails)
-        assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
-        assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
-        assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
-        assert nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
-        assert nodeDetails.contains("Exposure</b></li><pre><ul><li>r:declared: true</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("Location</b></li><pre><ul><li>r:declared: true</li><li>r:exists: true</li><li>r:rpmType: Risk</li><li>v:max: 1</li><li>v:min: 0</li></ul></pre><li><b>")
-        assert nodeDetails.contains("StatCode</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: None</li><li>r:exists: true</li><li>r:extends: DataElementInventory[StatCode]</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("field1</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field1</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("field2</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field2</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("field3</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field3</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("field4</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field4</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre></ul></pre>")
-        assert nodeDetails.contains("${DETAILS_LABEL_CLASS_TRAITS}</b><pre><ul><li>r:exists: true</li><li>r:name: CCCoverage</li><li>r:scopedName: CCCoverage</li></ul></pre><br><b>")
-    }
-
-    @Test //TODO
-    void testBuildGraph_unboundAxes()
-    {
-        Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
-                     product:'WProduct',
-                     policyControlDate:'2017-01-01',
-                     quoteDate:'2017-01-01',
-                     businessDivisionCode: 'bogusDIV']
-
-        String startCubeName = 'rpm.class.Product'
+        //Build graph
+        String startCubeName = 'rpm.class.Coverage'
         Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
-
         buildGraph(options)
-        String scopeMessage = scopeInfo.scopeMessage
-        //TODO:
-        //assert scopeMessage.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}the graph.")
-        //assert scopeMessage.contains('<div id="businessDivisionCode" title="The default for businessDivisionCode was utilized on rpm.scope.enum.Risk.Risks.traits, rpm.scope.enum.Risk.Coverages.traits')
-        // assert scopeMessage.contains("A different scope value may be supplied for businessDivisionCode:")
-        //assert scopeMessage.contains('<option>Default (bogusDIV provided, but not found)</option>')
-        assert scopeMessage.contains('<option id="businessDivisionCode: null">Default</option>')
-        assert scopeMessage.contains('<option id="businessDivisionCode: AAADIV" >AAADIV</option>')
-        assert scopeMessage.contains('<option id="businessDivisionCode: BBBDIV" >BBBDIV</option>')
+        assert nodes.size() == 1
+        Map node = checkNodeBasics('TCoverage', 'Coverage')
+        checkNoScopePrompt(node)
 
+        //Simulate that the user clicks Show Traits for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: inputScopeInfo]
+        getCellValues(options)
+        assert nodes.size() == 1
 
-        List<Map<String, Object>> nodes = visInfo.nodes as List
+        node = checkNodeBasics('TCoverage', 'Coverage', '', DIFFERENT_VALUE_MUST_BE_PROVIDED, true, true)
+        checkScopePromptTitle(node, 'points', true, 'rpm.scope.class.Coverage.traits.fieldTCoverage')
+        checkScopePromptDropdown(node, 'points', '', ['A', 'B', 'C' ], [DEFAULT], SELECT_OR_ENTER_VALUE)
 
-        Map node = nodes.find { Map node1 -> "${VALID_VALUES_FOR_FIELD_SENTENCE_CASE}Risks on WProductOps".toString() == node1.title}
-        String nodeDetails = node.details as String
-        //assert nodeDetails.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}${VALID_VALUES_FOR_FIELD_LOWER_CASE}Risks on WProductOps.")
-        //TODO:
-        // assert nodeDetails.contains('<div id="businessDivisionCode" title="The default for businessDivisionCode was utilized on rpm.scope.enum.Risk.Risks.traits')
-        // assert nodeDetails.contains("A different scope value may be supplied for businessDivisionCode:")
-        // assert nodeDetails.contains('<option>Default (bogusDIV provided, but not found)</option>')
-        assert nodeDetails.contains('<option id="businessDivisionCode: null">Default</option>')
-        assert nodeDetails.contains('<option id="businessDivisionCode: AAADIV" >AAADIV</option>')
-        assert nodeDetails.contains('<option id="businessDivisionCode: BBBDIV" >BBBDIV</option>')
-
+        assert node.availableScope == scope
+        assert node.scope == nodeScope
     }
+
 
     @Test //TODO
     void testBuildGraph_unboundAxes_defaultIsOnlyValue()
@@ -1808,7 +1686,11 @@ class RpmVisualizerTest
         assert nodeType == node.title
         assert nodeType == node.detailsTitle1
         assert (node.details as String).contains(nodeDetailsMessage)
-        if (nodeName == nodeType || unableToLoad)  //No detailsTitle2 when missing required scope or a non-EPM class (i.e. nodeName equals nodeType)
+        if (showCellValues)
+        {
+            assert nodeName == node.detailsTitle2
+        }
+        else if (nodeName == nodeType || unableToLoad)  //No detailsTitle2 when missing required scope or a non-EPM class (i.e. nodeName equals nodeType)
         {
             assert null == node.detailsTitle2
         }
@@ -1819,10 +1701,10 @@ class RpmVisualizerTest
         return node
     }
 
-    private Map checkEnumNodeBasics(String nodeTitle, String nodeDetailsMessage = '', boolean missingRequired = false, boolean showCellValues = false)
+    private Map checkEnumNodeBasics(String nodeTitle, String nodeDetailsMessage = '', boolean unableToLoad = false, boolean showCellValues = false)
     {
         Map node = nodes.find {Map node1 ->  nodeTitle == node1.title}
-        checkNodeAndEnumNodeBasics(node, missingRequired, showCellValues)
+        checkNodeAndEnumNodeBasics(node, unableToLoad, showCellValues)
         assert null == node.label
         assert nodeTitle == node.detailsTitle1
         assert null == node.detailsTitle2
@@ -1833,12 +1715,34 @@ class RpmVisualizerTest
     private static void checkNodeAndEnumNodeBasics(Map node, boolean unableToLoad = false, boolean showCellValues = false)
     {
         String nodeDetails = node.details as String
-        if (unableToLoad)
+        if (showCellValues && unableToLoad)
         {
-            assert nodeDetails.contains("${UNABLE_TO_LOAD}fields and traits")
+            assert false == node.showCellValuesLink
+            assert false == node.cellValuesLoaded
+            assert true == node.showCellValues
+        }
+        else if (unableToLoad)
+        {
             assert false == node.showCellValuesLink
             assert false == node.cellValuesLoaded
             assert false == node.showCellValues
+        }
+        else if (showCellValues)
+        {
+            assert true == node.showCellValuesLink
+            assert true == node.cellValuesLoaded
+            assert true == node.showCellValues
+        }
+        else
+        {
+            assert true == node.showCellValuesLink
+            assert true == node.cellValuesLoaded
+            assert false == node.showCellValues
+        }
+
+        if (unableToLoad)
+        {
+            assert nodeDetails.contains("${UNABLE_TO_LOAD}fields and traits")
             assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
             assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
             assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
@@ -1849,9 +1753,6 @@ class RpmVisualizerTest
         else if (showCellValues)
         {
             assert !nodeDetails.contains(UNABLE_TO_LOAD)
-            assert true == node.showCellValuesLink
-            assert true == node.cellValuesLoaded
-            assert true == node.showCellValues
             assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
             assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
             assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
@@ -1861,9 +1762,6 @@ class RpmVisualizerTest
         else
         {
             assert !nodeDetails.contains(UNABLE_TO_LOAD)
-            assert true == node.showCellValuesLink
-            assert true == node.cellValuesLoaded
-            assert false == node.showCellValues
             assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
             assert nodeDetails.contains(DETAILS_LABEL_FIELDS)
             assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
@@ -1889,8 +1787,7 @@ class RpmVisualizerTest
         {
             if (cubeNames)
             {
-                assert nodeDetails.contains("""title="${scopeKey} is optional to load this node. Used on:""")
-                assert nodeDetails.contains(cubeNames)
+                assert nodeDetails.contains("""title="${scopeKey} is optional to load this node. Used on:\n${cubeNames}""")
             }
             else
             {
@@ -1923,30 +1820,6 @@ class RpmVisualizerTest
         assert !nodeDetails.contains("""title="${scopeKey}""")
         assert !nodeDetails.contains("""<input id="${scopeKey}""")
         assert !nodeDetails.contains("""<li id="${scopeKey}""")
-    }
-
-    private static void checkUnboundAxesMessage_CCCoverage(String message)
-    {
-        //TODO:
-        //assert message.contains("${OPTIONAL_SCOPE_AVAILABLE_TO_LOAD}CCCoverage of type Coverage.")
-
-        //assert message.contains("${ADD_SCOPE_VALUE_FOR_OPTIONAL_KEY}businessDivisionCode")
-        assert message.contains('AAADIV')
-        assert message.contains('BBBDIV')
-
-        //assert message.contains("${ADD_SCOPE_VALUE_FOR_OPTIONAL_KEY}program")
-        assert message.contains('program1')
-        assert message.contains('program2')
-        assert message.contains('program3')
-
-        // assert message.contains("${ADD_SCOPE_VALUE_FOR_OPTIONAL_KEY}type")
-        assert message.contains('type1')
-        assert message.contains('type2')
-        assert message.contains('type3')
-        assert message.contains('typeA')
-        assert message.contains('typeB')
-
-        // assert message.contains('<option>Default (no value provided)</option>')
     }
 
     private checkValidRpmClass( String startCubeName)
