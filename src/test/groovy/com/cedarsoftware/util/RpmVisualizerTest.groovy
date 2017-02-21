@@ -570,7 +570,8 @@ class RpmVisualizerTest
     @Test
     void testBuildGraph_validRpmClass_notStartWithRpmClass()
     {
-        String startCubeName = 'ValidRpmClass'
+        String startCubeName = 'rpm.klutz.ValidRpmClass'
+        createNCubeWithValidRpmClass(startCubeName)
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
         inputScopeInfo.scope = scope
         Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
@@ -579,6 +580,20 @@ class RpmVisualizerTest
         assert 1 == messages.size()
         String message = messages.first()
         assert "Starting cube for visualization must begin with 'rpm.class', n-cube ${startCubeName} does not.".toString() == message
+    }
+
+    @Test
+    void testBuildGraph_validRpmClass_startCubeNotFound()
+    {
+        String startCubeName = 'ValidRpmClass'
+        Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
+        inputScopeInfo.scope = scope
+        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+
+        buildGraph(options, true)
+        assert 1 == messages.size()
+        String message = messages.first()
+        assert "No cube exists with name of ${startCubeName} for application id ${appId.toString()}".toString() == message
     }
 
     @Test
@@ -713,7 +728,7 @@ class RpmVisualizerTest
             Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
             buildGraph(options)
 
-            Map node = checkNodeBasics('FCoverage', 'Coverage', UNABLE_TO_LOAD, 'An exception was thrown while loading this node.', true)
+            Map node = checkNodeBasics('FCoverage', 'Coverage', UNABLE_TO_LOAD, 'An exception was thrown while loading this class.', true)
             String nodeDetails = node.details as String
             assert nodeDetails.contains(DETAILS_LABEL_MESSAGE)
             assert nodeDetails.contains(DETAILS_LABEL_ROOT_CAUSE)
@@ -1656,7 +1671,7 @@ class RpmVisualizerTest
         assert ['rpm.scope.class.Product.traits'] as Set== scopeInfo.requiredGraphScopeCubeNames.product as Set
 
         String scopeMessage = scopeInfo.scopeMessage
-        assert scopeMessage.contains(REQUIRED_SCOPE_TO_LOAD_GRAPH)
+        assert scopeMessage.contains(REQUIRED_SCOPE_TO_LOAD_VISUALIZATION)
         checkScopePromptTitle(scopeMessage, 'policyControlDate', true)
         checkScopePromptTitle(scopeMessage, 'quoteDate', true)
         checkScopePromptTitle(scopeMessage, '_effectiveVersion', true)
@@ -1674,7 +1689,7 @@ class RpmVisualizerTest
 
         if (selectedProductName)
         {
-            assert scopeMessage.contains(OPTIONAL_SCOPE_IN_GRAPH)
+            assert scopeMessage.contains(OPTIONAL_SCOPE_IN_VISUALIZATION)
             assert 3 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
             assert scopeInfo.optionalGraphScopeAvailableValues.keySet().containsAll(scopeKeys)
             assert 3 == scopeInfo.optionalGraphScopeAvailableValues.pgm.size()
@@ -1725,7 +1740,7 @@ class RpmVisualizerTest
         }
         else
         {
-            assert scopeMessage.contains(NO_OPTIONAL_SCOPE_IN_GRAPH)
+            assert scopeMessage.contains(NO_OPTIONAL_SCOPE_IN_VISUALIZATION)
             assert 0 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
             assert 0 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
         }
@@ -1743,11 +1758,11 @@ class RpmVisualizerTest
         assert 0 == scopeInfo.requiredGraphScopeCubeNames._effectiveVersion.size()
 
         String scopeMessage = scopeInfo.scopeMessage
-        assert scopeMessage.contains(REQUIRED_SCOPE_TO_LOAD_GRAPH)
-        assert scopeMessage.contains('title="_effectiveVersion is required to load the graph"')
+        assert scopeMessage.contains(REQUIRED_SCOPE_TO_LOAD_VISUALIZATION)
+        assert scopeMessage.contains('title="_effectiveVersion is required to load the visualization"')
         assert scopeMessage.contains("""<input id="_effectiveVersion" value="${ApplicationID.DEFAULT_VERSION}" placeholder="Select or enter value..." class="scopeInput form-control" """)
 
-        assert scopeMessage.contains(NO_OPTIONAL_SCOPE_IN_GRAPH)
+        assert scopeMessage.contains(NO_OPTIONAL_SCOPE_IN_VISUALIZATION)
         assert 0 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
         assert 0 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
     }
@@ -1848,22 +1863,22 @@ class RpmVisualizerTest
         {
             if (cubeNames)
             {
-                assert message.contains("""title="${scopeKey} is required by ${cubeNames} to load this node""")
+                assert message.contains("""title="${scopeKey} is required by ${cubeNames} to load this class""")
             }
             else
             {
-                assert message.contains("""title="${scopeKey} is required to load the graph""")
+                assert message.contains("""title="${scopeKey} is required to load the visualization""")
             }
         }
         else
         {
             if (cubeNames)
             {
-                assert message.contains("""title="${scopeKey} is optional to load this node. Used on:\n${cubeNames}""")
+                assert message.contains("""title="${scopeKey} is optional to load this class. Used on:\n${cubeNames}""")
             }
             else
             {
-                assert message.contains("""title="${scopeKey} is optional to load the graph, but may be required for some nodes""")
+                assert message.contains("""title="${scopeKey} is optional to load the visualization, but may be required for some classes""")
             }
         }
     }

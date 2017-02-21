@@ -645,11 +645,7 @@ var Visualizer = (function ($) {
         }
         else {
              _visualizerContent.hide();
-            message = json.message;
-            if (null !== json.stackTrace) {
-                message = message + TWO_LINE_BREAKS + json.stackTrace
-            }
-            _nce.showNote('Failed to load visualizer: ' + TWO_LINE_BREAKS + message);
+            displayMessages(json.visInfo.messages);
         }
         $("#dataLoadStatus").val(COMPLETE);
         $("#dataLoadDuration").val(Math.round(performance.now() - _dataLoadStart));

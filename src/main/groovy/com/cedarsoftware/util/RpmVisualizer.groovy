@@ -266,6 +266,11 @@ class RpmVisualizer extends Visualizer
 	@Override
 	protected boolean isValidStartCube(VisualizerInfo visInfo, String cubeName)
 	{
+		if (!super.isValidStartCube(visInfo, cubeName))
+		{
+			return false
+		}
+
 		if (!cubeName.startsWith(RPM_CLASS_DOT))
 		{
 			visInfo.messages << "Starting cube for visualization must begin with 'rpm.class', n-cube ${cubeName} does not.".toString()

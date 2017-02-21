@@ -60,4 +60,16 @@ class RpmVisualizerScopeInfo extends VisualizerScopeInfo
 			requiredGraphScopeAvailableValues[EFFECTIVE_VERSION] = new LinkedHashSet(values)
 		}
 	}
+
+	@Override
+	protected String getNodesLabel()
+	{
+		return 'classes'
+	}
+
+	@Override
+	protected String getNodeLabel()
+	{
+		return 'class'
+	}
 }

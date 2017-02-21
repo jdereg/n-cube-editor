@@ -215,6 +215,12 @@ class Visualizer
 
 	protected boolean isValidStartCube(VisualizerInfo visInfo, String cubeName)
 	{
+		NCube cube = NCubeManager.getCube(appId, cubeName)
+		if (!cube)
+		{
+			visInfo.messages << "No cube exists with name of ${cubeName} for application id ${appId.toString()}".toString()
+			return false
+		}
 		return true
 	}
 }

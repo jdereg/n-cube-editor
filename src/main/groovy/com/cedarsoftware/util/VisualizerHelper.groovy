@@ -91,7 +91,7 @@ class VisualizerHelper
 		{
 			availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey)
 		}
-		StringBuilder title = new StringBuilder("${scopeKey} is required by ${cubeName} to load this node")
+		StringBuilder title = new StringBuilder("${scopeKey} is required by ${cubeName} to load this ${scopeInfo.nodeLabel}")
 		sb.append(scopeInfo.getScopeMessage(scopeKey, availableValues, title, providedScopeValue))
 		return sb.append(BREAK)
 	}

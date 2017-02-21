@@ -353,7 +353,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			}
 			else
 			{
-				handleException(t)
+				handleException(t, scopeInfo)
 			}
 		}
 		return true
@@ -386,9 +386,9 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		targetTraits = new CaseInsensitiveMap()
 	}
 
-	private void handleException(Throwable e)
+	private void handleException(Throwable e, VisualizerScopeInfo scopeInfo)
 	{
-		StringBuilder sb = new StringBuilder("<b>An exception was thrown while loading this node. </b>  ${DOUBLE_BREAK}")
+		StringBuilder sb = new StringBuilder("<b>An exception was thrown while loading this ${scopeInfo.nodeLabel}. </b>  ${DOUBLE_BREAK}")
 		sb.append(helper.handleException(e))
 		notes << sb.toString()
 		nodeLabelPrefix = "Unable to load "

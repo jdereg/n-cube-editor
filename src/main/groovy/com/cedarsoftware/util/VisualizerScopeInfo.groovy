@@ -121,13 +121,13 @@ class VisualizerScopeInfo
 			if (requiredGraphScopeAvailableValues)
 			{
 				Map<String, Set<Object>> sorted = requiredGraphScopeAvailableValues.sort()
-				sb.append("<b>Required scope to load graph</b>")
+				sb.append("<b>Required scope to load visualization</b>")
 				sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
 				sb.append(getRequiredGraphScopeMessage(sorted))
 			}
 			else
 			{
-				sb.append("<b>No required scope to load the graph</b>")
+				sb.append("<b>No required scope to load the visualization</b>")
 				sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
 			}
 			sb.append("${DOUBLE_BREAK}")
@@ -135,13 +135,13 @@ class VisualizerScopeInfo
 			if (optionalGraphScopeAvailableValues)
 			{
 				Map<String, Set<Object>> sorted = optionalGraphScopeAvailableValues.sort()
-				sb.append("<b>Optional scope in graph</b>")
+				sb.append("<b>Optional scope in visualization</b>")
 				sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
 				sb.append(getOptionalGraphScopeMessage(sorted))
 			}
 			else
 			{
-				sb.append("<b>No optional scope in the graph</b>")
+				sb.append("<b>No optional scope in the visualization</b>")
 				sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
 			}
 			sb.append("${DOUBLE_BREAK}")
@@ -150,7 +150,7 @@ class VisualizerScopeInfo
 			displayScopeMessage = true
 		}
 		else{
-			sb.append("No required or optional scope in the graph.")
+			sb.append("No required or optional scope in the visualization.")
 			displayScopeMessage = false
 		}
 		scopeMessage = sb.toString()
@@ -163,7 +163,8 @@ class VisualizerScopeInfo
 			sb.append(BREAK)
 			Set<String> cubeNames = optionalGraphScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
-			StringBuilder title = new StringBuilder("${scopeKey} is optional to load the graph, but may be required for some nodes")
+			StringBuilder title = new StringBuilder("${scopeKey} is optional to load the visualization, but may be required for some ${nodesLabel}")
+			title.append(addCubeNamesList('.\nFirst encountered on the following cubes, but may also be present on others:', cubeNames))
 			sb.append(getScopeMessage(scopeKey, availableValues[scopeKey], title, scope[scopeKey]))
 		}
 		return sb
@@ -176,7 +177,8 @@ class VisualizerScopeInfo
 			sb.append(BREAK)
 			Set<String> cubeNames =  requiredGraphScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
-			StringBuilder title = new StringBuilder("${scopeKey} is required to load the graph")
+			StringBuilder title = new StringBuilder("${scopeKey} is required to load the visualization")
+			title.append(addCubeNamesList('.\nFirst encountered on the following cubes, but may also be present on others:', cubeNames))
 			sb.append(getScopeMessage(scopeKey, availableValues[scopeKey], title, scope[scopeKey]))
 		}
 		return sb
@@ -187,7 +189,7 @@ class VisualizerScopeInfo
 		StringBuilder sb = new StringBuilder("<b>Defaults were used for the following scope keys. Different values may be provided:${DOUBLE_BREAK}")
 		nodeAvailableValues.keySet().each { String scopeKey ->
 			Set<String> cubeNames = nodeCubeNames[scopeKey]
-			StringBuilder title = new StringBuilder("${scopeKey} is optional to load this node")
+			StringBuilder title = new StringBuilder("${scopeKey} is optional to load this ${nodeLabel}")
 			title.append(addCubeNamesList('. Used on:', cubeNames))
 			Set<Object> availableValues = nodeAvailableValues[scopeKey]
 			sb.append(getScopeMessage(scopeKey, availableValues, title, scope[scopeKey]))
@@ -246,5 +248,15 @@ class VisualizerScopeInfo
 			}
 		}
 		return sb
+	}
+
+	protected String getNodesLabel()
+	{
+		return 'cubes'
+	}
+
+	protected String getNodeLabel()
+	{
+		return 'cube'
 	}
 }
