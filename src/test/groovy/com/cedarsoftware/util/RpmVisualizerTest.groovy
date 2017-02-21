@@ -26,6 +26,7 @@ class RpmVisualizerTest
     static final String DETAILS_LABEL_FIELDS_AND_TRAITS = 'Fields and traits'
     static final String DETAILS_LABEL_CLASS_TRAITS = 'Class traits'
     static final String VALID_VALUES_FOR_FIELD_SENTENCE_CASE = 'Valid values for field '
+    static final String VALID_VALUES_FOR_FIELD_LOWER_CASE = 'valid values for field '
 
     static final String defaultScopeDate = DATE_TIME_FORMAT.format(new Date())
     
@@ -310,7 +311,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testGetCellValues_classNode_showCellValues()
+    void testGetCellValues_classNode_show()
     {
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
                           product          : 'WProduct',
@@ -354,7 +355,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testGetCellValues_classNode_showCellValues_withURLs()
+    void testGetCellValues_classNode_show_URLs()
     {
         String httpsURL = 'https://mail.google.com'
         String fileURL = 'file:///C:/Users/bheekin/Desktop/honey%20badger%20thumbs%20up.jpg'
@@ -400,7 +401,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testGetCellValues_enumNode_showCellValues()
+    void testGetCellValues_enumNode_show()
     {
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
                      product          : 'WProduct',
@@ -434,7 +435,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testGetCellValues_classNode_hideCellValues()
+    void testGetCellValues_classNode_hide()
     {
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
                      product          : 'WProduct',
@@ -727,7 +728,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_graphScopePrompt_initial()
+    void testBuildGraph_scopePrompt_graph_initial()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -747,7 +748,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_nodeScopePrompts_initial()
+    void testBuildGraph_scopePrompt_nodes_initial()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -767,7 +768,7 @@ class RpmVisualizerTest
     }
     
     @Test 
-    void testBuildGraph_graphScopePrompt_afterProductSelected()
+    void testBuildGraph_scopePrompt_graph_afterProductSelected()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -792,7 +793,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_nodeScopePrompts_afterProductSelected()
+    void testBuildGraph_scopePrompt_nodes_afterProductSelected()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -884,7 +885,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_graphScopePrompt_afterInvalidProductEntered()
+    void testBuildGraph_scopePrompt_graph_afterInvalidProductEntered()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -905,7 +906,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_nodeScopePrompts_afterInvalidProductEntered()
+    void testBuildGraph_scopePrompt_nodes_afterInvalidProductEntered()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -933,7 +934,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_graphScopePrompt_afterProductSelected_afterOptionalGraphScopeSelected_once()
+    void testBuildGraph_scopePrompt_graph_afterProductSelected_afterOptionalGraphScopeSelected_once()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -965,7 +966,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_graphScopePrompt_afterProductSelected_afterOptionalGraphScopeSelected_twice()
+    void testBuildGraph_scopePrompt_graph_afterProductSelected_afterOptionalGraphScopeSelected_twice()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -1003,7 +1004,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_nodeScopePrompts_afterProductSelected_afterOptionalGraphScopeSelected_once()
+    void testBuildGraph_scopePrompt_nodes_afterProductSelected_afterOptionalGraphScopeSelected_once()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -1084,7 +1085,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_nodeScopePrompts_afterProductSelected_afterOptionalGraphScopeSelected_twice()
+    void testBuildGraph_scopePrompt_nodes_afterProductSelected_afterOptionalGraphScopeSelected_twice()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -1185,7 +1186,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_graphScopePrompt_initial_nonEPM()
+    void testBuildGraph_scopePrompt_graph_initial_nonEPM()
     {
         String startCubeName = 'rpm.class.partyrole.LossPrevention'
         inputScopeInfo.scope = new CaseInsensitiveMap()
@@ -1202,7 +1203,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_nodeScopePrompt_initial_nonEPM()
+    void testBuildGraph_scopePrompt_nodes_initial_nonEPM()
     {
         String startCubeName = 'rpm.class.partyrole.LossPrevention'
         inputScopeInfo.scope = new CaseInsensitiveMap()
@@ -1220,7 +1221,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_missingRequiredScope_nonEPM()
+    void testBuildGraph_scopePrompt_missingRequiredScope_nonEPM()
     {
         NCube cube = NCubeManager.getCube(appId, 'rpm.class.party.ProfitCenter')
         try
@@ -1257,7 +1258,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_missingDeclaredRequiredScope()
+    void testBuildGraph_scopePrompt_missingDeclaredRequiredScope()
     {
         NCube cube = NCubeManager.getCube(appId, 'rpm.class.Coverage')
         try
@@ -1302,7 +1303,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testGetCellValues_classNode_showCellValues_unboundAxes()
+    void testGetCellValues_classNode_show_unboundAxes()
     {
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
                      product          : 'WProduct',
@@ -1356,7 +1357,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testGetCellValues_classNode_showCellValues_withMissingRequiredScope()
+    void testGetCellValues_classNode_show_missingRequiredScope()
     {
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
                      product          : 'WProduct',
@@ -1395,7 +1396,7 @@ class RpmVisualizerTest
       }
 
     @Test
-    void testGetCellValues_classNode_showCellValues_withInvalidRequiredScope()
+    void testGetCellValues_classNode_show_invalidRequiredScope()
     {
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
                      product          : 'WProduct',
@@ -1437,29 +1438,114 @@ class RpmVisualizerTest
 
 
     @Test
-    void testBuildGraph_unboundAxes_defaultIsOnlyValue()
+    void testBuildGraph_scopePrompt_enumWithSingleDefaultValue()
     {
-        String startCubeName = 'rpm.class.Risk'
+        String startCubeName = 'rpm.class.Product'
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
                      product:'BProduct',
-                     risk: 'DRisk',
                      policyControlDate:'2017-01-01',
                      quoteDate:'2017-01-01']
         inputScopeInfo.scope = new CaseInsensitiveMap(scope)
+
+        Map nodeScope = new CaseInsensitiveMap(scope)
+        nodeScope.risk = 'DRisk'
+
+        Map availableScope = new CaseInsensitiveMap(nodeScope)
+        availableScope.sourceFieldName = 'Risks'
+
         Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
         buildGraph(options)
+        assert 4 == nodes.size()
+        assert 3 == edges.size()
+
+        //The edge for field Risks from BProduct to enum Product.Risks
+        Map edge = edges.find { Map edge -> 'BProduct' == edge.fromName && 'Product.Risks' == edge.toName}
+        assert 'Risks' == edge.label
+        assert "Field Risks cardinality ${V_MIN_CARDINALITY}:${V_MAX_CARDINALITY}".toString() == edge.title
 
         Map node = checkNodeBasics('DRisk', 'Risk', '', DEFAULTS_WERE_USED, false)
         String nodeDetails = node.details as String
         checkScopePromptTitle(nodeDetails, 'state', false, 'rpm.scope.class.Risk.traits.fieldDRisk')
         checkScopePromptDropdown(nodeDetails as String, 'state', 'Default', [DEFAULT], [], SELECT_OR_ENTER_VALUE)
 
-        assert node.availableScope == scope
-        assert node.scope == scope
+        assert node.availableScope == availableScope
+        assert node.scope == nodeScope
     }
 
     @Test
-    void testBuildGraph_unboundAxes_withDerivedScopeKey_topNode()
+    void testBuildGraph_scopePrompt_enumWithMissingRequiredScope()
+    {
+        String startCubeName = 'rpm.class.Risk'
+        Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
+                     product:'BProduct',
+                     risk: 'DRisk',
+                     policyControlDate:'2017-01-01',
+                     quoteDate:'2017-01-01'] as CaseInsensitiveMap
+        inputScopeInfo.scope = new CaseInsensitiveMap(scope)
+
+        Map availableScope = new CaseInsensitiveMap(scope)
+        availableScope.sourceFieldName = 'Coverages'
+
+        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+        buildGraph(options)
+        assert 2 == nodes.size()
+        assert 1 == edges.size()
+
+        //The edge for field Coverages from DRisk to enum Risk.Coverages
+        Map edge = edges.find { Map edge -> 'DRisk' == edge.fromName && 'Risk.Coverages' == edge.toName}
+        assert "${ADDITIONAL_SCOPE_REQUIRED_FOR}Coverages".toString() == edge.label
+        assert "Field Coverages cardinality ${V_MIN_CARDINALITY}:${V_MAX_CARDINALITY}".toString() == edge.title
+
+        //Risk.Coverages enum has one required prompt
+        Map node = checkEnumNodeBasics("${ADDITIONAL_SCOPE_REQUIRED_FOR}${VALID_VALUES_FOR_FIELD_LOWER_CASE}Coverages on DRisk", ADDITIONAL_SCOPE_REQUIRED, true)
+        String nodeDetails = node.details as String
+        checkScopePromptTitle(nodeDetails, 'pgm', true, 'rpm.scope.enum.Risk.Coverages.traits.exists')
+        checkScopePromptDropdown(nodeDetails, 'pgm', '', ['pgm1', 'pgm2', 'pgm3' ], [DEFAULT], SELECT_OR_ENTER_VALUE)
+        checkNoScopePrompt(node.details as String, 'state')
+
+        assert node.availableScope == availableScope
+        assert node.scope == new CaseInsensitiveMap()
+    }
+
+    @Test
+    void testBuildGraph_scopePrompt_enumWithInvalidRequiredScope()
+    {
+        String startCubeName = 'rpm.class.Risk'
+        Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
+                     product:'BProduct',
+                     risk: 'DRisk',
+                     pgm: 'pgm4',
+                     policyControlDate:'2017-01-01',
+                     quoteDate:'2017-01-01'] as CaseInsensitiveMap
+        inputScopeInfo.scope = new CaseInsensitiveMap(scope)
+
+        Map availableScope = new CaseInsensitiveMap(scope)
+        availableScope.sourceFieldName = 'Coverages'
+
+        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+        buildGraph(options)
+        assert 2 == nodes.size()
+        assert 1 == edges.size()
+
+        //The edge for field Coverages from DRisk to enum Risk.Coverages
+        Map edge = edges.find { Map edge -> 'DRisk' == edge.fromName && 'Risk.Coverages' == edge.toName}
+        assert "${REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR}Coverages".toString() == edge.label
+        assert "Field Coverages cardinality ${V_MIN_CARDINALITY}:${V_MAX_CARDINALITY}".toString() == edge.title
+
+        //Risk.Coverages enum has one required prompt
+        Map node = checkEnumNodeBasics("${REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR}${VALID_VALUES_FOR_FIELD_LOWER_CASE}Coverages on DRisk", DIFFERENT_VALUE_MUST_BE_PROVIDED, true)
+        String nodeDetails = node.details as String
+        checkScopePromptTitle(nodeDetails, 'pgm', true, 'rpm.scope.enum.Risk.Coverages.traits.exists')
+        checkScopePromptDropdown(nodeDetails, 'pgm', '', ['pgm1', 'pgm2', 'pgm3' ], [DEFAULT], SELECT_OR_ENTER_VALUE)
+        checkNoScopePrompt(node.details as String, 'state')
+
+        assert node.availableScope == availableScope
+        assert node.scope == new CaseInsensitiveMap()
+    }
+
+
+    @Test
+    void testBuildGraph_scopePrompt_derivedScopeKey_topNode()
     {
         String startCubeName = 'rpm.class.Risk'
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
@@ -1489,7 +1575,7 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_unboundAxes_withDerivedScopeKey_notTopNode()
+    void testBuildGraph_scopePrompt_derivedScopeKey_notTopNode()
     {
         String startCubeName = 'rpm.class.Risk'
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,

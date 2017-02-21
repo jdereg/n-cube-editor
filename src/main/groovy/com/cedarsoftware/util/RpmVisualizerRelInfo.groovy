@@ -199,7 +199,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 
 		if (targetCube.name.startsWith(RPM_ENUM_DOT))
 		{
-			edge.label = sourceFieldName
+			edge.label = nodeLabelPrefix + sourceFieldName
 			edge.title = "Field ${sourceFieldName} cardinality ${vMin}:${vMax}".toString()
 		}
 		else
@@ -300,7 +300,8 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		}
 		else if (targetCubeName.startsWith(RPM_ENUM_DOT))
 		{
-			return "Valid values for field ${sourceFieldName} on ${getLabel(sourceCube.name)}".toString()
+			String prefix = nodeLabelPrefix ? "${nodeLabelPrefix}valid" : 'Valid'
+			return "${prefix} values for field ${sourceFieldName} on ${getLabel(sourceCube.name)}".toString()
 		}
 		return null
 	}
