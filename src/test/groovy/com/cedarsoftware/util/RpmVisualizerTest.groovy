@@ -1031,6 +1031,12 @@ class RpmVisualizerTest
         assert node.availableScope == [pgm: 'pgm1', div: 'div1', state: 'OH', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
         assert node.scope == [state: 'OH', product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
 
+        //Product.Risks enum has no scope prompt
+        node = checkEnumNodeBasics("${VALID_VALUES_FOR_FIELD_SENTENCE_CASE}Risks on AProduct", '', false)
+        checkNoScopePrompt(node.details as String)
+        assert node.availableScope == [pgm: 'pgm1', div: 'div1', state: 'OH', sourceFieldName: 'Risks', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert node.scope == [div: 'div1', state: 'OH', sourceFieldName: 'Risks', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
+
         //ARisk has no scope prompts
         node = checkNodeBasics('ARisk', 'Risk')
         checkNoScopePrompt(node.details as String)
@@ -1111,9 +1117,20 @@ class RpmVisualizerTest
         assert node.availableScope == [pgm: 'pgm1', div: 'div3', state: 'OH', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
         assert node.scope == [state: 'OH', product: 'AProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
 
+        //Product.Risks has default scope prompt since it doesn't have div3 as an optional scope value.
+        node = checkEnumNodeBasics("${VALID_VALUES_FOR_FIELD_SENTENCE_CASE}Risks on AProduct", '', false)
+        String nodeDetails = node.details as String
+        checkScopePromptTitle(nodeDetails, 'div', false, 'rpm.scope.enum.Product.Risks.traits.exists')
+        checkScopePromptDropdown(nodeDetails, 'div', 'div3', ['div1', 'div2', DEFAULT], ['div3'], SELECT_OR_ENTER_VALUE)
+        checkNoScopePrompt(node.details as String, 'state')
+        checkNoScopePrompt(node.details as String, 'product')
+        checkNoScopePrompt(node.details as String, 'pgm')
+        assert node.availableScope == [pgm: 'pgm1', div: 'div3', state: 'OH', sourceFieldName: 'Risks', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert node.scope == [div: 'div3', state: 'OH', sourceFieldName: 'Risks', product: 'AProduct', _effectiveVersion: ApplicationID.DEFAULT_VERSION] as CaseInsensitiveMap
+
         //ARisk has default scope prompt since it doesn't have div3 as an optional scope value.
         node = checkNodeBasics('ARisk', 'Risk', '', DEFAULTS_WERE_USED, false)
-        String nodeDetails = node.details as String
+        nodeDetails = node.details as String
         checkScopePromptTitle(nodeDetails, 'div', false, 'rpm.scope.class.Risk.traits.fieldARisk')
         checkScopePromptDropdown(nodeDetails, 'div', 'div3', ['div1', DEFAULT], ['div2', 'div3'], SELECT_OR_ENTER_VALUE)
         checkNoScopePrompt(node.details as String, 'product')
