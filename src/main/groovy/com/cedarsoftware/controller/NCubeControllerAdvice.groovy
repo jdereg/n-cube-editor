@@ -35,7 +35,7 @@ class NCubeControllerAdvice
 
     NCubeControllerAdvice() { }
 
-    @Around("execution(* com.cedarsoftware.controller.NCubeController.*(..)) && !execution(* com.cedarsoftware.controller.NCubeController.getUserForDatabase(..))")
+    @Around("execution(* com.cedarsoftware.controller.NCubeController.*(..))")
     def advise(ProceedingJoinPoint pjp)
     {
         try

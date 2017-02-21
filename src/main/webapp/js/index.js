@@ -25,7 +25,6 @@ var NCE = (function ($) {
     var _savedCall = null;
     var _searchThread;
     var _heartBeatThread;
-    var _impersonationApp = null;
     var _cubeList = {};
     var _openCubes = localStorage[OPEN_CUBES];
     var _visitedBranches = localStorage[VISITED_BRANCHES];
@@ -72,7 +71,6 @@ var NCE = (function ($) {
     var _tabDragIndicator = $('#tab-drag-indicator');
     var _appMenu = $('#AppMenu');
     var _versionMenu = $('#VersionMenu');
-    var _serverMenu = $('#server-menu');
     var _batchUpdateAxisReferencesTable = $('#batchUpdateAxisReferencesTable');
     var _batchUpdateAxisReferencesUpdate = $('#batchUpdateAxisReferencesUpdate');
     var _batchUpdateAxisReferencesToggle = $('#batchUpdateAxisReferencesToggle');
@@ -710,35 +708,30 @@ var NCE = (function ($) {
             title: cubeInfo.slice(0, CUBE_INFO.TAB_VIEW).join(' - '),
             template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner tab-tooltip"></div></div>'
         });
-        li.on('click auxclick', function(e) {
-            var target, isClose, isDropdown, self;
-            self = $(this);
-            if (e.which === KEY_CODES.MOUSE_MIDDLE) { // middle click should close tab
-                e.preventDefault();
-                self.tooltip('destroy');
-                removeTab(cubeInfo);
-            }
+        li.click(function(e) {
+            // only show dropdown when clicking the caret, not just the tab
+            var target, isClose, isDropdown, xthis;
             target = $(e.target);
             isClose = target.hasClass('glyphicon-remove');
             isDropdown = target.hasClass('click-space') || target.hasClass('big-caret');
+            xthis = $(this);
 
-            // only show dropdown when clicking the caret, not just the tab
             if (isClose) {
-                self.tooltip('destroy');
+                xthis.tooltip('destroy');
                 removeTab(cubeInfo);
             } else {
                 if (isDropdown) { // clicking caret for dropdown
-                    if (!self.find('ul').length) {
-                        addTabDropdownList(self, cubeInfo);
+                    if (!xthis.find('ul').length) {
+                        addTabDropdownList(xthis, cubeInfo);
                     }
-                    self.find('.ncube-tab-top-level')
+                    xthis.find('.ncube-tab-top-level')
                         .addClass('dropdown-toggle')
                         .attr('data-toggle', 'dropdown');
                     $(document).one('click', function() { // prevent tooltip and dropdown from remaining on screen
-                        closeTab(self);
+                        closeTab(xthis);
                     });
                 } else { // when clicking tab show tab, not dropdown
-                    self.find('.ncube-tab-top-level')
+                    xthis.find('.ncube-tab-top-level')
                         .removeClass('dropdown-toggle')
                         .attr('data-toggle', '')
                         .tab('show');
@@ -2165,10 +2158,9 @@ var NCE = (function ($) {
     }
     
     function enableDisableClearCache(isAppAdmin) {
-        if (isAppAdmin || head !== getAppId().branch) {
+        if (isAppAdmin) {
             _clearCache.parent().removeClass('disabled');
-        }
-        else {
+        } else {
             _clearCache.parent().addClass('disabled');
         }
     }
@@ -2193,77 +2185,15 @@ var NCE = (function ($) {
         }
     }
 
-    function showHideImpersonation(isAdmin) {
-        var html, ul;
-        ul = _serverMenu.parent().find('ul');
-        if (isAdmin || (_impersonationApp && _impersonationApp.app === getAppId().app)) {
-            if (!ul.find('#impersonate').length) {
-                html = '<li class="show-admin-only"><a id="impersonate" href="#">Impersonate User</a></a></li>';
-                ul.append(html);
-                ul.find('#impersonate').on('click', function(e) {
-                    var parent, inputs, newNameInput, anc, html;
-                    e.preventDefault();
-                    e.stopPropagation();
-                    anc = $(this);
-                    parent = anc.parent();
-                    inputs = parent.find('input');
-                    if (inputs.length) {
-                        inputs.remove();
-                        parent.find('button, br').remove();
-                    } else {
-                        newNameInput = $('<input/>')
-                            .prop('type', 'text')
-                            .addClass('form-control')
-                            .click(function (ie) {
-                                ie.preventDefault();
-                                ie.stopPropagation();
-                            })
-                            .keyup(function (ie) {
-                                if (ie.keyCode === KEY_CODES.ENTER) {
-                                    impersonate(newNameInput.val());
-                                }
-                            });
-                        parent.append(newNameInput);
-                        html = '<br/>';
-                        html += '<button class="btn btn-primary btn-xs btn-menu-confirm">Confirm</button>';
-                        html += '<button class="btn btn-danger btn-xs">Cancel</button>';
-                        anc.append(html);
-                        anc.find('button.btn-menu-confirm').on('click', function () {
-                            impersonate(newNameInput.val());
-                        });
-                        newNameInput[0].focus();
-                    }
-                });
-            }
-        } else {
-            ul.find('.show-admin-only').remove();
-            if (_impersonationApp) {
-                impersonate(null);                
-            }
-        }
-    }
-
-    function impersonate(user) {
-        var appId = getAppId();
-        var result = call(CONTROLLER + CONTROLLER_METHOD.HEARTBEAT, [{}], { fakeuser: user || '', appid: getTextAppId(appId) });
-        if (result.status) {
-            _impersonationApp = user !== undefined && user !== null && user !== '' ? appId : null;
-            handleAppPermissions();
-        } else {
-            showNote(result.data, 'Unable to impersonate...', null, NOTE_CLASS.SYS_META);
-        }
-    }
-
     function handleAppPermissions() {
         var isAppAdmin = checkIsAppAdmin();
         var canReleaseApp = checkAppPermission(PERMISSION_ACTION.RELEASE);
         var canCommitOnApp = checkAppPermission(PERMISSION_ACTION.COMMIT);
-        
+
         enableDisableReleaseMenu(canReleaseApp);
         enableDisableCommitBranch(canCommitOnApp);
         enableDisableClearCache(isAppAdmin);
         enableDisableLockMenu(isAppAdmin);
-        showHideImpersonation(isAppAdmin);
     }
     
     function buildBranchUpdateMenu() {
@@ -2859,8 +2789,7 @@ var NCE = (function ($) {
     }
 
     function appIdsEqual(id1, id2) {
-        return id1 && id2
-            && id1.app     === id2.app
+        return id1.app     === id2.app
             && id1.version === id2.version
             && id1.status  === id2.status
             && id1.branch  === id2.branch;
@@ -3629,8 +3558,8 @@ var NCE = (function ($) {
 
         msg = '<dl class="dl-horizontal">' + msg;
         msg += '</dl>';
-        clearNotes(NOTE_CLASS.SYS_META);
-        showNote(msg, title, null, NOTE_CLASS.SYS_META);
+        clearNotes('sysmeta');
+        showNote(msg, title, null, 'sysmeta');
     }
 
     // ======================================== Everything to do with Branching ========================================

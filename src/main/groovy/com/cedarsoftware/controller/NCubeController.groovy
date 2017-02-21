@@ -110,47 +110,28 @@ class NCubeController extends BaseController
         System.out = new ThreadAwarePrintStream()
     }
 
-    protected String getUserForDatabase()
+    protected static String getUserForDatabase()
     {
-        Map<String, String> headers = new CaseInsensitiveMap<String, String>()
-        String[] headerList = ['smuser','fakeuser','appid']
+        String user = null
         HttpServletRequest request = JsonCommandServlet.servletRequest.get()
         Enumeration e = request.headerNames
         while (e.hasMoreElements())
         {
-            String headerName = (e.nextElement() as String)
-            if (headerList.contains(headerName))
+            String headerName = (String) e.nextElement()
+            if ("smuser".equalsIgnoreCase(headerName))
             {
-                headers[headerName] = request.getHeader(headerName)
-                if (headers.containsKey('smuser') && headers.containsKey('fakeuser') && headers.containsKey('appid'))
-                {
-                    break
-                }
+                user = request.getHeader(headerName)
+                break;
             }
         }
 
-        String realId = headers.containsKey('smuser') && StringUtilities.hasContent(headers['smuser']) ? headers['smuser'] : System.getProperty('user.name')
-        NCubeManager.userId = realId
-
-        if (headers.containsKey('fakeuser') && StringUtilities.hasContent(headers['fakeuser'])
-                && headers.containsKey('appid') && StringUtilities.hasContent(headers['appid']))
+        if (StringUtilities.isEmpty(user))
         {
-            String[] appIdParts = headers['appid'].split('~')
-            if (appIdParts.length > 1)
-            {
-                ApplicationID appId = new ApplicationID(tenant, appIdParts[0], appIdParts[1], appIdParts[2], appIdParts[3])
-                if (isAppAdmin(appId, true))
-                {
-                    NCubeManager.fakeId = headers['fakeuser']
-                }
-            }
-        }
-        else
-        {
-            NCubeManager.fakeId = ''
+            user = System.getProperty("user.name")
         }
 
-        return realId
+        NCubeManager.userId = user
+        return user
     }
 
     // ============================================= Begin API =========================================================
@@ -161,10 +142,10 @@ class NCubeController extends BaseController
         return nCubeService.checkPermissions(appId, resource, action == null ? Action.READ : Action.valueOf(action.toUpperCase()))
     }
 
-    Boolean isAppAdmin(ApplicationID appId, boolean useRealId = false)
+    Boolean isAppAdmin(ApplicationID appId)
     {
         appId = addTenant(appId)
-        return nCubeService.isAdmin(appId, useRealId)
+        return nCubeService.isAdmin(appId)
     }
 
     String getAppLockedBy(ApplicationID appId)
@@ -1256,17 +1237,14 @@ class NCubeController extends BaseController
     void clearCache(ApplicationID appId)
     {
         appId = addTenant(appId)
-        if (isAppAdmin(appId))
+        if (!nCubeService.isAdmin(appId))
         {
-            nCubeService.clearCache(appId)
-            clearAppCache(appId.tenant)
-            clearVersionCache(appId.app)
-            clearBranchCache(appId)
+            return
         }
-        else if (!appId.head)
-        {
-            nCubeService.clearCache(appId)
-        }
+        nCubeService.clearCache(appId)
+        clearAppCache(appId.tenant)
+        clearVersionCache(appId.app)
+        clearBranchCache(appId)
     }
 
     void createBranch(ApplicationID appId)
@@ -1605,7 +1583,6 @@ class NCubeController extends BaseController
 
         // App server name and version
         Map serverStats = [:]
-        putIfNotNull(serverStats, 'User ID', NCubeManager.impliedId)
         putIfNotNull(serverStats, 'Server Info', getAttribute(mbs, 'Catalina:type=Server', 'serverInfo'))
         putIfNotNull(serverStats, 'Java version', getAttribute(mbs, 'JMImplementation:type=MBeanServerDelegate', 'ImplementationVersion'))
         putIfNotNull(serverStats, 'JVM Route', getAttribute(mbs, 'Catalina:type=Engine', 'jvmRoute'))
