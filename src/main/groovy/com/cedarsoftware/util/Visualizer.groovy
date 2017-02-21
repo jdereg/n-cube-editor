@@ -111,12 +111,13 @@ class Visualizer
 		VisualizerScopeInfo scopeInfo = options.scopeInfo as VisualizerScopeInfo
 		if (!scopeInfo || scopeInfo.class.name != this.class.name)
 		{
-			scopeInfo = new VisualizerScopeInfo(appId)
+			scopeInfo = new VisualizerScopeInfo()
 		}
 		else if (!scopeInfo.scope)
 		{
 			scopeInfo.scope = new CaseInsensitiveMap()
 		}
+		scopeInfo.appId = appId
 		return scopeInfo
 	}
 

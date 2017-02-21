@@ -49,6 +49,7 @@ class RpmVisualizer extends Visualizer
 		if (optionsVisInfo && optionsVisInfo instanceof RpmVisualizerInfo)
 		{
 			visInfo = optionsVisInfo as RpmVisualizerInfo
+			visInfo.appId = appId
 		}
 		else
 		{
@@ -63,12 +64,13 @@ class RpmVisualizer extends Visualizer
 		RpmVisualizerScopeInfo scopeInfo = options.scopeInfo as RpmVisualizerScopeInfo
 		if (!scopeInfo)
 		{
-			scopeInfo = new RpmVisualizerScopeInfo(appId)
+			scopeInfo = new RpmVisualizerScopeInfo()
 		}
 		else if (!scopeInfo.scope)
 		{
 			scopeInfo.scope = new CaseInsensitiveMap()
 		}
+		scopeInfo.appId = appId
 		return scopeInfo
 	}
 
