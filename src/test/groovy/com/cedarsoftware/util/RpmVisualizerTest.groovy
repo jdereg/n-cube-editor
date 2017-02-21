@@ -322,11 +322,12 @@ class RpmVisualizerTest
                           sourceFieldName  : 'Coverages',
                           risk             : 'WProductOps',
                           businessDivisionCode: 'AAADIV'] as CaseInsensitiveMap
+        inputScopeInfo.scope = new CaseInsensitiveMap(scope)
 
         Map nodeScope = new CaseInsensitiveMap(scope)
         nodeScope.remove('sourceFieldName')
 
-        Map oldNode = [
+       /* Map oldNode = [
                 id: '4',
                 cubeName: 'rpm.class.Coverage',
                 fromFieldName: 'CCCoverage',
@@ -340,20 +341,21 @@ class RpmVisualizerTest
                 availableScope: scope,
                 typesToAdd: [],
           ]
-
-        inputScopeInfo.scope = scope
+*/
+       /* inputScopeInfo.scope = scope
         RpmVisualizerInfo visInfo = new RpmVisualizerInfo(appId)
         visInfo.allGroupsKeys = ['PRODUCT', 'FORM', 'RISK', 'COVERAGE', 'CONTAINER', 'DEDUCTIBLE', 'LIMIT', 'RATE', 'RATEFACTOR', 'PREMIUM', 'PARTY', 'PLACE', 'ROLE', 'ROLEPLAYER', 'UNSPECIFIED'] as Set
         visInfo.groupSuffix = '_ENUM'
-        visInfo.availableGroupsAllLevels = [] as Set
-        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: inputScopeInfo]
+        visInfo.availableGroupsAllLevels = [] as Set*/
 
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        assert !visInfo.messages
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        String startCubeName = 'rpm.class.Coverage'
+        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+        buildGraph(options)
+        assert nodes.size() == 2
+        assert edges.size() == 1
 
+        options = [node: nodes.first(), visInfo: visInfo, scopeInfo: inputScopeInfo]
+        getCellValues(options)
         assert nodes.size() == 1
         assert edges.size() == 0
 
@@ -1917,7 +1919,7 @@ class RpmVisualizerTest
         assert 0 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
     }
 
-    private Map checkNodeBasics(String nodeName, String nodeType, String nodeNamePrefix, String nodeDetailsMessage, boolean missingRequired = false, boolean showCellValues = false)
+    private Map checkNodeBasics(String nodeName, String nodeType, String nodeNamePrefix = '', String nodeDetailsMessage = '', boolean missingRequired = false, boolean showCellValues = false)
     {
         Map node = nodes.find {Map node1 ->  "${nodeNamePrefix}${nodeName}".toString() == node1.label}
         checkNodeBasics(node, missingRequired, showCellValues)
@@ -1935,7 +1937,7 @@ class RpmVisualizerTest
         return node
     }
 
-    private Map checkEnumNodeBasics(String nodeTitle, String nodeDetailsMessage, boolean missingRequired, boolean showCellValues = false)
+    private Map checkEnumNodeBasics(String nodeTitle, String nodeDetailsMessage = '', boolean missingRequired = false, boolean showCellValues = false)
     {
         Map node = nodes.find {Map node1 ->  nodeTitle == node1.title}
         checkNodeBasics(node, missingRequired, showCellValues)
