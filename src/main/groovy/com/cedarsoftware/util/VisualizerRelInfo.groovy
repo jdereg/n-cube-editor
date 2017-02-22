@@ -245,7 +245,7 @@ class VisualizerRelInfo
 		node.availableScope = availableTargetScope
 		node.fromFieldName = sourceFieldName
 		node.sourceDescription = sourceCubeName ? sourceDescription : null
-		node.label = nodeLabelPrefix + getLabel(targetCubeName)
+
 		node.detailsTitle1 = cubeDetailsTitle1
 		node.detailsTitle2 = cubeDetailsTitle2
 		node.title = getCubeDisplayName(targetCubeName)
@@ -256,6 +256,14 @@ class VisualizerRelInfo
 		node.showCellValuesLink = showCellValuesLink
 		node.showCellValues = showCellValues
 		node.cellValuesLoaded = cellValuesLoaded
+
+		String label = getLabel(targetCubeName)
+		node.label = nodeLabelPrefix + label
+		if (visInfo.nodeCount == 1l)
+		{
+			scopeInfo.topNodeName = label
+		}
+
 		visInfo.availableGroupsAllLevels << group - visInfo.groupSuffix
 		long maxLevel = visInfo.maxLevel
 		visInfo.maxLevel = maxLevel < targetLevel ? targetLevel : maxLevel

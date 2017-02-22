@@ -758,7 +758,7 @@ class RpmVisualizerTest
         assert scopeInfo.scope == expectedAvailableScope
         assert scopeInfo.displayScopeMessage
         assert scopeInfo.scopeMessage.contains('Reset scope')
-        checkRequiredGraphScope()
+        checkTopNodeScope()
         checkOptionalGraphScope()
     }
 
@@ -803,7 +803,7 @@ class RpmVisualizerTest
         assert scopeInfo.scope == expectedAvailableScope
         assert scopeInfo.displayScopeMessage
         assert scopeInfo.scopeMessage.contains('Reset scope')
-        checkRequiredGraphScope('AProduct')
+        checkTopNodeScope('AProduct')
         checkOptionalGraphScope('AProduct')
     }
 
@@ -916,7 +916,7 @@ class RpmVisualizerTest
         assert 0 == edges.size()
 
         //Check graph scope prompt
-        checkRequiredGraphScope('XXXProduct')
+        checkTopNodeScope('XXXProduct')
         checkOptionalGraphScope()
     }
 
@@ -976,7 +976,7 @@ class RpmVisualizerTest
         assert scopeInfo.scope == expectedAvailableScope
         assert scopeInfo.displayScopeMessage
         assert scopeInfo.scopeMessage.contains('Reset scope')
-        checkRequiredGraphScope('AProduct')
+        checkTopNodeScope('AProduct')
         checkOptionalGraphScope('AProduct', 'pgm1', 'OH', 'div1')
     }
 
@@ -1014,7 +1014,7 @@ class RpmVisualizerTest
         assert scopeInfo.scope == expectedAvailableScope
         assert scopeInfo.displayScopeMessage
         assert scopeInfo.scopeMessage.contains('Reset scope')
-        checkRequiredGraphScope('AProduct')
+        checkTopNodeScope('AProduct')
         checkOptionalGraphScope('AProduct', 'pgm1', 'OH', 'div3', true)
     }
 
@@ -1574,12 +1574,12 @@ class RpmVisualizerTest
 
         //Check that sourceRisk is now part of required graph scope
         List<String> risks = ['ARisk', 'BRisk', 'DRisk', 'GProductOps', 'ProductLocation', 'StateOps', 'WProductOps']
-        assert scopeInfo.requiredGraphScopeAvailableValues.keySet().contains('sourceRisk')
-        assert risks as Set == scopeInfo.requiredGraphScopeAvailableValues.sourceRisk as Set
-        assert scopeInfo.requiredGraphScopeCubeNames.keySet().contains('sourceRisk')
-        assert ['rpm.scope.class.Risk.traits.Risks'] as Set== scopeInfo.requiredGraphScopeCubeNames.sourceRisk as Set
+        assert scopeInfo.topNodeScopeAvailableValues.keySet().contains('sourceRisk')
+        assert risks as Set == scopeInfo.topNodeScopeAvailableValues.sourceRisk as Set
+        assert scopeInfo.topNodeScopeCubeNames.keySet().contains('sourceRisk')
+        assert ['rpm.scope.class.Risk.traits.Risks'] as Set== scopeInfo.topNodeScopeCubeNames.sourceRisk as Set
         String scopeMessage = scopeInfo.scopeMessage
-        checkScopePromptTitle(scopeMessage, 'sourceRisk', true)
+        checkScopePromptTitle(scopeMessage, 'sourceRisk', true, null, 'topNode')
         checkScopePromptDropdown(scopeMessage, 'sourceRisk', '', risks, [DEFAULT], SELECT_OR_ENTER_VALUE)
 
         //Check node
@@ -1604,8 +1604,8 @@ class RpmVisualizerTest
         buildGraph(options)
 
         //Check that sourceRisk is not part of required graph scope
-        assert !scopeInfo.requiredGraphScopeAvailableValues.keySet().contains('sourceRisk')
-        assert !scopeInfo.requiredGraphScopeCubeNames.keySet().contains('sourceRisk')
+        assert !scopeInfo.topNodeScopeAvailableValues.keySet().contains('sourceRisk')
+        assert !scopeInfo.topNodeScopeCubeNames.keySet().contains('sourceRisk')
         checkNoScopePrompt(scopeInfo.scopeMessage, 'sourceRisk')
         
         //Check node
@@ -1648,34 +1648,34 @@ class RpmVisualizerTest
         edges = visInfo.edges as List
     }
 
-    private void checkRequiredGraphScope(String selectedProductName = '')
+    private void checkTopNodeScope(String selectedProductName = '')
     {
         Set<String> scopeKeys = ['policyControlDate', 'quoteDate', '_effectiveVersion', 'product'] as CaseInsensitiveSet
         Set<String> products = ['AProduct', 'BProduct', 'GProduct', 'UProduct', 'WProduct'] as CaseInsensitiveSet
 
-        assert 4 == scopeInfo.requiredGraphScopeAvailableValues.keySet().size()
-        assert scopeInfo.requiredGraphScopeAvailableValues.keySet().containsAll(scopeKeys)
-        assert 0 == scopeInfo.requiredGraphScopeAvailableValues.policyControlDate.size()
-        assert 0 == scopeInfo.requiredGraphScopeAvailableValues.quoteDate.size()
-        assert 1 == scopeInfo.requiredGraphScopeAvailableValues._effectiveVersion.size()
-        assert [ApplicationID.DEFAULT_VERSION] as Set == scopeInfo.requiredGraphScopeAvailableValues._effectiveVersion as Set
-        assert 5 == scopeInfo.requiredGraphScopeAvailableValues.product.size()
-        assert scopeInfo.requiredGraphScopeAvailableValues.product.containsAll(products)
+        assert 4 == scopeInfo.topNodeScopeAvailableValues.keySet().size()
+        assert scopeInfo.topNodeScopeAvailableValues.keySet().containsAll(scopeKeys)
+        assert 0 == scopeInfo.topNodeScopeAvailableValues.policyControlDate.size()
+        assert 0 == scopeInfo.topNodeScopeAvailableValues.quoteDate.size()
+        assert 1 == scopeInfo.topNodeScopeAvailableValues._effectiveVersion.size()
+        assert [ApplicationID.DEFAULT_VERSION] as Set == scopeInfo.topNodeScopeAvailableValues._effectiveVersion as Set
+        assert 5 == scopeInfo.topNodeScopeAvailableValues.product.size()
+        assert scopeInfo.topNodeScopeAvailableValues.product.containsAll(products)
 
-        assert 4 == scopeInfo.requiredGraphScopeCubeNames.keySet().size()
-        assert scopeInfo.requiredGraphScopeCubeNames.keySet().containsAll(scopeKeys)
-        assert 0 == scopeInfo.requiredGraphScopeCubeNames.policyControlDate.size()
-        assert 0 == scopeInfo.requiredGraphScopeCubeNames.quoteDate.size()
-        assert 0 == scopeInfo.requiredGraphScopeCubeNames._effectiveVersion.size()
-        assert 1 == scopeInfo.requiredGraphScopeCubeNames.product.size()
-        assert ['rpm.scope.class.Product.traits'] as Set== scopeInfo.requiredGraphScopeCubeNames.product as Set
+        assert 4 == scopeInfo.topNodeScopeCubeNames.keySet().size()
+        assert scopeInfo.topNodeScopeCubeNames.keySet().containsAll(scopeKeys)
+        assert 0 == scopeInfo.topNodeScopeCubeNames.policyControlDate.size()
+        assert 0 == scopeInfo.topNodeScopeCubeNames.quoteDate.size()
+        assert 0 == scopeInfo.topNodeScopeCubeNames._effectiveVersion.size()
+        assert 1 == scopeInfo.topNodeScopeCubeNames.product.size()
+        assert ['rpm.scope.class.Product.traits'] as Set== scopeInfo.topNodeScopeCubeNames.product as Set
 
         String scopeMessage = scopeInfo.scopeMessage
-        assert scopeMessage.contains(REQUIRED_SCOPE_TO_LOAD_VISUALIZATION)
-        checkScopePromptTitle(scopeMessage, 'policyControlDate', true)
-        checkScopePromptTitle(scopeMessage, 'quoteDate', true)
-        checkScopePromptTitle(scopeMessage, '_effectiveVersion', true)
-        checkScopePromptTitle(scopeMessage, 'product', true)
+        assert scopeMessage.contains(selectedProductName + SCOPE_UTILIZED_BY_TOP_NODE)
+        checkScopePromptTitle(scopeMessage, 'policyControlDate', true, null, 'topNode')
+        checkScopePromptTitle(scopeMessage, 'quoteDate', true, null, 'topNode')
+        checkScopePromptTitle(scopeMessage, '_effectiveVersion', true, null, 'topNode')
+        checkScopePromptTitle(scopeMessage, 'product', true, null, 'topNode')
         checkScopePromptDropdown(scopeMessage, 'policyControlDate', "${defaultScopeDate}", [], [DEFAULT], ENTER_VALUE)
         checkScopePromptDropdown(scopeMessage, 'quoteDate', "${defaultScopeDate}", [], [DEFAULT], ENTER_VALUE)
         checkScopePromptDropdown(scopeMessage, '_effectiveVersion', "${ApplicationID.DEFAULT_VERSION}", [], [DEFAULT], SELECT_OR_ENTER_VALUE)
@@ -1724,9 +1724,9 @@ class RpmVisualizerTest
             assert 4 == scopeInfo.optionalGraphScopeCubeNames.div.size()
             assert ['rpm.scope.enum.Product.Risks.traits.exists', 'rpm.scope.class.Risk.traits.fieldARisk', 'rpm.scope.class.Coverage.traits.fieldACoverage', 'rpm.scope.class.Coverage.traits.fieldBCoverage'] as Set == scopeInfo.optionalGraphScopeCubeNames.div as Set
 
-            checkScopePromptTitle(scopeMessage, 'pgm', false)
-            checkScopePromptTitle(scopeMessage, 'state', false)
-            checkScopePromptTitle(scopeMessage, 'div', false)
+            checkScopePromptTitle(scopeMessage, 'pgm', false, null, 'additionalGraphScope')
+            checkScopePromptTitle(scopeMessage, 'state', false, null, 'additionalGraphScope')
+            checkScopePromptTitle(scopeMessage, 'div', false, null, 'additionalGraphScope')
             checkScopePromptDropdown(scopeMessage, 'pgm', "${selectedPgmName}", ['pgm1', 'pgm2', 'pgm3'], [DEFAULT], SELECT_OR_ENTER_VALUE)
             checkScopePromptDropdown(scopeMessage, 'div', "${selectedDivName}", ['div1', 'div2', 'div3', DEFAULT], [], SELECT_OR_ENTER_VALUE)
             if (includeStateNM)
@@ -1748,18 +1748,18 @@ class RpmVisualizerTest
 
     private void checkGraphScopeNonEPM()
     {
-        assert 1 == scopeInfo.requiredGraphScopeAvailableValues.keySet().size()
-        assert scopeInfo.requiredGraphScopeAvailableValues.keySet().contains('_effectiveVersion')
-        assert 1 == scopeInfo.requiredGraphScopeAvailableValues._effectiveVersion.size()
-        assert [ApplicationID.DEFAULT_VERSION] as Set == scopeInfo.requiredGraphScopeAvailableValues._effectiveVersion as Set
+        assert 1 == scopeInfo.topNodeScopeAvailableValues.keySet().size()
+        assert scopeInfo.topNodeScopeAvailableValues.keySet().contains('_effectiveVersion')
+        assert 1 == scopeInfo.topNodeScopeAvailableValues._effectiveVersion.size()
+        assert [ApplicationID.DEFAULT_VERSION] as Set == scopeInfo.topNodeScopeAvailableValues._effectiveVersion as Set
 
-        assert 1 == scopeInfo.requiredGraphScopeCubeNames.keySet().size()
-        assert scopeInfo.requiredGraphScopeCubeNames.keySet().containsAll('_effectiveVersion')
-        assert 0 == scopeInfo.requiredGraphScopeCubeNames._effectiveVersion.size()
+        assert 1 == scopeInfo.topNodeScopeCubeNames.keySet().size()
+        assert scopeInfo.topNodeScopeCubeNames.keySet().containsAll('_effectiveVersion')
+        assert 0 == scopeInfo.topNodeScopeCubeNames._effectiveVersion.size()
 
         String scopeMessage = scopeInfo.scopeMessage
-        assert scopeMessage.contains(REQUIRED_SCOPE_TO_LOAD_VISUALIZATION)
-        assert scopeMessage.contains('title="_effectiveVersion is required to load the visualization"')
+        assert scopeMessage.contains('partyrole.LossPrevention' + SCOPE_UTILIZED_BY_TOP_NODE )
+        assert scopeMessage.contains('title="Scope key _effectiveVersion is required to load partyrole.LossPrevention')
         assert scopeMessage.contains("""<input id="_effectiveVersion" value="${ApplicationID.DEFAULT_VERSION}" placeholder="Select or enter value..." class="scopeInput form-control" """)
 
         assert scopeMessage.contains(NO_OPTIONAL_SCOPE_IN_VISUALIZATION)
@@ -1857,28 +1857,32 @@ class RpmVisualizerTest
         }
     }
 
-    private static void checkScopePromptTitle(String message, String scopeKey, boolean required, String cubeNames = null)
+    private static void checkScopePromptTitle(String message, String scopeKey, boolean required, String cubeNames = null, String scopeType = null)
     {
         if (required)
         {
-            if (cubeNames)
+            if ('topNode' == scopeType)
             {
-                assert message.contains("""title="${scopeKey} is required by ${cubeNames} to load this class""")
+                assert message.contains("""title="Scope key ${scopeKey} is required to load""") //TODO: Add check for topNodeName and cube names
             }
             else
             {
-                assert message.contains("""title="${scopeKey} is required to load the visualization""")
+                assert message.contains("""title="Scope key ${scopeKey} is required by ${cubeNames} to load this class""")
             }
         }
         else
         {
-            if (cubeNames)
+            if ('topNode' == scopeType)
             {
-                assert message.contains("""title="${scopeKey} is optional to load this class. Used on:\n${cubeNames}""")
+                assert message.contains("""title="Scope key ${scopeKey} is optional to load""") //TODO: Add check for topNodeName and cube names
+            }
+            else if ('additionalGraphScope' == scopeType)
+            {
+                assert message.contains("Scope key ${scopeKey} is used in the in the visualization. It may be optional for some classes and required by others.") //TODO: Add check for cube names
             }
             else
             {
-                assert message.contains("""title="${scopeKey} is optional to load the visualization, but may be required for some classes""")
+                assert message.contains("""title="Scope key ${scopeKey} is optional to load this class. Used on:\n${cubeNames}""")
             }
         }
     }

@@ -22,14 +22,14 @@ class VisualizerScopeInfo
 {
 	protected ApplicationID appId
 	protected Map<String, Object> scope  = new CaseInsensitiveMap()
-	protected Set<String> derivedScopeKeys  = new CaseInsensitiveSet()
 
-	protected Map<String, Set<Object>> requiredGraphScopeAvailableValues = new CaseInsensitiveMap()
-	protected Map<String, Set<String>> requiredGraphScopeCubeNames = new CaseInsensitiveMap()
+	protected Map<String, Set<Object>> topNodeScopeAvailableValues = new CaseInsensitiveMap()
+	protected Map<String, Set<String>> topNodeScopeCubeNames = new CaseInsensitiveMap()
 
 	protected Map<String, Set<Object>> optionalGraphScopeAvailableValues = new CaseInsensitiveMap()
 	protected Map<String, Set<String>> optionalGraphScopeCubeNames = new CaseInsensitiveMap()
 
+	String topNodeName
 	String scopeMessage
 	boolean displayScopeMessage
 
@@ -41,11 +41,11 @@ class VisualizerScopeInfo
 
 	protected void populateScopeDefaults(String startCubeName){}
 
-	protected Set<Object> addRequiredGraphScope(String cubeName, String scopeKey, boolean skipAvailableScopeValues = false)
+	protected Set<Object> addTopNodeScope(String cubeName, String scopeKey, boolean skipAvailableScopeValues = false)
 	{
-		addRequiredGraphScopeValues(cubeName, scopeKey, requiredGraphScopeAvailableValues, skipAvailableScopeValues)
-		addValue(scopeKey, requiredGraphScopeCubeNames, cubeName)
-		return requiredGraphScopeAvailableValues[scopeKey]
+		addTopNodeScopeValues(cubeName, scopeKey, topNodeScopeAvailableValues, skipAvailableScopeValues)
+		addValue(scopeKey, topNodeScopeCubeNames, cubeName)
+		return topNodeScopeAvailableValues[scopeKey]
 	}
 
 	protected Set<Object> addOptionalGraphScope(String cubeName, String scopeKey, boolean skipAvailableScopeValues = false)
@@ -55,7 +55,7 @@ class VisualizerScopeInfo
 		return inScopeAvailableValues
 	}
 
-	private void addRequiredGraphScopeValues(String cubeName, String scopeKey, Map scopeInfoMap, boolean skipAvailableScopeValues)
+	private void addTopNodeScopeValues(String cubeName, String scopeKey, Map scopeInfoMap, boolean skipAvailableScopeValues)
 	{
 		Set<Object> scopeValues = scopeInfoMap[scopeKey] as Set ?: new LinkedHashSet()
 		if (skipAvailableScopeValues)
@@ -116,18 +116,18 @@ class VisualizerScopeInfo
 	{
 		StringBuilder sb = new StringBuilder("${BREAK}")
 
-		if (requiredGraphScopeAvailableValues || optionalGraphScopeAvailableValues)
+		if (topNodeScopeAvailableValues || optionalGraphScopeAvailableValues)
 		{
-			if (requiredGraphScopeAvailableValues)
+			if (topNodeScopeAvailableValues)
 			{
-				Map<String, Set<Object>> sorted = requiredGraphScopeAvailableValues.sort()
-				sb.append("<b>Required scope to load visualization</b>")
+				Map<String, Set<Object>> sorted = topNodeScopeAvailableValues.sort()
+				sb.append("<b>${topNodeName} scope</b>")
 				sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
-				sb.append(getRequiredGraphScopeMessage(sorted))
+				sb.append(getTopNodeScopeMessage(sorted))
 			}
 			else
 			{
-				sb.append("<b>No required scope to load the visualization</b>")
+				sb.append("<b>No ${topNodeName} scope</b>")
 				sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
 			}
 			sb.append("${DOUBLE_BREAK}")
@@ -135,13 +135,13 @@ class VisualizerScopeInfo
 			if (optionalGraphScopeAvailableValues)
 			{
 				Map<String, Set<Object>> sorted = optionalGraphScopeAvailableValues.sort()
-				sb.append("<b>Optional scope in visualization</b>")
+				sb.append("<b>Additional scope in visualization</b>")
 				sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
 				sb.append(getOptionalGraphScopeMessage(sorted))
 			}
 			else
 			{
-				sb.append("<b>No optional scope in the visualization</b>")
+				sb.append("<b>No additional scope in the visualization</b>")
 				sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
 			}
 			sb.append("${DOUBLE_BREAK}")
@@ -150,36 +150,38 @@ class VisualizerScopeInfo
 			displayScopeMessage = true
 		}
 		else{
-			sb.append("No required or optional scope in the visualization.")
+			sb.append("No scope in the visualization.")
 			displayScopeMessage = false
 		}
 		scopeMessage = sb.toString()
 	}
 
-	private StringBuilder getOptionalGraphScopeMessage(Map<String, Set<Object>> availableValues)
+	private StringBuilder getOptionalGraphScopeMessage(Map<String, Set<Object>> availableValuesMap)
 	{
 		StringBuilder sb = new StringBuilder()
-		availableValues.keySet().each{ String scopeKey ->
+		availableValuesMap.keySet().each{ String scopeKey ->
 			sb.append(BREAK)
 			Set<String> cubeNames = optionalGraphScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
-			StringBuilder title = new StringBuilder("${scopeKey} is optional to load the visualization, but may be required for some ${nodesLabel}")
-			title.append(addCubeNamesList('.\nFirst encountered on the following cubes, but may also be present on others:', cubeNames))
-			sb.append(getScopeMessage(scopeKey, availableValues[scopeKey], title, scope[scopeKey]))
+			StringBuilder title = new StringBuilder("Scope key ${scopeKey} is used in the in the visualization. It may be optional for some ${nodesLabel} and required by others.")
+			title.append(addCubeNamesList('\nFirst encountered on the following cubes, but may also be present on others:', cubeNames))
+			sb.append(getScopeMessage(scopeKey, availableValuesMap[scopeKey], title, scope[scopeKey]))
 		}
 		return sb
 	}
 
-	private StringBuilder getRequiredGraphScopeMessage(Map<String, Set<Object>> availableValues)
+	private StringBuilder getTopNodeScopeMessage(Map<String, Set<Object>> availableValuesMap)
 	{
 		StringBuilder sb = new StringBuilder()
-		availableValues.keySet().each{ String scopeKey ->
+		availableValuesMap.keySet().each{ String scopeKey ->
 			sb.append(BREAK)
-			Set<String> cubeNames =  requiredGraphScopeCubeNames[scopeKey]
+			Set<String> cubeNames =  topNodeScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
-			StringBuilder title = new StringBuilder("${scopeKey} is required to load the visualization")
+			Set<Object> availableValues = availableValuesMap[scopeKey]
+			String requiredOrOptional = availableValues.contains(null) ? 'optional' : 'required'
+			StringBuilder title = new StringBuilder("Scope key ${scopeKey} is ${requiredOrOptional} to load ${topNodeName}")
 			title.append(addCubeNamesList('.\nFirst encountered on the following cubes, but may also be present on others:', cubeNames))
-			sb.append(getScopeMessage(scopeKey, availableValues[scopeKey], title, scope[scopeKey]))
+			sb.append(getScopeMessage(scopeKey, availableValues, title, scope[scopeKey]))
 		}
 		return sb
 	}
@@ -189,7 +191,7 @@ class VisualizerScopeInfo
 		StringBuilder sb = new StringBuilder("<b>Defaults were used for the following scope keys. Different values may be provided:${DOUBLE_BREAK}")
 		nodeAvailableValues.keySet().each { String scopeKey ->
 			Set<String> cubeNames = nodeCubeNames[scopeKey]
-			StringBuilder title = new StringBuilder("${scopeKey} is optional to load this ${nodeLabel}")
+			StringBuilder title = new StringBuilder("Scope key ${scopeKey} is optional to load this ${nodeLabel}")
 			title.append(addCubeNamesList('. Used on:', cubeNames))
 			Set<Object> availableValues = nodeAvailableValues[scopeKey]
 			sb.append(getScopeMessage(scopeKey, availableValues, title, scope[scopeKey]))

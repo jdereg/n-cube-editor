@@ -27,14 +27,22 @@ class VisualizerHelper
 			unboundAxesList.each { MapEntry unboundAxis ->
 				String cubeName = unboundAxis.key as String
 				MapEntry axisEntry = unboundAxis.value as MapEntry
-				String axisName = axisEntry.key as String
-				if (relInfo.includeUnboundScopeKey(visInfo, axisName))
+				String scopeKey = axisEntry.key as String
+				if (relInfo.includeUnboundScopeKey(visInfo, scopeKey))
 				{
-					Set<Object> availableValues = scopeInfo.addOptionalGraphScope(cubeName, axisName)
-					availableValues.each{Object availableValue ->
-						scopeInfo.addValue(axisName, nodeAvailableValues, availableValue)
+					Set<Object> availableValues
+					if (visInfo.nodeCount == 1l)
+					{
+						availableValues = scopeInfo.addTopNodeScope(cubeName, scopeKey)
 					}
-					scopeInfo.addValue(axisName, nodeCubeNames, cubeName)
+					else
+					{
+						availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey)
+					}
+					availableValues.each{Object availableValue ->
+						scopeInfo.addValue(scopeKey, nodeAvailableValues, availableValue)
+					}
+					scopeInfo.addValue(scopeKey, nodeCubeNames, cubeName)
 				}
 			}
 
@@ -85,13 +93,13 @@ class VisualizerHelper
 		Set<Object> availableValues
 		if (nodeCount == 1l)
 		{
-			availableValues = scopeInfo.addRequiredGraphScope(cubeName, scopeKey)
+			availableValues = scopeInfo.addTopNodeScope(cubeName, scopeKey)
 		}
 		else
 		{
 			availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey)
 		}
-		StringBuilder title = new StringBuilder("${scopeKey} is required by ${cubeName} to load this ${scopeInfo.nodeLabel}")
+		StringBuilder title = new StringBuilder("Scope key ${scopeKey} is required by ${cubeName} to load this ${scopeInfo.nodeLabel}")
 		sb.append(scopeInfo.getScopeMessage(scopeKey, availableValues, title, providedScopeValue))
 		return sb.append(BREAK)
 	}

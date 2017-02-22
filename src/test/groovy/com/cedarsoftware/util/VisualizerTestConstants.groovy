@@ -9,9 +9,9 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class VisualizerTestConstants
 {
-	static final String REQUIRED_SCOPE_TO_LOAD_VISUALIZATION = 'Required scope to load visualization'
-	static final String OPTIONAL_SCOPE_IN_VISUALIZATION = 'Optional scope in visualization'
-	static final String NO_OPTIONAL_SCOPE_IN_VISUALIZATION = 'No optional scope in the visualization'
+	static final String SCOPE_UTILIZED_BY_TOP_NODE = ' scope'
+	static final String OPTIONAL_SCOPE_IN_VISUALIZATION = 'Additional scope in visualization'
+	static final String NO_OPTIONAL_SCOPE_IN_VISUALIZATION = 'No additional scope in the visualization'
 	static final String ADDITIONAL_SCOPE_REQUIRED_FOR = 'Additional scope required for '
 	static final String REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR = 'Required scope value not found for '
 	static final String UNABLE_TO_LOAD = 'Unable to load '
