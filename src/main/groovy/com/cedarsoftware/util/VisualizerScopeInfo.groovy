@@ -139,11 +139,6 @@ class VisualizerScopeInfo
 				sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
 				sb.append(getOptionalGraphScopeMessage(sorted))
 			}
-			else
-			{
-				sb.append("<b>No additional scope in the visualization</b>")
-				sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
-			}
 			sb.append("${DOUBLE_BREAK}")
 
 			sb.append("""<a href="#" title="Reset scope to original defaults" class="scopeReset">Reset scope</a>""")

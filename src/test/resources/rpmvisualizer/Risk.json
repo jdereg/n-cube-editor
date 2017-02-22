@@ -31,6 +31,11 @@
           "value":"GProductOps"
         },
         {
+          "id":1000097746519,
+          "type":"string",
+          "value":"GStateOps"
+        },
+        {
           "id":1000000000003,
           "type":"string",
           "value":"ProductLocation"

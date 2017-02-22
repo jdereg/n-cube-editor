@@ -1611,7 +1611,72 @@ class RpmVisualizerTest
         //Check node
         Map node = checkNodeBasics('StateOps', 'Risk')
         checkNoScopePrompt(node.details as String)
+    }
 
+    @Test
+    void testBuildGraph_inScopeScopeValues()
+    {
+        //Load graph with no scope
+        String startCubeName = 'rpm.class.Product'
+        inputScopeInfo.scope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+        buildGraph(options)
+        assert 1 == nodes.size()
+
+        //User picks GProduct. Reload.
+        inputScopeInfo.scope.product = 'GProduct'
+        options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
+        buildGraph(options)
+        assert 2 == nodes.size()
+
+        //Check graph scope prompt
+        assert scopeInfo.scope == [product: 'GProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert 1 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
+        assert scopeInfo.optionalGraphScopeAvailableValues.keySet().containsAll('div')
+        assert 3 == scopeInfo.optionalGraphScopeAvailableValues.div.size()
+        assert [null, 'div1', 'div2'] as Set == scopeInfo.optionalGraphScopeAvailableValues.div as Set
+        assert 1 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
+        assert scopeInfo.optionalGraphScopeCubeNames.keySet().containsAll('div')
+        assert 1 == scopeInfo.optionalGraphScopeCubeNames.div.size()
+        assert ['rpm.scope.enum.Product.Risks.traits.exists'] as Set == scopeInfo.optionalGraphScopeCubeNames.div as Set
+
+        //Check node scope prompts
+        Map node = checkNodeBasics('GProduct', 'Product')
+        String nodeDetails = node.details as String
+        checkScopePromptDropdown(nodeDetails, 'div', DEFAULT, [DEFAULT, 'div1', 'div2'], ['div3'], SELECT_OR_ENTER_VALUE)
+        checkNoScopePrompt(nodeDetails, 'category')
+
+        //User picks div = div1. Reload.
+        inputScopeInfo.scope.div = 'div1'
+        options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
+        buildGraph(options)
+        assert 2 == nodes.size()
+
+        //Check graph scope prompt
+        assert scopeInfo.scope == [div: 'div1', product: 'GProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
+        assert 2 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
+        assert scopeInfo.optionalGraphScopeAvailableValues.keySet().containsAll('div', 'category')
+        assert 3 == scopeInfo.optionalGraphScopeAvailableValues.div.size()
+        assert [null, 'div1', 'div2'] as Set == scopeInfo.optionalGraphScopeAvailableValues.div as Set
+        assert 5 == scopeInfo.optionalGraphScopeAvailableValues.category.size()
+        assert ['cat1', 'cat2', 'cat3', 'cat4', 'cat5'] as Set == scopeInfo.optionalGraphScopeAvailableValues.category as Set
+        assert 2 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
+        assert scopeInfo.optionalGraphScopeCubeNames.keySet().containsAll('div', 'category')
+        assert 1 == scopeInfo.optionalGraphScopeCubeNames.div.size()
+        assert ['rpm.scope.enum.Product.Risks.traits.exists'] as Set == scopeInfo.optionalGraphScopeCubeNames.div as Set
+        assert 1 == scopeInfo.optionalGraphScopeCubeNames.div.size()
+        assert ['rpm.scope.enum.Product.Risks.traits.exists.category'] as Set == scopeInfo.optionalGraphScopeAvailableValues.div as Set
+
+        //Check node scope prompts
+        node = checkNodeBasics('GProduct', 'Product')
+        nodeDetails = node.details as String
+        checkNoScopePrompt(nodeDetails, 'div')
+        checkNoScopePrompt(nodeDetails, 'category')
+
+        node = checkEnumNodeBasics("${ADDITIONAL_SCOPE_REQUIRED_FOR}${VALID_VALUES_FOR_FIELD_LOWER_CASE}Risks on GProduct", ADDITIONAL_SCOPE_REQUIRED, true)
+        nodeDetails = node.details as String
+        checkNoScopePrompt(nodeDetails, 'div')
+        checkScopePromptDropdown(nodeDetails, 'category', '', ['cat1', 'cat2', 'cat3', 'cat4', 'cat5'], [DEFAULT], SELECT_OR_ENTER_VALUE)
     }
 
     //*************************************************************************************

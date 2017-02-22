@@ -12,7 +12,7 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.4",
+      "referenceVersion":"1.0.6",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Product",
@@ -87,6 +87,15 @@
       "id":[
         1000000000001,
         2001450382238,
+        3000000000002
+      ],
+      "type":"string",
+      "value":"true"
+    },
+    {
+      "id":[
+        1000859883503,
+        2000000000002,
         3000000000002
       ],
       "type":"string",

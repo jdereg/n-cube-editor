@@ -42,7 +42,7 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.4",
+      "referenceVersion":"1.0.6",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Risk",
@@ -56,7 +56,7 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.4",
+      "referenceVersion":"1.0.6",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Product",
@@ -74,6 +74,16 @@
       ],
       "type":"boolean",
       "value":true
+    },
+    {
+      "id":[
+        1000000000001,
+        2000000000004,
+        3000097746519,
+        4000859883503
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Product.Risks.traits.exists[:]"
     },
     {
       "id":[
@@ -104,6 +114,16 @@
       ],
       "type":"boolean",
       "value":true
+    },
+    {
+      "id":[
+        1000000000001,
+        2000000000004,
+        3001018651315,
+        4000859883503
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Product.Risks.traits.exists[:]"
     }
   ]
 }

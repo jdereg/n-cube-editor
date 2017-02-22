@@ -1,5 +1,5 @@
 {
-  "ncube":"rpm.scope.enum.Product.Risks.traits.exists",
+  "ncube":"rpm.scope.enum.Product.Risks.traits.exists.category",
   "defaultCellValueType":"string",
   "defaultCellValue":"#NOT_DEFINED",
   "cube_tags":"EPM",
@@ -36,8 +36,8 @@
     },
     {
       "id":5,
-      "name":"div",
-      "hasDefault":true,
+      "name":"category",
+      "hasDefault":false,
       "type":"DISCRETE",
       "valueType":"STRING",
       "preferredOrder":1,
@@ -46,12 +46,27 @@
         {
           "id":5001683995653,
           "type":"string",
-          "value":"div1"
+          "value":"cat1"
         },
         {
           "id":5001175698947,
           "type":"string",
-          "value":"div2"
+          "value":"cat2"
+        },
+        {
+          "id":5000132654386,
+          "type":"string",
+          "value":"cat3"
+        },
+        {
+          "id":5001429321123,
+          "type":"string",
+          "value":"cat4"
+        },
+        {
+          "id":5001737056447,
+          "type":"string",
+          "value":"cat5"
         }
       ]
     }
@@ -60,25 +75,26 @@
     {
       "id":[
         3000000000035,
-        5001683995653,
-        6001018651315
-      ],
-      "type":"exp",
-      "value":"@rpm.scope.enum.Product.Risks.traits.exists.category[:]"
-    },
-    {
-      "id":[
-        3000000000035,
-        5001683995653,
+        5001429321123,
         6000097746519
       ],
-      "type":"exp",
-      "value":"@rpm.scope.enum.Product.Risks.traits.exists.category[:]"
+      "type":"boolean",
+      "value":true
     },
     {
       "id":[
         3000000000035,
-        6001107612492
+        5001683995653,
+        6001018651315
+      ],
+      "type":"boolean",
+      "value":true
+    },
+    {
+      "id":[
+        3000000000035,
+        5000132654386,
+        6001018651315
       ],
       "type":"boolean",
       "value":true
@@ -89,23 +105,14 @@
         5001175698947,
         6001018651315
       ],
-      "type":"exp",
-      "value":"@rpm.scope.enum.Product.Risks.traits.exists.category[:]"
-    },
-    {
-      "id":[
-        3000000000035,
-        5001683995653,
-        6001107612492
-      ],
       "type":"boolean",
       "value":true
     },
     {
       "id":[
         3000000000035,
-        5001175698947,
-        6001107612492
+        5000132654386,
+        6000097746519
       ],
       "type":"boolean",
       "value":true
