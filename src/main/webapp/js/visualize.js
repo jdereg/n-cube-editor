@@ -974,11 +974,11 @@ var Visualizer = (function ($) {
             delete visInfo['nodes'];
             delete visInfo['edges'];
             _availableGroupsAllLevels = visInfo.availableGroupsAllLevels['@items'];
-            if (_selectedGroups === null){
+            if (_selectedGroups === null || _selectedGroups.length === 1){
                 _selectedGroups = _availableGroupsAllLevels;
             }
             maxLevel = visInfo.maxLevel;
-            if (_selectedLevel === null){
+            if (_selectedLevel === null || _selectedLevel === 1){
                 _selectedLevel = visInfo.defaultLevel;
             }
             if (_selectedLevel > maxLevel){
