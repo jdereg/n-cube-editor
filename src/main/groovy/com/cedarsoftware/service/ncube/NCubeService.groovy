@@ -476,9 +476,9 @@ class NCubeService
         NCubeManager.clearCache(appId)
     }
 
-    boolean isAdmin(ApplicationID appId)
+    boolean isAdmin(ApplicationID appId, boolean useRealId)
     {
-        NCubeManager.isAdmin(appId)
+        NCubeManager.isAdmin(appId, useRealId)
     }
 
     List<AxisRef> getReferenceAxes(ApplicationID appId)

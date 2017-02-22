@@ -339,6 +339,11 @@ var PERMISSION_ACTION = {
     UPDATE: 'update'
 };
 
+var NOTE_CLASS = {
+    PROCESS_DURATION: 'process-duration',
+    SYS_META: 'sysmeta'
+};
+
 //noinspection MagicNumberJS
 var KEY_CODES = {
     MOUSE_LEFT: 1,

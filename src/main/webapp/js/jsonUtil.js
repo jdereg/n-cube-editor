@@ -6,6 +6,10 @@
  *
  * @author John DeRegnaucourt
  */
+
+var _impersonation = '';
+var _impAppId = '';
+
 function resolveRefs(jObj)
 {
     if (!jObj)
@@ -148,8 +152,8 @@ function exec(target, args, params)
  * The call is made asynchronously when the params object is included *and* the
  * 'callback' field is supplied.
  */
-function call(target, args, params)
-{
+function call(target, args, params) {
+    var async, url, json, result;
     if (!params)
     {   // Create an empty params object
         params = {};
@@ -162,23 +166,31 @@ function call(target, args, params)
     {
         params.noResolveRefs = false;
     }
-    var async = params.hasOwnProperty('callback');
-
-    var url = buildJsonCmdUrl(target);
-    var json;
+    if (params.hasOwnProperty('fakeuser')) {
+        _impersonation = params.fakeuser;
+    }
+    if (params.hasOwnProperty('appid')) {
+        _impAppId = params.appid;
+    }
+    async = params.hasOwnProperty('callback');
+    url = buildJsonCmdUrl(target);
+    
     try
     {
         json = buildJsonArgs(args);
     }
-    catch (err)
+    catch (ignored)
     {
         return {status:null,data:"Arguments could not be converted to JSON string."};
     }
-    var result = null;
 
     $.ajax({
         type : "POST",
         url : url,
+        headers: {
+            'fakeuser': _impersonation,
+            'appid': _impAppId
+        },
         async : async,
         cache : false,
         data : json,
