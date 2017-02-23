@@ -1505,8 +1505,8 @@ var NCE = (function ($) {
         if (hasSearchOptions(opts)) {
             callServerSideSearch();
         } else {
-            nameFilter = _searchNames.val();
-            mainList = nameFilter && nameFilter.length ? filterCubeNames(nameFilter) : _cubeList;
+            nameFilter = _searchNames.val().trim();
+            mainList = nameFilter.length ? filterCubeNames(nameFilter) : _cubeList;
             loadFilteredNCubeListView(mainList);
         }
     }
@@ -1549,8 +1549,8 @@ var NCE = (function ($) {
 
     function callServerSideSearch() {
         var nameFilter, pattern, regex;
-        nameFilter = _searchNames.val();
-        if (nameFilter && nameFilter.length) {
+        nameFilter = _searchNames.val().trim();
+        if (nameFilter.length) {
             pattern = wildcardToRegexString(nameFilter);
             regex = new RegExp(pattern, 'i');
         }
@@ -1676,13 +1676,7 @@ var NCE = (function ($) {
             .on('keyup', function(e) {
                 if (e.keyCode === KEY_CODES.ESCAPE) {
                     clearSearch();
-                } else {
-                    this.value = this.value.trim();
                 }
-            }).on('paste', function() {
-                delay(function() { 
-                    _searchNames[0].value = _searchNames[0].value.trim();
-                }, 1);
             });
 
         _cubeSearchContains
@@ -2513,7 +2507,7 @@ var NCE = (function ($) {
 
     function loadFilteredNCubeListView(cubes) {
         var cubeIdx, cubeLen, cubeKeys, loName, activeTab;
-        var filter = _searchNames.val();
+        var filter = _searchNames.val().trim();
         var isNotHead = !isHeadSelected();
         var listItemHtml = '';
         _listOfCubes.empty();
