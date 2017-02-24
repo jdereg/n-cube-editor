@@ -1572,8 +1572,8 @@ class RpmVisualizerTest
         Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
         buildGraph(options)
 
-        //Check that sourceRisk is now part of required graph scope
-        List<String> risks = ['ARisk', 'BRisk', 'DRisk', 'GProductOps', 'ProductLocation', 'StateOps', 'WProductOps']
+        //Check that sourceRisk is now part of top node scope
+        List<String> risks = ['ARisk', 'BRisk', 'DRisk', 'GProductOps', 'GStateOps', 'ProductLocation', 'StateOps', 'WProductOps']
         assert scopeInfo.topNodeScopeAvailableValues.keySet().contains('sourceRisk')
         assert risks as Set == scopeInfo.topNodeScopeAvailableValues.sourceRisk as Set
         assert scopeInfo.topNodeScopeCubeNames.keySet().contains('sourceRisk')
@@ -1614,7 +1614,35 @@ class RpmVisualizerTest
     }
 
     @Test
-    void testBuildGraph_inScopeScopeValues()
+    void testBuildGraph_inScopeScopeValues_unboundAxis()
+    {
+        //Load graph with no scope
+        String startCubeName = 'rpm.class.Product'
+        inputScopeInfo.scope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+        buildGraph(options)
+        assert 1 == nodes.size()
+
+        //User picks GProduct. Reload. This will result in unboundAxis on div.
+        inputScopeInfo.scope.product = 'GProduct'
+        options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
+        buildGraph(options)
+        assert 2 == nodes.size()
+
+        //Check graph scope prompt
+        //TODO: After adding coordinate info to unboundAxisList in NCube, will not have Default as a scope value.
+        assert 3 == scopeInfo.optionalGraphScopeAvailableValues.div.size()
+        assert [null, 'div1', 'div2'] as Set == scopeInfo.optionalGraphScopeAvailableValues.div as Set
+
+        //Check node scope prompt
+        Map node = checkEnumNodeBasics("${VALID_VALUES_FOR_FIELD_SENTENCE_CASE}Risks on GProduct")
+        //TODO: After adding coordinate info to unboundAxisList in NCube, will not have Default as a scope value.
+        checkScopePromptDropdown(node.details as String, 'div', 'Default', ['div1', 'div2', DEFAULT], [], SELECT_OR_ENTER_VALUE)
+    }
+
+    //TODO: After adding coordinate info to InvalidCoordinateException in NCube, will not have cat5 as 'in scope' value.
+    @Test
+    void testBuildGraph_inScopeScopeValues_invalidCoordinate()
     {
         //Load graph with no scope
         String startCubeName = 'rpm.class.Product'
@@ -1629,54 +1657,56 @@ class RpmVisualizerTest
         buildGraph(options)
         assert 2 == nodes.size()
 
-        //Check graph scope prompt
-        assert scopeInfo.scope == [product: 'GProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
-        assert 1 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
-        assert scopeInfo.optionalGraphScopeAvailableValues.keySet().containsAll('div')
-        assert 3 == scopeInfo.optionalGraphScopeAvailableValues.div.size()
-        assert [null, 'div1', 'div2'] as Set == scopeInfo.optionalGraphScopeAvailableValues.div as Set
-        assert 1 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
-        assert scopeInfo.optionalGraphScopeCubeNames.keySet().containsAll('div')
-        assert 1 == scopeInfo.optionalGraphScopeCubeNames.div.size()
-        assert ['rpm.scope.enum.Product.Risks.traits.exists'] as Set == scopeInfo.optionalGraphScopeCubeNames.div as Set
-
-        //Check node scope prompts
-        Map node = checkNodeBasics('GProduct', 'Product')
-        String nodeDetails = node.details as String
-        checkScopePromptDropdown(nodeDetails, 'div', DEFAULT, [DEFAULT, 'div1', 'div2'], ['div3'], SELECT_OR_ENTER_VALUE)
-        checkNoScopePrompt(nodeDetails, 'category')
-
-        //User picks div = div1. Reload.
+        //User picks div = div1. Reload. This will result in InvalidCoordinateException due to missing category scope.
         inputScopeInfo.scope.div = 'div1'
         options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
         buildGraph(options)
         assert 2 == nodes.size()
 
         //Check graph scope prompt
-        assert scopeInfo.scope == [div: 'div1', product: 'GProduct',_effectiveVersion: ApplicationID.DEFAULT_VERSION, policyControlDate: defaultScopeDate, quoteDate: defaultScopeDate] as CaseInsensitiveMap
-        assert 2 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
-        assert scopeInfo.optionalGraphScopeAvailableValues.keySet().containsAll('div', 'category')
-        assert 3 == scopeInfo.optionalGraphScopeAvailableValues.div.size()
-        assert [null, 'div1', 'div2'] as Set == scopeInfo.optionalGraphScopeAvailableValues.div as Set
         assert 5 == scopeInfo.optionalGraphScopeAvailableValues.category.size()
         assert ['cat1', 'cat2', 'cat3', 'cat4', 'cat5'] as Set == scopeInfo.optionalGraphScopeAvailableValues.category as Set
-        assert 2 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
-        assert scopeInfo.optionalGraphScopeCubeNames.keySet().containsAll('div', 'category')
-        assert 1 == scopeInfo.optionalGraphScopeCubeNames.div.size()
-        assert ['rpm.scope.enum.Product.Risks.traits.exists'] as Set == scopeInfo.optionalGraphScopeCubeNames.div as Set
-        assert 1 == scopeInfo.optionalGraphScopeCubeNames.div.size()
-        assert ['rpm.scope.enum.Product.Risks.traits.exists.category'] as Set == scopeInfo.optionalGraphScopeAvailableValues.div as Set
 
-        //Check node scope prompts
-        node = checkNodeBasics('GProduct', 'Product')
-        nodeDetails = node.details as String
-        checkNoScopePrompt(nodeDetails, 'div')
-        checkNoScopePrompt(nodeDetails, 'category')
+        //Check node scope prompt
+        Map node = checkEnumNodeBasics("${ADDITIONAL_SCOPE_REQUIRED_FOR}${VALID_VALUES_FOR_FIELD_LOWER_CASE}Risks on GProduct", ADDITIONAL_SCOPE_REQUIRED, true)
+        checkScopePromptDropdown(node.details as String, 'category', '', ['cat1', 'cat2', 'cat3', 'cat4', 'cat5'], [DEFAULT], SELECT_OR_ENTER_VALUE)
+    }
 
-        node = checkEnumNodeBasics("${ADDITIONAL_SCOPE_REQUIRED_FOR}${VALID_VALUES_FOR_FIELD_LOWER_CASE}Risks on GProduct", ADDITIONAL_SCOPE_REQUIRED, true)
-        nodeDetails = node.details as String
-        checkNoScopePrompt(nodeDetails, 'div')
-        checkScopePromptDropdown(nodeDetails, 'category', '', ['cat1', 'cat2', 'cat3', 'cat4', 'cat5'], [DEFAULT], SELECT_OR_ENTER_VALUE)
+    @Test
+    void testBuildGraph_inScopeScopeValues_coordinateNotFound()
+    {
+        //Load graph with no scope
+        String startCubeName = 'rpm.class.Product'
+        inputScopeInfo.scope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo]
+        buildGraph(options)
+        assert 1 == nodes.size()
+
+        //User picks GProduct. Reload.
+        inputScopeInfo.scope.product = 'GProduct'
+        options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
+        buildGraph(options)
+        assert 2 == nodes.size()
+
+        //User picks div = div1. Reload. This will result in InvalidCoordinateException since category is required scope.
+        inputScopeInfo.scope.div = 'div1'
+        options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
+        buildGraph(options)
+        assert 2 == nodes.size()
+
+        //User picks category = catBogus. Reload. This will result in CoordinateNotFoundException since catBogus doesn't exist.
+        inputScopeInfo.scope.category = 'catBogus'
+        options = [startCubeName: startCubeName, scopeInfo: inputScopeInfo, visInfo: visInfo]
+        buildGraph(options)
+        assert 2 == nodes.size()
+
+        //Check graph scope prompt for category
+        assert 5 == scopeInfo.optionalGraphScopeAvailableValues.category.size()
+        assert ['cat1', 'cat2', 'cat3', 'cat4', 'cat5'] as Set == scopeInfo.optionalGraphScopeAvailableValues.category as Set
+
+        //Check node scope prompt
+        Map node = checkEnumNodeBasics("${REQUIRED_SCOPE_VALUE_NOT_FOUND_FOR}${VALID_VALUES_FOR_FIELD_LOWER_CASE}Risks on GProduct", DIFFERENT_VALUE_MUST_BE_PROVIDED, true)
+        checkScopePromptDropdown(node.details as String, 'category', '', ['cat1', 'cat2', 'cat3', 'cat4',  'cat5'], [DEFAULT,], SELECT_OR_ENTER_VALUE)
     }
 
     //*************************************************************************************
@@ -1805,7 +1835,6 @@ class RpmVisualizerTest
         }
         else
         {
-            assert scopeMessage.contains(NO_OPTIONAL_SCOPE_IN_VISUALIZATION)
             assert 0 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
             assert 0 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
         }
@@ -1827,7 +1856,6 @@ class RpmVisualizerTest
         assert scopeMessage.contains('title="Scope key _effectiveVersion is required to load partyrole.LossPrevention')
         assert scopeMessage.contains("""<input id="_effectiveVersion" value="${ApplicationID.DEFAULT_VERSION}" placeholder="Select or enter value..." class="scopeInput form-control" """)
 
-        assert scopeMessage.contains(NO_OPTIONAL_SCOPE_IN_VISUALIZATION)
         assert 0 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
         assert 0 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
     }
@@ -2011,4 +2039,5 @@ class RpmVisualizerTest
         NCubeManager.addCube(cube.applicationID, cube)
         return cube
     }
+
 }

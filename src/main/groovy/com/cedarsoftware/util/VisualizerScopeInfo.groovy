@@ -5,6 +5,8 @@ import com.cedarsoftware.ncube.Axis
 import com.cedarsoftware.ncube.Column
 import com.cedarsoftware.ncube.NCube
 import com.cedarsoftware.ncube.NCubeManager
+import com.cedarsoftware.ncube.exception.CoordinateNotFoundException
+import com.cedarsoftware.ncube.exception.InvalidCoordinateException
 import groovy.transform.CompileStatic
 
 import static com.cedarsoftware.util.VisualizerConstants.BREAK
@@ -41,21 +43,21 @@ class VisualizerScopeInfo
 
 	protected void populateScopeDefaults(String startCubeName){}
 
-	protected Set<Object> addTopNodeScope(String cubeName, String scopeKey, boolean skipAvailableScopeValues = false)
+	protected Set<Object> addTopNodeScope(String cubeName, String scopeKey, boolean skipAvailableScopeValues = false, Map coordinate = null)
 	{
-		addTopNodeScopeValues(cubeName, scopeKey, topNodeScopeAvailableValues, skipAvailableScopeValues)
+		addTopNodeScopeValues(cubeName, scopeKey, topNodeScopeAvailableValues, skipAvailableScopeValues, coordinate)
 		addValue(scopeKey, topNodeScopeCubeNames, cubeName)
 		return topNodeScopeAvailableValues[scopeKey]
 	}
 
-	protected Set<Object> addOptionalGraphScope(String cubeName, String scopeKey, boolean skipAvailableScopeValues = false)
+	protected Set<Object> addOptionalGraphScope(String cubeName, String scopeKey, boolean skipAvailableScopeValues = false, Map coordinate = null)
 	{
-		Set<Object> inScopeAvailableValues = addScopeValues(cubeName, scopeKey, optionalGraphScopeAvailableValues, skipAvailableScopeValues)
+		Set<Object> availableValues = addScopeValues(cubeName, scopeKey, optionalGraphScopeAvailableValues, skipAvailableScopeValues, coordinate)
 		addValue(scopeKey, optionalGraphScopeCubeNames, cubeName)
-		return inScopeAvailableValues
+		return availableValues
 	}
 
-	private void addTopNodeScopeValues(String cubeName, String scopeKey, Map scopeInfoMap, boolean skipAvailableScopeValues)
+	private void addTopNodeScopeValues(String cubeName, String scopeKey, Map scopeInfoMap, boolean skipAvailableScopeValues, Map coordinate)
 	{
 		Set<Object> scopeValues = scopeInfoMap[scopeKey] as Set ?: new LinkedHashSet()
 		if (skipAvailableScopeValues)
@@ -64,7 +66,7 @@ class VisualizerScopeInfo
 		}
 		else
 		{
-			Set scopeValuesThisCube = getInScopeColumnValues(cubeName, scopeKey)
+			Set scopeValuesThisCube = getColumnValues(cubeName, scopeKey, coordinate)
 			if (scopeInfoMap.containsKey(scopeKey))
 			{
 				scopeInfoMap[scopeKey] = scopeValues.intersect(scopeValuesThisCube) as Set
@@ -76,17 +78,17 @@ class VisualizerScopeInfo
 		}
 	}
 
-	private Set<Object> addScopeValues(String cubeName, String scopeKey, Map scopeInfoMap, boolean skipAvailableScopeValues)
+	private Set<Object> addScopeValues(String cubeName, String scopeKey, Map scopeInfoMap, boolean skipAvailableScopeValues, Map coordinate)
 	{
-		Set<Object> inScopeColumnValues = new LinkedHashSet()
+		Set<Object> columnValues = new LinkedHashSet()
 		Set<Object> scopeValues = scopeInfoMap[scopeKey] as Set ?: new LinkedHashSet()
 		if (!skipAvailableScopeValues)
 		{
-			inScopeColumnValues = getInScopeColumnValues(cubeName, scopeKey)
-			scopeValues.addAll(inScopeColumnValues)
+			columnValues = getColumnValues(cubeName, scopeKey, coordinate)
+			scopeValues.addAll(columnValues)
 		}
 		scopeInfoMap[scopeKey] = scopeValues
-		return inScopeColumnValues
+		return columnValues
 	}
 
 	protected static void addValue(String scopeKey, Map scopeInfoMap, Object valueToAdd)
@@ -96,12 +98,16 @@ class VisualizerScopeInfo
 		scopeInfoMap[scopeKey] = values
 	}
 
-	private Set<Object> getInScopeColumnValues(String cubeName, String axisName)
+	protected Set<Object> getColumnValues(String cubeName, String axisName, Map coordinate)
 	{
-		//TODO: Rework this to get only "in scope" column values
 		NCube cube = NCubeManager.getCube(appId, cubeName)
+		return getAllColumnValues(cube, axisName)
+	}
+
+	protected static Set<Object> getAllColumnValues(NCube cube, String axisName)
+	{
 		Set values = new LinkedHashSet()
-		Axis axis = cube?.getAxis(axisName)
+		Axis axis = cube.getAxis(axisName)
 		if (axis)
 		{
 			for (Column column : axis.columns)
@@ -115,7 +121,6 @@ class VisualizerScopeInfo
 	protected void createGraphScopePrompt()
 	{
 		StringBuilder sb = new StringBuilder("${BREAK}")
-
 		if (topNodeScopeAvailableValues || optionalGraphScopeAvailableValues)
 		{
 			if (topNodeScopeAvailableValues)
@@ -138,8 +143,8 @@ class VisualizerScopeInfo
 				sb.append("<b>Additional scope in visualization</b>")
 				sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
 				sb.append(getOptionalGraphScopeMessage(sorted))
+				sb.append("${DOUBLE_BREAK}")
 			}
-			sb.append("${DOUBLE_BREAK}")
 
 			sb.append("""<a href="#" title="Reset scope to original defaults" class="scopeReset">Reset scope</a>""")
 			displayScopeMessage = true

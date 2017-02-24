@@ -33,10 +33,12 @@ class VisualizerHelper
 					Set<Object> availableValues
 					if (visInfo.nodeCount == 1l)
 					{
+						//TODO: Add coordinate info to unboundAxesList in NCube so that it can be passed in below.
 						availableValues = scopeInfo.addTopNodeScope(cubeName, scopeKey)
 					}
 					else
 					{
+						//TODO: Add coordinate info to unboundAxesList in NCube so that it can be passed in below.
 						availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey)
 					}
 					availableValues.each{Object availableValue ->
@@ -60,7 +62,7 @@ class VisualizerHelper
 		String scopeKey = e.axisName
 		if (cubeName && scopeKey)
 		{
-			return getAdditionalRequiredNodeScopeMessage(scopeInfo, nodeCount, scopeKey, null, cubeName)
+			return getAdditionalRequiredNodeScopeMessage(scopeInfo, nodeCount, scopeKey, null, cubeName, e.coordinate)
 		}
 		else
 		{
@@ -76,6 +78,7 @@ class VisualizerHelper
 		{
 			StringBuilder sb = new StringBuilder()
 			missingScope.each { String scopeKey ->
+				//TODO: Add coordinate info to InvalidCoordinateException in NCube so that it can be passed in below.
 				sb.append(getAdditionalRequiredNodeScopeMessage(scopeInfo, nodeCount, scopeKey, null, e.cubeName))
 			}
 			return sb
@@ -87,17 +90,17 @@ class VisualizerHelper
 		}
 	}
 
-	private static StringBuilder getAdditionalRequiredNodeScopeMessage(VisualizerScopeInfo scopeInfo, long nodeCount, String scopeKey, Object providedScopeValue, String cubeName)
+	private static StringBuilder getAdditionalRequiredNodeScopeMessage(VisualizerScopeInfo scopeInfo, long nodeCount, String scopeKey, Object providedScopeValue, String cubeName, Map coordinate = null)
 	{
 		StringBuilder sb = new StringBuilder()
 		Set<Object> availableValues
 		if (nodeCount == 1l)
 		{
-			availableValues = scopeInfo.addTopNodeScope(cubeName, scopeKey)
+			availableValues = scopeInfo.addTopNodeScope(cubeName, scopeKey, false, coordinate)
 		}
 		else
 		{
-			availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey)
+			availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey, false, coordinate)
 		}
 		StringBuilder title = new StringBuilder("Scope key ${scopeKey} is required by ${cubeName} to load this ${scopeInfo.nodeLabel}")
 		sb.append(scopeInfo.getScopeMessage(scopeKey, availableValues, title, providedScopeValue))
