@@ -13,36 +13,46 @@ import org.junit.Test
 
 import static com.cedarsoftware.util.VisualizerConstants.*
 import static com.cedarsoftware.util.VisualizerTestConstants.*
-import static org.junit.Assert.fail
 
 @CompileStatic
 class VisualizerTest{
 
     static final String PATH_PREFIX = 'visualizer/**/'
+
     Visualizer visualizer
-    ApplicationID appId = new ApplicationID(ApplicationID.DEFAULT_TENANT, 'test.visualizer', ApplicationID.DEFAULT_VERSION, ReleaseStatus.SNAPSHOT.name(), ApplicationID.HEAD)
+    Map inputScope
+    VisualizerScopeInfo scopeInfo
+    ApplicationID appId
+    Map graphInfo
+    VisualizerInfo visInfo
+    Set messages
+    List<Map<String, Object>> nodes
+    List<Map<String, Object>> edges
 
     @Before
     void beforeTest(){
+        appId = new ApplicationID(ApplicationID.DEFAULT_TENANT, 'test.visualizer', ApplicationID.DEFAULT_VERSION, ReleaseStatus.SNAPSHOT.name(), ApplicationID.HEAD)
         visualizer = new Visualizer()
+        inputScope = new CaseInsensitiveMap()
+        graphInfo = null
+        visInfo = null
+        messages = null
+        nodes = null
+        edges = null
         NCubeManager.NCubePersister = new NCubeResourcePersister(PATH_PREFIX)
     }
 
     @Test
     void testBuildGraph_checkVisInfo()
     {
-        Map scope = null
         String startCubeName = 'CubeWithRefs'
-        Map options = [startCubeName: startCubeName, scope: scope]
+        inputScope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        assert !messages
 
-        Map graphInfo = visualizer.buildGraph(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
-        VisualizerScopeInfo scopeInfo = graphInfo.scopeInfo as VisualizerScopeInfo
-        assert 0 == visInfo.messages.size()
-
-        assert 5 == visInfo.nodes.size()
-        assert 4 == visInfo.edges.size()
+        assert 5 == nodes.size()
+        assert 4 == edges.size()
         assert [:] as CaseInsensitiveMap == scopeInfo.scope
         assert 3l == visInfo.maxLevel
         assert 6l == visInfo.nodeCount
@@ -77,19 +87,16 @@ class VisualizerTest{
     @Test
     void testBuildGraph_checkNodeAndEdgeInfo()
     {
-        Map scope = null
         String startCubeName = 'CubeWithRefs'
-        Map options = [startCubeName: startCubeName, scope: scope]
-
-        Map graphInfo = visualizer.buildGraph(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
-        assert 0 == visInfo.messages.size()
-        assert 5 == visInfo.nodes.size()
-        assert 4 == visInfo.edges.size()
+        inputScope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        assert !messages
+        assert 5 == nodes.size()
+        assert 4 == edges.size()
 
         //Check top node
-        Map node = visInfo.nodes.find { Map node ->'CubeWithRefs' == node.cubeName}
+        Map node = nodes.find { Map node ->'CubeWithRefs' == node.cubeName}
         assert null == node.fromFieldName
         assert startCubeName == node.title
         assert startCubeName == node.detailsTitle1
@@ -115,7 +122,7 @@ class VisualizerTest{
         assert !nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
 
         //Check one target node
-        node = visInfo.nodes.find { Map node2 ->'CubeHasTwoRefsToSameCube' == node2.cubeName}
+        node = nodes.find { Map node2 ->'CubeHasTwoRefsToSameCube' == node2.cubeName}
         assert 'CubeDAxis1: CubeDAxis1Col3' == node.fromFieldName
         assert 'CubeHasTwoRefsToSameCube' == node.title
         assert 'CubeHasTwoRefsToSameCube' == node.detailsTitle1
@@ -140,7 +147,7 @@ class VisualizerTest{
         assert !nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
 
         //Check edge between top node and target node above
-        Map edge = visInfo.edges.find { Map edge -> 'CubeHasTwoRefsToSameCube' == edge.toName && 'CubeWithRefs' == edge.fromName}
+        Map edge = edges.find { Map edge -> 'CubeHasTwoRefsToSameCube' == edge.toName && 'CubeWithRefs' == edge.fromName}
         assert 'CubeDAxis1: CubeDAxis1Col3' == edge.fromFieldName
         assert '2' == edge.level
         assert !edge.label
@@ -150,17 +157,11 @@ class VisualizerTest{
     @Test
     void testBuildGraph_checkStructure()
     {
-        Map scope = null
         String startCubeName = 'CubeWithRefs'
-        Map options = [startCubeName: startCubeName, scope: scope]
-
-        Map graphInfo = visualizer.buildGraph(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
-        assert 0 == visInfo.messages.size()
-        assert !(graphInfo.visInfo as VisualizerInfo).messages
-        List<Map<String, Object>> nodes = (graphInfo.visInfo as VisualizerInfo).nodes as List
-        List<Map<String, Object>> edges = (graphInfo.visInfo as VisualizerInfo).edges as List
+        inputScope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        assert !messages
         assert nodes.size() == 5
         assert edges.size() == 4
 
@@ -176,19 +177,16 @@ class VisualizerTest{
     @Test
     void testBuildGraph_invokedWithDifferentVisInfoClass()
     {
-        Map scope = null
         String startCubeName = 'CubeWithRefs'
         VisualizerInfo otherVisInfo = new OtherVisualizerInfo()
         assert otherVisInfo instanceof VisualizerInfo
         assert 'VisualizerInfo' != otherVisInfo.class.simpleName
         otherVisInfo.groupSuffix = 'shouldGetResetToEmpty'
 
-        Map options = [startCubeName: startCubeName, scope: scope, visInfo: otherVisInfo]
-
-        Map graphInfo = visualizer.buildGraph(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
-        assert 0 == visInfo.messages.size()
+        inputScope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, visInfo: otherVisInfo, scope: inputScope]
+        buildGraph(options)
+        assert !messages
 
         assert 'VisualizerInfo' == visInfo.class.simpleName
         assert '' ==  visInfo.groupSuffix
@@ -200,18 +198,15 @@ class VisualizerTest{
     @Test
     void testBuildGraph_cubeHasRefToNotExistsCube()
     {
-        Map scope = null
         String startCubeName = 'CubeHasRefToNotExistsCube'
-        Map options = [startCubeName: startCubeName, scope: scope]
+        inputScope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options, true)
+        assert ['No cube exists with name of NotExistCube. Cube not included in the visualization.'] as Set == messages
+        assert 1 == nodes.size()
+        assert [] == edges
 
-        Map graphInfo = visualizer.buildGraph(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
-        assert ['No cube exists with name of NotExistCube. Cube not included in the visualization.'] as Set == visInfo.messages
-        assert 1 == visInfo.nodes.size()
-        assert [] == visInfo.edges
-
-        Map node = visInfo.nodes.find { Map node ->'CubeHasRefToNotExistsCube' == node.cubeName}
+        Map node = nodes.find { Map node ->'CubeHasRefToNotExistsCube' == node.cubeName}
         assert null == node.fromFieldName
         assert startCubeName == node.title
     }
@@ -219,16 +214,11 @@ class VisualizerTest{
     @Test
     void testBuildGraph_ruleCubeWithAllDefaultsAndOnlyDefaultValues()
     {
-        Map scope = null
         String startCubeName = 'RuleCubeWithAllDefaultsAndOnlyDefaultValues'
-        Map options = [startCubeName: startCubeName, scope: scope]
-
-        Map graphInfo = visualizer.buildGraph(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        inputScope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        assert !messages
 
         assert 4l == visInfo.maxLevel
 
@@ -258,15 +248,11 @@ class VisualizerTest{
     @Test
     void testBuildGraph_cubeHasTwoRefsToSameCube()
     {
-        Map scope = null
         String startCubeName = 'CubeHasTwoRefsToSameCube'
-        Map options = [startCubeName: startCubeName, scope: scope]
-
-        Map graphInfo = visualizer.buildGraph(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
+        inputScope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        assert !messages
 
         assert 2l == visInfo.maxLevel
 
@@ -289,16 +275,11 @@ class VisualizerTest{
     @Test
     void testBuildGraph_hasCircularRef()
     {
-        Map scope = null
         String startCubeName = 'CubeHasCircularRef1'
-        Map options = [startCubeName: startCubeName, scope: scope]
-
-        Map graphInfo = visualizer.buildGraph(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        VisualizerInfo visInfo = graphInfo.visInfo as VisualizerInfo
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        inputScope = new CaseInsensitiveMap()
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        assert !messages
 
         assert 4l == visInfo.maxLevel
 
@@ -334,46 +315,22 @@ class VisualizerTest{
     @Test
     void testGetCellValues_showCellValues_executedCellAndThreeTypesExceptionCells()
     {
-        Map scope = null
-        Map nodeScope = null
-        String cubeName = 'CubeWithExecutedCellAndThreeTypesExceptionCells'
+        //Build graph
+        String startCubeName = 'CubeWithExecutedCellAndThreeTypesExceptionCells'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode(startCubeName)
 
-        Map oldNode = [
-                id: '1',
-                cubeName: cubeName,
-                title: cubeName,
-                level: '1',
-                label: cubeName,
-                scope: nodeScope,
-                showCellValuesLink: true,
-                showCellValues: true,
-                cellValuesLoaded: false,
-                availableScope: scope,
-        ]
-
-        VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
-
-        Map node = nodes.first()
-        assert cubeName == node.title
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
+        node = checkNode(startCubeName, true, true, true)
 
         String nodeDetails = node.details as String
-        checkDetailsTopSection(nodeDetails)
-        checkDetailsExpandCollapseSection(nodeDetails)
 
         //Cube has four cells with values.
-        assert nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
         assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
 
         //One throws InvalidCoordinateException
@@ -396,44 +353,20 @@ class VisualizerTest{
     @Test
     void testGetCellValues_showCellValues_executedCell()
     {
-        Map scope = null
-        Map nodeScope = null
-        String cubeName = 'CubeWithExecutedCell'
+         //Build graph
+        String startCubeName = 'CubeWithExecutedCell'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode(startCubeName)
 
-        Map oldNode = [
-                id: '1',
-                cubeName: cubeName,
-                title: cubeName,
-                level: '1',
-                label: cubeName,
-                scope: nodeScope,
-                showCellValuesLink: true,
-                showCellValues: true,
-                cellValuesLoaded: false,
-                availableScope: scope,
-        ]
-
-        VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
-
-        Map node = nodes.first()
-        assert cubeName == node.title
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
+        node = checkNode(startCubeName, false, true, true)
 
         String nodeDetails = node.details as String
-        checkDetailsTopSection(nodeDetails)
-        checkDetailsExpandCollapseSection(nodeDetails)
-
         assert nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
         assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
         assert nodeDetails.contains(DETAILS_TITLE_EXECUTED_CELL)
@@ -454,45 +387,20 @@ class VisualizerTest{
         String fileURL = 'file:///C:/Users/bheekin/Desktop/honey%20badger%20thumbs%20up.jpg'
         String httpURL = 'http://www.google.com'
 
-        Map scope = null
-        Map nodeScope = null
-        String cubeName = 'CubeWithExecutedCellsWithURLs'
+        //Build graph
+        String startCubeName = 'CubeWithExecutedCellsWithURLs'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode(startCubeName)
 
-        Map oldNode = [
-                id: '1',
-                cubeName: cubeName,
-                title: cubeName,
-                level: '1',
-                label: cubeName,
-                scope: nodeScope,
-                showCellValuesLink: true,
-                showCellValues: true,
-                cellValuesLoaded: false,
-                availableScope: scope,
-        ]
-
-        VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
-
-        Map node = nodes.first()
-        assert cubeName == node.title
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
+        node = checkNode(startCubeName, false, true, true)
 
         String nodeDetails = node.details as String
-        checkDetailsTopSection(nodeDetails)
-        checkDetailsExpandCollapseSection(nodeDetails)
-
-        assert nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
         assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
         assert nodeDetails.contains(DETAILS_TITLE_EXECUTED_CELL)
         assert nodeDetails.contains('class="' + DETAILS_CLASS_EXECUTED_CELL)
@@ -515,145 +423,67 @@ class VisualizerTest{
     @Test
     void testGetCellValues_showCellValues_noDefaultsNoCellValues()
     {
-        Map scope = null
-        Map nodeScope = null
-        String cubeName = 'CubeWithNoDefaultsAndNoValues'
+        //Build graph
+        String startCubeName = 'CubeWithNoDefaultsAndNoValues'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode(startCubeName)
 
-        Map oldNode = [
-                id: '1',
-                cubeName: cubeName,
-                title: cubeName,
-                level: '1',
-                label: cubeName,
-                scope: nodeScope,
-                showCellValuesLink: true,
-                showCellValues: true,
-                cellValuesLoaded: false,
-                availableScope: scope,
-        ]
-
-        VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
-
-        Map node = nodes.first()
-        assert cubeName == node.title
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
+        node = checkNode(startCubeName, false, true, true, false)
 
         String nodeDetails = node.details as String
-        checkDetailsTopSection(nodeDetails)
-
-        assert !nodeDetails.contains(DETAILS_LABEL_EXPAND_ALL)
-        assert !nodeDetails.contains(DETAILS_LABEL_COLLAPSE_ALL)
-
-        assert nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
         assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
         assert nodeDetails.contains(NONE)
         assert !nodeDetails.contains(DETAILS_LABEL_NON_EXECUTED_VALUE)
         assert !nodeDetails.contains(DETAILS_LABEL_EXECUTED_VALUE)
     }
 
-    @Test
+   /* @Test  TODO:
     void testGetCellValues_showCellValues_notTopNode_requiredScope()
     {
-        Map availableScope = [Axis1Primary: 'Axis1Col2',
-                              Axis2Primary: 'Axis2Col2']
-        Map nodeScope = new CaseInsensitiveMap(availableScope)
-        String cubeName = 'CubeWithDefaultColumn'
+        Map scope = [Axis1Primary: 'Axis1Col2',
+                     Axis2Primary: 'Axis2Col2']
+        inputScope = new CaseInsensitiveMap(scope)
 
-        Map oldNode = [
-                id: '1',
-                cubeName: cubeName,
-                title: cubeName,
-                level: '1',
-                label: cubeName,
-                scope: nodeScope,
-                showCellValuesLink: true,
-                showCellValues: true,
-                cellValuesLoaded: false,
-                availableScope: availableScope,
-        ]
+        //Build graph
+        String startCubeName = 'CubeWithDefaultColumn'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode(startCubeName, startCubeName)
 
-        VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
-
-        Map node = nodes.first()
-        assert cubeName == node.title
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
+        node = checkNode(startCubeName, startCubeName, '', '', false, true)
+        assert scope == node.scope
+        assert scope == node.availableScope
      }
-
-     private VisualizerInfo getVisInfoForShowCellValues()
-    {
-        VisualizerInfo visInfo = new VisualizerInfo(appId)
-        visInfo.allGroupsKeys = ['NCUBE', 'RULE_NCUBE', 'UNSPECIFIED'] as Set
-        visInfo.groupSuffix = ''
-        visInfo.availableGroupsAllLevels = [] as Set
-        return visInfo
-    }
+*/
 
     @Test
     void testGetCellValues_showCellValues_withDefaultsNoCellValues()
     {
-        Map scope = null
-        Map nodeScope = null
-        String cubeName = 'CubeWithDefaultsAndNoValues'
+        //Build graph
+        String startCubeName = 'CubeWithDefaultsAndNoValues'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode(startCubeName)
 
-        Map oldNode = [
-                id: '1',
-                cubeName: cubeName,
-                title: cubeName,
-                level: '1',
-                label: cubeName,
-                scope: nodeScope,
-                showCellValuesLink: true,
-                showCellValues: true,
-                cellValuesLoaded: false,
-                availableScope: scope,
-        ]
-
-        VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
-
-        Map node = nodes.first()
-        assert cubeName == node.title
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
+        node = checkNode(startCubeName, false, true, true, false)
 
         String nodeDetails = node.details as String
-        checkDetailsTopSection(nodeDetails)
-
-        assert !nodeDetails.contains(DETAILS_LABEL_EXPAND_ALL)
-        assert !nodeDetails.contains(DETAILS_LABEL_COLLAPSE_ALL)
-
-        assert nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
         assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
         assert nodeDetails.contains(NONE)
         assert !nodeDetails.contains(DETAILS_LABEL_NON_EXECUTED_VALUE)
@@ -664,48 +494,24 @@ class VisualizerTest{
     @Test
     void testGetCellValues_showCellValues_ruleCubeWithAllDefaultsAndOnlyDefaultValues()
     {
-        Map scope = null
-        Map nodeScope = null
-        String cubeName = 'RuleCubeWithAllDefaultsAndOnlyDefaultValues'
+       //Build graph
+        String startCubeName = 'RuleCubeWithAllDefaultsAndOnlyDefaultValues'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode(startCubeName)
 
-        Map oldNode = [
-                id: '1',
-                cubeName: cubeName,
-                title: cubeName,
-                level: '1',
-                label: cubeName,
-                scope: nodeScope,
-                showCellValuesLink: true,
-                showCellValues: true,
-                cellValuesLoaded: false,
-                availableScope: scope,
-        ]
-
-        VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
-
-        Map node = nodes.first()
-        assert cubeName == node.title
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
-
-        String nodeDetails = node.details as String
-        checkDetailsTopSection(nodeDetails)
 
         //TODO: Should show default values
+        //node = checkNode(startCubeName, false, true)
+        String nodeDetails = node.details as String
         assert !nodeDetails.contains(DETAILS_LABEL_EXPAND_ALL)
         assert !nodeDetails.contains(DETAILS_LABEL_COLLAPSE_ALL)
 
-        assert nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
         assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
         assert nodeDetails.contains(NONE)
         assert !nodeDetails.contains(DETAILS_LABEL_NON_EXECUTED_VALUE)
@@ -715,45 +521,20 @@ class VisualizerTest{
     @Test
     void testGetCellValues_showCellValues_exceptionCell()
     {
-        Map scope = null
-        Map nodeScope = null
-        String cubeName = 'CubeWithExceptionCell'
+        //Build graph
+        String startCubeName = 'CubeWithExceptionCell'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode(startCubeName)
 
-        Map oldNode = [
-                id: '1',
-                cubeName: cubeName,
-                title: cubeName,
-                level: '1',
-                label: cubeName,
-                scope: nodeScope,
-                showCellValuesLink: true,
-                showCellValues: true,
-                cellValuesLoaded: false,
-                availableScope: scope,
-        ]
-
-        VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
-
-        Map node = nodes.first()
-        assert cubeName == node.title
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
-
+        node = checkNode(startCubeName, true, true)
         String nodeDetails = node.details as String
-        checkDetailsTopSection(nodeDetails)
-        checkDetailsExpandCollapseSection(nodeDetails)
 
-        assert nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
         assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
         assert nodeDetails.contains(DETAILS_TITLE_ERROR_DURING_EXECUTION)
         assert nodeDetails.contains('class="' + DETAILS_CLASS_EXCEPTION)
@@ -773,46 +554,22 @@ class VisualizerTest{
     @Test
     void testGetCellValues_showCellValues_invalidCoordinateCell_dueToOneInvalidCoordinateKey()
     {
-        Map scope = null
-        Map nodeScope = null
-        String cubeName = 'CubeWithInvalidCoordinateCell'
+        //Build graph
+        String startCubeName = 'CubeWithInvalidCoordinateCell'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode(startCubeName)
 
-        Map oldNode = [
-                id: '1',
-                cubeName: cubeName,
-                title: cubeName,
-                level: '1',
-                label: cubeName,
-                scope: nodeScope,
-                showCellValuesLink: true,
-                showCellValues: true,
-                cellValuesLoaded: false,
-                availableScope: scope,
-        ]
-
-        VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
-
-        Map node = nodes.first()
-        assert cubeName == node.title
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
+        node = checkNode(startCubeName, false, true)
 
         String nodeDetails = node.details as String
-        checkDetailsTopSection(nodeDetails)
-        checkDetailsExpandCollapseSection(nodeDetails)
 
         //Cube has one cell with a value. It executed OK.
-        assert nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
         assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
         assert nodeDetails.contains(DETAILS_TITLE_MISSING_OR_INVALID_COORDINATE)
         assert nodeDetails.contains('class="' + InvalidCoordinateException.class.simpleName)
@@ -831,53 +588,25 @@ class VisualizerTest{
         assert nodeDetails.contains("CubeKAxis2: CubeKAxis2Col1")
         assert nodeDetails.contains("CubeKAxis2: CubeKAxis2Col2")
         assert nodeDetails.contains("CubeKAxis2: CubeKAxis2Col3")
-
-        assert !nodeDetails.contains(DETAILS_LABEL_MESSAGE)
-        assert !nodeDetails.contains(DETAILS_LABEL_ROOT_CAUSE)
-        assert !nodeDetails.contains(DETAILS_LABEL_STACK_TRACE)
     }
 
     @Test
     void testGetCellValues_showCellValues_invalidCoordinateCell_dueToTwoInvalidCoordinateKeys()
     {
-        Map scope = null
-        Map nodeScope = null
-        String cubeName = 'CubeWithInvalidCoordinateCellDueToTwoInvalidKeys'
+        //Build graph
+        String startCubeName = 'CubeWithInvalidCoordinateCellDueToTwoInvalidKeys'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode(startCubeName)
 
-        Map oldNode = [
-                id: '1',
-                cubeName: cubeName,
-                title: cubeName,
-                level: '1',
-                label: cubeName,
-                scope: nodeScope,
-                showCellValuesLink: true,
-                showCellValues: true,
-                cellValuesLoaded: false,
-                availableScope: scope,
-        ]
-
-        VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
-
-        Map node = nodes.first()
-        assert cubeName == node.title
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
+        node = checkNode(startCubeName, false, true)
 
         String nodeDetails = node.details as String
-        checkDetailsTopSection(nodeDetails)
-        checkDetailsExpandCollapseSection(nodeDetails)
-
         assert nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
         assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
         assert nodeDetails.contains(DETAILS_TITLE_MISSING_OR_INVALID_COORDINATE)
@@ -897,10 +626,6 @@ class VisualizerTest{
         assert nodeDetails.contains("CubeKAxis2: CubeKAxis2Col1")
         assert nodeDetails.contains("CubeKAxis2: CubeKAxis2Col2")
         assert nodeDetails.contains("CubeKAxis2: CubeKAxis2Col3")
-
-        assert !nodeDetails.contains(DETAILS_LABEL_MESSAGE)
-        assert !nodeDetails.contains(DETAILS_LABEL_ROOT_CAUSE)
-        assert !nodeDetails.contains(DETAILS_LABEL_STACK_TRACE)
     }
 
     @Test
@@ -908,18 +633,20 @@ class VisualizerTest{
     {
         //Neither cube name nor axis name
         CoordinateNotFoundException e = new CoordinateNotFoundException('CoordinateNotFoundException', null, null, null, null)
-        RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
-        String message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l)
+        VisualizerScopeInfo scopeInfo = new VisualizerScopeInfo()
+        VisualizerRelInfo relInfo = new VisualizerRelInfo()
+        scopeInfo.init(appId, [:])
+        String message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l, relInfo)
         checkExceptionMessage(message, 'CoordinateNotFoundException')
 
         //No cube name
         e = new CoordinateNotFoundException('CoordinateNotFoundException', null, null, 'dummyAxis', null)
-        message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l)
+        message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l, relInfo)
         checkExceptionMessage(message, 'CoordinateNotFoundException')
 
         //No axis name
         e = new CoordinateNotFoundException('CoordinateNotFoundException', 'dummyCube', null, null, null)
-        message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l)
+        message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l, relInfo)
         checkExceptionMessage(message, 'CoordinateNotFoundException')
     }
 
@@ -930,8 +657,8 @@ class VisualizerTest{
         Map relInfoScope = [dummyRelInfoKey: 'dummyValue'] as CaseInsensitiveMap
         NCube cube = new NCube('dummyCube')
         InvalidCoordinateException e = new InvalidCoordinateException('InvalidCoordinateException', null, null, relInfoScope.keySet())
-        RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo(appId)
-        scopeInfo.scope = new CaseInsensitiveMap(visInfoScope)
+        VisualizerScopeInfo scopeInfo = new VisualizerScopeInfo()
+        scopeInfo.init(appId, [scope: new CaseInsensitiveMap(visInfoScope)])
         VisualizerRelInfo relInfo = new VisualizerRelInfo(appId)
         relInfo.targetCube = cube
         relInfo.availableTargetScope = new CaseInsensitiveMap(relInfoScope)
@@ -950,45 +677,20 @@ class VisualizerTest{
     @Test
     void testGetCellValues_showCellValues_coordinateNotFoundCell_dueToOneNotFoundValue()
     {
-        Map scope = null
-        Map nodeScope = null
-        String cubeName = 'CubeWithCoordinateNotFoundCell'
+        //Build graph
+        String startCubeName = 'CubeWithCoordinateNotFoundCell'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode(startCubeName)
 
-        Map oldNode = [
-                id: '1',
-                cubeName: cubeName,
-                title: cubeName,
-                level: '1',
-                label: cubeName,
-                scope: nodeScope,
-                showCellValuesLink: true,
-                showCellValues: true,
-                cellValuesLoaded: false,
-                availableScope: scope,
-        ]
-
-        VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
-
-        Map node = nodes.first()
-        assert cubeName == node.title
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
+        node = checkNode(startCubeName, false, true)
 
         String nodeDetails = node.details as String
-        checkDetailsTopSection(nodeDetails)
-        checkDetailsExpandCollapseSection(nodeDetails)
-
-        assert nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
         assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
         assert nodeDetails.contains(DETAILS_TITLE_MISSING_OR_INVALID_COORDINATE)
         assert nodeDetails.contains('class="' + CoordinateNotFoundException.class.simpleName)
@@ -1002,55 +704,26 @@ class VisualizerTest{
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col1")
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col2")
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col3")
-
-        assert !nodeDetails.contains(DETAILS_LABEL_MESSAGE)
-        assert !nodeDetails.contains(DETAILS_LABEL_ROOT_CAUSE)
-        assert !nodeDetails.contains(DETAILS_LABEL_STACK_TRACE)
     }
 
 
     @Test
     void testGetCellValues_showCellValues_coordinateNotFoundCell_dueToTwoNotFoundValues()
     {
-        Map scope = null
-        Map nodeScope = null
-        String cubeName = 'CubeWithCoordinateNotFoundCellDueToTwoNotFoundValues'
+        //Build graph
+        String startCubeName = 'CubeWithCoordinateNotFoundCellDueToTwoNotFoundValues'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode(startCubeName)
 
-        Map oldNode = [
-                id: '1',
-                cubeName: cubeName,
-                title: cubeName,
-                level: '1',
-                label: cubeName,
-                scope: nodeScope,
-                showCellValuesLink: true,
-                showCellValues: true,
-                cellValuesLoaded: false,
-                availableScope: scope,
-        ]
-
-        VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
-
-        Map node = nodes.first()
-        assert cubeName == node.title
-        assert true == node.showCellValuesLink
-        assert true == node.showCellValues
-        assert true == node.cellValuesLoaded
+        node = checkNode(startCubeName, false, true)
 
         String nodeDetails = node.details as String
-        checkDetailsTopSection(nodeDetails)
-        checkDetailsExpandCollapseSection(nodeDetails)
-
-        assert nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
         assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
         assert nodeDetails.contains(DETAILS_TITLE_MISSING_OR_INVALID_COORDINATE)
         assert nodeDetails.contains('class="' + CoordinateNotFoundException.class.simpleName)
@@ -1066,73 +739,106 @@ class VisualizerTest{
         assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col3")
 
         //TODO: Should have values for CubeKAxis2
-        assert !nodeDetails.contains(DETAILS_LABEL_MESSAGE)
-        assert !nodeDetails.contains(DETAILS_LABEL_ROOT_CAUSE)
-        assert !nodeDetails.contains(DETAILS_LABEL_STACK_TRACE)
     }
 
     @Test
     void testGetCellValues_hideCellValues()
     {
-        Map scope = null
-        Map nodeScope = null
-        String cubeName = 'CubeWithExecutedCell'
+        //Build graph
+        String startCubeName = 'CubeWithExecutedCell'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode('CubeWithExecutedCell')
 
-        Map oldNode = [
-                id: '1',
-                cubeName: cubeName,
-                title: cubeName,
-                level: '1',
-                label: cubeName,
-                scope: nodeScope,
-                showCellValuesLink: true,
-                showCellValues: false,
-                cellValuesLoaded: true,
-                details: DETAILS_LABEL_CELL_VALUES,
-                availableScope: scope,
-        ]
-
-        VisualizerInfo visInfo = visInfoForShowCellValues
-        Map options = [node: oldNode, visInfo: visInfo, scopeInfo: new VisualizerScopeInfo(appId)]
-
-        Map graphInfo = visualizer.getCellValues(appId, options)
-        assert STATUS_SUCCESS == graphInfo.status
-        assert 0 == visInfo.messages.size()
-        List<Map<String, Object>> nodes = visInfo.nodes as List
-        List<Map<String, Object>> edges = visInfo.edges as List
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
         assert nodes.size() == 1
-        assert edges.size() == 0
+        node = checkNode('CubeWithExecutedCell', false, true)
 
-        Map node = nodes.first()
-        assert cubeName == node.title
-        assert true == node.showCellValuesLink
-        assert false == node.showCellValues
-        assert true == node.cellValuesLoaded
+        //Simulate that the user clicks Hide Cell Values for the node
+        node.showCellValues = false
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
+        assert nodes.size() == 1
+        checkNode('CubeWithExecutedCell', false, false, true)
+    }
 
+    private void buildGraph(Map options, boolean hasMessages = false)
+    {
+        visualizer = new Visualizer()
+        visInfo?.nodes = []
+        visInfo?.edges = []
+        Map graphInfo = visualizer.buildGraph(appId, options)
+        visInfo = graphInfo.visInfo as VisualizerInfo
+        scopeInfo = graphInfo.scopeInfo as VisualizerScopeInfo
+        messages = visInfo.messages
+        if (!hasMessages)
+        {
+            assert !messages
+        }
+        nodes = visInfo.nodes as List
+        edges = visInfo.edges as List
+    }
+
+    private void getCellValues(Map options, boolean hasMessages = false)
+    {
+        visInfo?.nodes = []
+        visInfo?.edges = []
+        Map graphInfo = visualizer.getCellValues(appId, options)
+        visInfo = graphInfo.visInfo as VisualizerInfo
+        scopeInfo = graphInfo.scopeInfo as VisualizerScopeInfo
+        messages = visInfo.messages
+        if (!hasMessages)
+        {
+            assert !messages
+        }
+        nodes = visInfo.nodes as List
+        edges = visInfo.edges as List
+    }
+
+    private Map checkNode(String nodeName, boolean exceptionCell = false, boolean showCellValues = false, boolean cellValuesLoaded = false, boolean hasCellValues = true)
+    {
+        Map node = nodes.find {Map node1 ->  nodeName == node1.title}
+        assert nodeName == node.label
+        assert nodeName == node.detailsTitle1
+        assert null == node.detailsTitle2
         String nodeDetails = node.details as String
-        checkDetailsTopSection(nodeDetails)
-        assert !nodeDetails.contains(DETAILS_LABEL_EXPAND_ALL)
-        assert !nodeDetails.contains(DETAILS_LABEL_COLLAPSE_ALL)
-        assert !nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
-    }
+        if (showCellValues)
+        {
+            assert true == node.showCellValuesLink
+            assert true == node.cellValuesLoaded
+            assert true == node.showCellValues
+        }
+        else
+        {
+            assert true == node.showCellValuesLink
+            assert cellValuesLoaded == node.cellValuesLoaded
+            assert false == node.showCellValues
+        }
 
-    private static void checkDetailsExpandCollapseSection(String nodeDetails)
-    {
-        assert nodeDetails.contains(DETAILS_LABEL_EXPAND_ALL)
-        assert nodeDetails.contains(DETAILS_LABEL_COLLAPSE_ALL)
-        assert nodeDetails.contains(DETAILS_TITLE_EXPAND_ALL)
-        assert nodeDetails.contains(DETAILS_TITLE_COLLAPSE_ALL)
-        assert nodeDetails.contains(DETAILS_CLASS_EXPAND_ALL)
-        assert nodeDetails.contains(DETAILS_CLASS_COLLAPSE_ALL)
-    }
-
-    private static void checkDetailsTopSection(String nodeDetails)
-    {
         assert nodeDetails.contains(DETAILS_LABEL_SCOPE)
         assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
-      //  assert nodeDetails.contains(DETAILS_LABEL_REQUIRED_SCOPE_KEYS)
-      //  assert nodeDetails.contains(DETAILS_LABEL_OPTIONAL_SCOPE_KEYS)
         assert nodeDetails.contains(DETAILS_LABEL_AXES)
+
+        boolean hasMessage = exceptionCell
+        assert hasMessage == nodeDetails.contains(DETAILS_LABEL_MESSAGE)
+        assert hasMessage == nodeDetails.contains(DETAILS_LABEL_ROOT_CAUSE)
+        assert hasMessage == nodeDetails.contains(DETAILS_LABEL_STACK_TRACE)
+
+        hasMessage = showCellValues
+        assert hasMessage == nodeDetails.contains(DETAILS_LABEL_CELL_VALUES)
+
+        hasMessage = showCellValues && hasCellValues
+        assert hasMessage == nodeDetails.contains(DETAILS_LABEL_EXPAND_ALL)
+        assert hasMessage == nodeDetails.contains(DETAILS_LABEL_COLLAPSE_ALL)
+        assert hasMessage == nodeDetails.contains(DETAILS_TITLE_EXPAND_ALL)
+        assert hasMessage == nodeDetails.contains(DETAILS_TITLE_COLLAPSE_ALL)
+        assert hasMessage == nodeDetails.contains(DETAILS_CLASS_EXPAND_ALL)
+        assert hasMessage == nodeDetails.contains(DETAILS_CLASS_COLLAPSE_ALL)
+
+        return node
     }
 
     class OtherVisualizerInfo extends VisualizerInfo {}

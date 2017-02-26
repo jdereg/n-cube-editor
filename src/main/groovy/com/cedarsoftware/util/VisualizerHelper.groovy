@@ -33,12 +33,10 @@ class VisualizerHelper
 					Set<Object> availableValues
 					if (visInfo.nodeCount == 1l)
 					{
-						//TODO: Add coordinate info to unboundAxesList in NCube so that it can be passed in below.
 						availableValues = scopeInfo.addTopNodeScope(cubeName, scopeKey)
 					}
 					else
 					{
-						//TODO: Add coordinate info to unboundAxesList in NCube so that it can be passed in below.
 						availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey)
 					}
 					availableValues.each{Object availableValue ->
@@ -50,19 +48,19 @@ class VisualizerHelper
 
 			if (nodeAvailableValues)
 			{
-				return scopeInfo.getOptionalNodeScopeMessage(nodeAvailableValues, nodeCubeNames)
+				return scopeInfo.getOptionalNodeScopeMessage(relInfo, nodeAvailableValues, nodeCubeNames)
 			}
 		}
-		return null
+		return new StringBuilder()
 	}
 
-	protected static StringBuilder handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo, long nodeCount)
+	protected static StringBuilder handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo, long nodeCount, VisualizerRelInfo relInfo)
 	{
 		String cubeName = e.cubeName
 		String scopeKey = e.axisName
 		if (cubeName && scopeKey)
 		{
-			return getAdditionalRequiredNodeScopeMessage(scopeInfo, nodeCount, scopeKey, null, cubeName, e.coordinate)
+			return getAdditionalRequiredNodeScopeMessage(scopeInfo, nodeCount, relInfo, scopeKey, null, cubeName, e.coordinate)
 		}
 		else
 		{
@@ -73,13 +71,12 @@ class VisualizerHelper
 
 	protected static StringBuilder handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerScopeInfo scopeInfo, long nodeCount, VisualizerRelInfo relInfo, Set mandatoryScopeKeys)
 	{
-		Set<String> missingScope = findMissingScope(relInfo.availableTargetScope, e.requiredKeys, mandatoryScopeKeys)
-		if (missingScope)
+		Set<String> missingScopeKeys = findMissingScope(relInfo.availableTargetScope, e.requiredKeys, mandatoryScopeKeys)
+		if (missingScopeKeys)
 		{
 			StringBuilder sb = new StringBuilder()
-			missingScope.each { String scopeKey ->
-				//TODO: Add coordinate info to InvalidCoordinateException in NCube so that it can be passed in below.
-				sb.append(getAdditionalRequiredNodeScopeMessage(scopeInfo, nodeCount, scopeKey, null, e.cubeName))
+			missingScopeKeys.each { String scopeKey ->
+				sb.append(getAdditionalRequiredNodeScopeMessage(scopeInfo, nodeCount, relInfo, scopeKey, null, e.cubeName))
 			}
 			return sb
 		}
@@ -90,9 +87,8 @@ class VisualizerHelper
 		}
 	}
 
-	private static StringBuilder getAdditionalRequiredNodeScopeMessage(VisualizerScopeInfo scopeInfo, long nodeCount, String scopeKey, Object providedScopeValue, String cubeName, Map coordinate = null)
+	private static StringBuilder getAdditionalRequiredNodeScopeMessage(VisualizerScopeInfo scopeInfo, long nodeCount, VisualizerRelInfo relInfo, String scopeKey, Object providedScopeValue, String cubeName, Map coordinate = null)
 	{
-		StringBuilder sb = new StringBuilder()
 		Set<Object> availableValues
 		if (nodeCount == 1l)
 		{
@@ -102,9 +98,17 @@ class VisualizerHelper
 		{
 			availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey, false, coordinate)
 		}
-		StringBuilder title = new StringBuilder("Scope key ${scopeKey} is required by ${cubeName} to load this ${scopeInfo.nodeLabel}")
-		sb.append(scopeInfo.getScopeMessage(scopeKey, availableValues, title, providedScopeValue))
-		return sb.append(BREAK)
+
+		if (scopeInfo.loadAgain(relInfo, scopeKey))
+		{
+			return new StringBuilder()
+		}
+		else
+		{
+			StringBuilder title = new StringBuilder("Scope key ${scopeKey} is required by ${cubeName} to load this ${scopeInfo.nodeLabel}")
+			StringBuilder sb = new StringBuilder(scopeInfo.getScopeMessage(scopeKey, availableValues, title, providedScopeValue))
+			return sb.append(BREAK)
+		}
 	}
 
 	protected static String handleException(Throwable e)

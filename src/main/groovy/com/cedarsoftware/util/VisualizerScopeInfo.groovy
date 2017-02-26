@@ -23,6 +23,7 @@ import static com.cedarsoftware.util.VisualizerConstants.DOUBLE_BREAK
 class VisualizerScopeInfo
 {
 	protected ApplicationID appId
+	protected Map<String, Object> inputScope
 	protected Map<String, Object> scope  = new CaseInsensitiveMap()
 
 	protected Map<String, Set<Object>> topNodeScopeAvailableValues = new CaseInsensitiveMap()
@@ -33,12 +34,20 @@ class VisualizerScopeInfo
 
 	String topNodeName
 	String scopeMessage
-	boolean displayScopeMessage
 
 	VisualizerScopeInfo(){}
 
-	protected VisualizerScopeInfo(ApplicationID applicationId){
+	protected void init(ApplicationID applicationId, Map options, boolean clearMaps = true){
 		appId = applicationId
+		inputScope = options.scope as CaseInsensitiveMap ?: new CaseInsensitiveMap()
+		scope  = new CaseInsensitiveMap()
+		if (clearMaps)
+		{
+			topNodeScopeAvailableValues = new CaseInsensitiveMap()
+			topNodeScopeCubeNames = new CaseInsensitiveMap()
+			optionalGraphScopeAvailableValues = new CaseInsensitiveMap()
+			optionalGraphScopeCubeNames = new CaseInsensitiveMap()
+		}
 	}
 
 	protected void populateScopeDefaults(String startCubeName){}
@@ -147,11 +156,9 @@ class VisualizerScopeInfo
 			}
 
 			sb.append("""<a href="#" title="Reset scope to original defaults" class="scopeReset">Reset scope</a>""")
-			displayScopeMessage = true
 		}
 		else{
 			sb.append("No scope in the visualization.")
-			displayScopeMessage = false
 		}
 		scopeMessage = sb.toString()
 	}
@@ -186,8 +193,13 @@ class VisualizerScopeInfo
 		return sb
 	}
 
-	protected StringBuilder getOptionalNodeScopeMessage(Map<String, Set<Object>> nodeAvailableValues, Map<String, Set<String>> nodeCubeNames )
+	protected StringBuilder getOptionalNodeScopeMessage(VisualizerRelInfo relInfo, Map<String, Set<Object>> nodeAvailableValues, Map<String, Set<String>> nodeCubeNames )
 	{
+		if (nodeAvailableValues.keySet().find {String scopeKey -> loadAgain(relInfo, scopeKey) })
+		{
+			return null
+		}
+
 		StringBuilder sb = new StringBuilder("<b>Defaults were used for the following scope keys. Different values may be provided:${DOUBLE_BREAK}")
 		nodeAvailableValues.keySet().each { String scopeKey ->
 			Set<String> cubeNames = nodeCubeNames[scopeKey]
@@ -237,6 +249,11 @@ class VisualizerScopeInfo
 		sb.append("""<input id="${scopeKey}" value="${value}" placeholder="${placeHolder}" class="${DETAILS_CLASS_SCOPE_INPUT} ${DETAILS_CLASS_FORM_CONTROL}" style="color: black;" type="text">""")
 		sb.append("""</div>""")
 		return sb
+	}
+
+	protected boolean loadAgain(VisualizerRelInfo relInfo, String scopeKey)
+	{
+		return false
 	}
 
 	private static StringBuilder addCubeNamesList(String prefix, Set<String> cubeNames)

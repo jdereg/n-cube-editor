@@ -31,6 +31,7 @@ var Visualizer = (function ($) {
     var _nodes = [];
     var _edges = [];
     var _scopeInfo = null;
+    var _scope = null;
     var _keepCurrentScope = false;
     var _selectedGroups = null;
     var _availableGroupsAtLevel = null;
@@ -237,7 +238,7 @@ var Visualizer = (function ($) {
     }
 
     function scopeResetEvent() {
-        _scopeInfo = null;
+        _scope = null;
         scopeChange();
     }
 
@@ -264,10 +265,10 @@ var Visualizer = (function ($) {
 
     function setScopeValue(key, value){
         if (value === null || value === 'Default' || value.length === 0){
-            delete _scopeInfo.scope[key];
+            delete _scope[key];
         }
         else{
-            _scopeInfo.scope[key] = value;
+            _scope[key] = value;
         }
     }
 
@@ -494,7 +495,7 @@ var Visualizer = (function ($) {
 
     function scopeChange()
     {
-        saveToLocalStorage(_scopeInfo, SCOPE_INFO);
+        saveToLocalStorage(_scope, SCOPE);
         load();
     }
 
@@ -515,11 +516,11 @@ var Visualizer = (function ($) {
 
     function loadCellValuesFromServer(node)
     {
-        var message, options, result, json;
+        var options, result, json;
         node.details = null;
         _visInfo.nodes = {};
         _visInfo.edges = {};
-        options =  {startCubeName: _selectedCubeName, visInfo: _visInfo, scopeInfo: _scopeInfo, node: node};
+        options =  {startCubeName: _selectedCubeName, visInfo: _visInfo, scopeInfo: _scopeInfo, scope: _scope, node: node};
 
         result = _nce.call('ncubeController.getVisualizerCellValues', [_nce.getSelectedTabAppId(), options]);
         _nce.clearNote();
@@ -531,17 +532,11 @@ var Visualizer = (function ($) {
         json = result.data;
 
         if (STATUS_SUCCESS === json.status) {
-            displayMessages(json.visInfo.messages);
             loadDataForNode(json.visInfo, json.scopeInfo);
             loadScopeView() ;
         }
-        else {
-            message = json.message;
-            if (null !== json.stackTrace) {
-                message = message + TWO_LINE_BREAKS + json.stackTrace;
-            }
-            _nce.showNote('Failed to load ' + _visInfo.loadCellValuesLabel +  ': ' + TWO_LINE_BREAKS + message);
-        }
+
+        displayMessages(json.visInfo.messages);
         return node;
     }
 
@@ -574,6 +569,7 @@ var Visualizer = (function ($) {
         _nodeCellValues.append(createCellValuesLink(node));
 
         _scopeInfo = scopeInfo;
+        _scope = scopeInfo.scope;
         _visInfo = visInfo;
     }
 
@@ -592,7 +588,7 @@ var Visualizer = (function ($) {
     }
 
     function loadGraph() {
-        var options, result, json, message;
+        var options, result, json;
         clearVisLayoutWest();
         destroyNetwork();
 
@@ -612,10 +608,10 @@ var Visualizer = (function ($) {
         if (_visInfo) {
             _visInfo.nodes = {};
             _visInfo.edges = {};
-            options = {startCubeName: _selectedCubeName, visInfo: _visInfo, scopeInfo: _scopeInfo};
+            options = {startCubeName: _selectedCubeName, visInfo: _visInfo, scope: _scope};
         }
         else{
-            options =  {startCubeName: _selectedCubeName, scopeInfo: _scopeInfo};
+            options =  {startCubeName: _selectedCubeName, scope: _scope};
         }
 
         result = _nce.call('ncubeController.getVisualizerJson', [_nce.getSelectedTabAppId(), options]);
@@ -652,14 +648,6 @@ var Visualizer = (function ($) {
         _okToLoadGraph = true;
     }
 
-     function appIdMatch(appIdA, appIdB)
-    {
-        return appIdA.appId === appIdB.appId &&
-            appIdA.version === appIdB.version &&
-            appIdA.status ===  appIdB.status &&
-            appIdA.branch === appIdB.branch;
-    }
-
     function clearVisLayoutWest(){
         _nodeDetailsTitle1[0].innerHTML = '';
         _nodeDetailsTitle2[0].innerHTML = '';
@@ -682,9 +670,7 @@ var Visualizer = (function ($) {
         button.addClass('active');
         _scopeButton = true;
         scopeImage =  $.extend({title: getScopeString()}, SCOPE_IMAGE);
-        if (_scopeInfo.displayScopeMessage){
-            _nce.showNote(_scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, scopeImage);
-        }
+        _nce.showNote(_scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, scopeImage);
     }
 
     function loadGroupsView() {
@@ -750,7 +736,7 @@ var Visualizer = (function ($) {
 
     function getScopeString(){
         var scopeLen, key, i, len, scope, scopeString, keys;
-        scope = $.extend(true, {}, _scopeInfo.scope);
+        scope = $.extend(true, {}, _scope);
         delete scope['@type'];
         delete scope['@id'];
         scopeString = '';
@@ -986,6 +972,7 @@ var Visualizer = (function ($) {
             }
         }
         _scopeInfo = scopeInfo;
+        _scope = scopeInfo.scope;
         _visInfo = visInfo;
         _loadedVisInfoType = _visInfo['@type'];
      }
@@ -1300,7 +1287,7 @@ var Visualizer = (function ($) {
         visualizerLink.click(function (e) {
             e.preventDefault();
             _keepCurrentScope = true;
-            _scopeInfo.scope = node.scope;
+            _scope = node.scope;
             _nce.selectCubeByName(cubeName, appId, TAB_VIEW_TYPE_VISUALIZER + PAGE_ID);
         });
         return visualizerLink;
@@ -1374,7 +1361,7 @@ var Visualizer = (function ($) {
             _keepCurrentScope = false;
         }
         else{
-            _scopeInfo = getFromLocalStorage(SCOPE_INFO, null);
+            _scope = getFromLocalStorage(SCOPE, null);
         }
 
         _selectedGroups = getFromLocalStorage(SELECTED_GROUPS, null);
@@ -1395,7 +1382,7 @@ var Visualizer = (function ($) {
     }
 
     function saveAllToLocalStorage() {
-        saveToLocalStorage(_scopeInfo, SCOPE_INFO);
+        saveToLocalStorage(_scope, SCOPE);
         saveToLocalStorage(_selectedGroups, SELECTED_GROUPS);
         saveToLocalStorage(_selectedLevel, SELECTED_LEVEL);
         saveToLocalStorage(_hierarchical, HIERARCHICAL);

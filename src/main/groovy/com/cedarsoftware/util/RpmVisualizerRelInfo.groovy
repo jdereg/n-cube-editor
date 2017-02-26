@@ -317,9 +317,17 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		return null
 	}
 
+	/**
+	 * Loads fields and traits on the class into the targetTraits map.
+	 * If an invalid, missing or unbound scope key is encountered, checks if the inputScope contains the key.
+	 * If yes, loads again using the key provided in inputScope. If no, posts a scope prompt.
+	 *
+	 * @return boolean cellValuesLoaded
+	 */
 	@Override
 	protected boolean loadCellValues(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo)
 	{
+		boolean loadAgain
 		try
 		{
 			targetTraits = new CaseInsensitiveMap()
@@ -331,10 +339,10 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			{
 				helper.loadRpmClassFields(appId, RPM_CLASS, targetCube.name - RPM_CLASS_DOT, availableTargetScope, targetTraits, showCellValues, output)
 			}
+			loadAgain = handleUnboundScope(visInfo, scopeInfo, targetCube.getRuleInfo(output))
 			removeNotExistsFields()
 			addRequiredAndOptionalScopeKeys(visInfo)
 			retainUsedScope(visInfo, output)
-			handleUnboundScope(visInfo, scopeInfo, targetCube.getRuleInfo(output))
 			cellValuesLoaded = true
 			showCellValuesLink = true
 		}
@@ -345,53 +353,68 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			Throwable t = helper.getDeepestException(e)
 			if (t instanceof InvalidCoordinateException)
 			{
-				handleInvalidCoordinateException(t as InvalidCoordinateException, scopeInfo, visInfo.nodeCount)
+				loadAgain = handleInvalidCoordinateException(t as InvalidCoordinateException, scopeInfo, visInfo.nodeCount)
 			}
 			else if (t instanceof CoordinateNotFoundException)
 			{
-				handleCoordinateNotFoundException(t as CoordinateNotFoundException, scopeInfo, visInfo.nodeCount)
+				loadAgain = handleCoordinateNotFoundException(t as CoordinateNotFoundException, scopeInfo, visInfo.nodeCount)
 			}
 			else
 			{
-				handleException(t, scopeInfo)
+				loadAgain = handleException(t, scopeInfo)
 			}
 		}
-		return true
+		return loadAgain ? loadCellValues(visInfo, scopeInfo) : true
 	}
 
-	private void handleUnboundScope(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, RuleInfo ruleInfo)
+	private boolean handleUnboundScope(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, RuleInfo ruleInfo)
 	{
 		StringBuilder sb = helper.handleUnboundScope(visInfo, scopeInfo, this, ruleInfo)
-		if (sb)
+		if (sb == null)
 		{
-			notes << sb.toString()
+			return true
 		}
+		notes << sb.toString()
+		return false
 	}
 
-	private void handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo, long nodeCount)
+	private boolean handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo, long nodeCount)
 	{
 		StringBuilder sb = new StringBuilder("The value ${e.value} is not valid for ${e.axisName}. A different value must be provided:${DOUBLE_BREAK}")
-		sb.append(helper.handleCoordinateNotFoundException(e, scopeInfo, nodeCount))
-		notes << sb.toString()
+		if (sb.length() == 0)
+		{
+			return true
+		}
+		StringBuilder message = new StringBuilder(helper.handleCoordinateNotFoundException(e, scopeInfo, nodeCount, this))
+		message.append(sb)
+		notes << message.toString()
 		nodeLabelPrefix = 'Required scope value not found for '
 		targetTraits = new CaseInsensitiveMap()
+		return false
 	}
 
-	private void handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerScopeInfo scopeInfo, long nodeCount)
+	private boolean handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerScopeInfo scopeInfo, long nodeCount)
 	{
-		StringBuilder sb = new StringBuilder("<b>Additional scope is required: </b> ${DOUBLE_BREAK}")
-		sb.append(helper.handleInvalidCoordinateException(e, scopeInfo, nodeCount, this, MANDATORY_SCOPE_KEYS))
-		notes << sb.toString()
+		StringBuilder sb = helper.handleInvalidCoordinateException(e, scopeInfo, nodeCount, this, MANDATORY_SCOPE_KEYS)
+		if (sb.length() == 0)
+		{
+			return true
+		}
+		StringBuilder message = new StringBuilder("<b>Additional scope is required: </b> ${DOUBLE_BREAK}")
+		message.append(sb)
+		notes << message.toString()
 		nodeLabelPrefix = 'Additional scope required for '
 		targetTraits = new CaseInsensitiveMap()
+		return false
 	}
 
-	private void handleException(Throwable e, VisualizerScopeInfo scopeInfo)
+	private boolean handleException(Throwable e, VisualizerScopeInfo scopeInfo)
 	{
 		StringBuilder sb = new StringBuilder("<b>An exception was thrown while loading this ${scopeInfo.nodeLabel}. </b>  ${DOUBLE_BREAK}")
 		sb.append(helper.handleException(e))
 		notes << sb.toString()
 		nodeLabelPrefix = "Unable to load "
 		targetTraits = new CaseInsensitiveMap()
+		return false
 	}
 }

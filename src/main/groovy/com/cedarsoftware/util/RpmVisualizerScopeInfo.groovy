@@ -28,22 +28,20 @@ class RpmVisualizerScopeInfo extends VisualizerScopeInfo
 {
 	RpmVisualizerScopeInfo(){}
 
-	protected RpmVisualizerScopeInfo(ApplicationID applicationId){
-		appId = applicationId
-	}
-
 	@Override
 	protected void populateScopeDefaults(String startCubeName)
 	{
-		String defaultScopeEffectiveVersion = appId.version
-
+		String scopeValue
 		if (NCubeManager.getCube(appId, startCubeName).getAxis(AXIS_TRAIT).findColumn(R_SCOPED_NAME))
 		{
 			String defaultScopeDate = DATE_TIME_FORMAT.format(new Date())
-			addScopeDefault(POLICY_CONTROL_DATE, defaultScopeDate)
-			addScopeDefault(QUOTE_DATE, defaultScopeDate)
+			scopeValue = inputScope[POLICY_CONTROL_DATE] ?: defaultScopeDate
+			addScopeDefault(POLICY_CONTROL_DATE, scopeValue)
+			scopeValue = inputScope[QUOTE_DATE] ?: defaultScopeDate
+			addScopeDefault(QUOTE_DATE, scopeValue)
 		}
-		addScopeDefault(EFFECTIVE_VERSION, defaultScopeEffectiveVersion)
+		scopeValue = inputScope[EFFECTIVE_VERSION] ?: appId.version
+		addScopeDefault(EFFECTIVE_VERSION, scopeValue)
 		loadAvailableScopeValuesEffectiveVersion()
 	}
 
@@ -65,6 +63,19 @@ class RpmVisualizerScopeInfo extends VisualizerScopeInfo
 			values.addAll(versionsMap[ReleaseStatus.SNAPSHOT.name()])
 			topNodeScopeAvailableValues[EFFECTIVE_VERSION] = new LinkedHashSet(values)
 		}
+	}
+
+	@Override
+	protected boolean loadAgain(VisualizerRelInfo relInfo, String scopeKey)
+	{
+		Object scopeValue = inputScope[scopeKey]
+		if (relInfo.availableTargetScope[scopeKey] != scopeValue)
+		{
+			scope[scopeKey] = scopeValue
+			relInfo.availableTargetScope[scopeKey] = scopeValue
+			return true
+		}
+		return false
 	}
 
 	/* TODO: Will revisit providing "in scope" available scope values for r:exists at a later time.
@@ -97,7 +108,6 @@ class RpmVisualizerScopeInfo extends VisualizerScopeInfo
 		}
 		return inScopeMapEntries.keySet()
 	}*/
-
 
 	@Override
 	protected String getNodesLabel()

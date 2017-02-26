@@ -30,7 +30,7 @@ class Visualizer
 	 *           String startCubeName, name of the starting cube
 	 *           Map scope, the context for which the visualizer is loaded
 	 *           VisualizerInfo visInfo, information about the visualization
-	 *           VisualizerScopeInfo scopeInfo, information about the scope used in the visualization
+	 *           Map scope, the scope used in the visualization
 	 * @return a map containing:
 	 *           String status, status of the visualization
 	 *           VisualizerInfo visInfo, information about the visualization
@@ -62,7 +62,7 @@ class Visualizer
 	 * @param options - a map containing:
 	 *            Map node, representing a cube and its scope
 	 *            VisualizerInfo visInfo, information about the visualization
-	 *            VisualizerScopeInfo scopeInfo, information about the scope used in the visualization
+	 *            Map scope, the scope used in the visualization
 	 * @return a map containing:
 	 *           String status, status of the visualization
 	 *           VisualizerInfo visInfo, information about the visualization
@@ -71,9 +71,10 @@ class Visualizer
 	Map getCellValues(ApplicationID applicationID, Map options)
 	{
 		appId = applicationID
-
 		VisualizerInfo visInfo = options.visInfo as VisualizerInfo
+		visInfo.appId = applicationID
 		VisualizerScopeInfo scopeInfo = options.scopeInfo as VisualizerScopeInfo
+		scopeInfo.init(applicationID, options, false)
 		VisualizerRelInfo relInfo = new VisualizerRelInfo(appId, options.node as Map)
 		return getCellValues(visInfo, scopeInfo, relInfo, options)
 	}
@@ -89,7 +90,11 @@ class Visualizer
 		node.cellValuesLoaded = relInfo.cellValuesLoaded
 		boolean showCellValues = relInfo.showCellValues
 		node.showCellValues = showCellValues
+		node.scope = relInfo.targetScope
+		node.availableTargetScope = relInfo.availableTargetScope
 		visInfo.nodes = [node]
+		scopeInfo.scope.putAll(scopeInfo.inputScope)
+		scopeInfo.topNodeName = relInfo.getLabel(options.startCubeName as String)
 		scopeInfo.createGraphScopePrompt()
 		visInfo.convertToSingleMessage()
 		return [status: STATUS_SUCCESS, visInfo: visInfo, scopeInfo: scopeInfo]
@@ -108,16 +113,8 @@ class Visualizer
 
 	protected VisualizerScopeInfo getVisualizerScopeInfo(Map options)
 	{
-		VisualizerScopeInfo scopeInfo = options.scopeInfo as VisualizerScopeInfo
-		if (!scopeInfo || scopeInfo.class.name != this.class.name)
-		{
-			scopeInfo = new VisualizerScopeInfo()
-		}
-		else if (!scopeInfo.scope)
-		{
-			scopeInfo.scope = new CaseInsensitiveMap()
-		}
-		scopeInfo.appId = appId
+		VisualizerScopeInfo scopeInfo =  new VisualizerScopeInfo()
+		scopeInfo.init(appId, options)
 		return scopeInfo
 	}
 
@@ -201,11 +198,6 @@ class Visualizer
 	protected VisualizerRelInfo getVisualizerRelInfo()
 	{
 		return new VisualizerRelInfo(appId)
-	}
-
-	protected VisualizerScopeInfo getVisualizerScopeInfo()
-	{
-		return new VisualizerScopeInfo(appId)
 	}
 
 	protected VisualizerHelper getVisualizerHelper()

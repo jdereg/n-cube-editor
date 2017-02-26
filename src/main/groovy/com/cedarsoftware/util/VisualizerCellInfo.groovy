@@ -115,7 +115,7 @@ class VisualizerCellInfo
 			String scopeKey = exc.axisName
 			Object value = exc.value ?: 'null'
 			mb.append("The value ${value} is not valid for ${scopeKey}. A different value must be provided:${DOUBLE_BREAK}")
-			mb.append(helper.handleCoordinateNotFoundException(t as CoordinateNotFoundException, scopeInfo, nodeCount))
+			mb.append(helper.handleCoordinateNotFoundException(t as CoordinateNotFoundException, scopeInfo, nodeCount, relInfo))
 		}
 		else
 		{

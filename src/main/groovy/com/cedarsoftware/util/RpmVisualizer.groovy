@@ -24,7 +24,7 @@ class RpmVisualizer extends Visualizer
 	 * @param options - a map containing:
 	 *            Map node, representing a class and its scope
 	 *            RpmVisualizerInfo visInfo, information about the visualization
-	 *            VisualizerScopeInfo scopeInfo, information about the scope used in the visualization
+	 *            Map scope, the scope used in the visualization
 	 * @return a map containing:
 	 *           String status, status of the visualization
 	 *           RpmVisualizerInfo visInfo, information about the visualization
@@ -36,7 +36,9 @@ class RpmVisualizer extends Visualizer
 	{
 		appId = applicationID
 		RpmVisualizerInfo visInfo = options.visInfo as RpmVisualizerInfo
-		RpmVisualizerScopeInfo scopeInfo = options.scopeInfo as RpmVisualizerScopeInfo
+		visInfo.appId = applicationID
+		VisualizerScopeInfo scopeInfo = options.scopeInfo as RpmVisualizerScopeInfo
+		scopeInfo.init(applicationID, options, false)
 		RpmVisualizerRelInfo relInfo = new RpmVisualizerRelInfo(appId, options.node as Map)
 		return getCellValues(visInfo, scopeInfo, relInfo, options)
 	}
@@ -61,16 +63,8 @@ class RpmVisualizer extends Visualizer
 
 	protected VisualizerScopeInfo getVisualizerScopeInfo(Map options)
 	{
-		RpmVisualizerScopeInfo scopeInfo = options.scopeInfo as RpmVisualizerScopeInfo
-		if (!scopeInfo)
-		{
-			scopeInfo = new RpmVisualizerScopeInfo()
-		}
-		else if (!scopeInfo.scope)
-		{
-			scopeInfo.scope = new CaseInsensitiveMap()
-		}
-		scopeInfo.appId = appId
+		RpmVisualizerScopeInfo scopeInfo = new RpmVisualizerScopeInfo()
+		scopeInfo.init(appId, options)
 		return scopeInfo
 	}
 
@@ -194,12 +188,6 @@ class RpmVisualizer extends Visualizer
 	protected VisualizerRelInfo getVisualizerRelInfo()
 	{
 		return new RpmVisualizerRelInfo(appId)
-	}
-
-	@Override
-	protected VisualizerScopeInfo getVisualizerScopeInfo()
-	{
-		return new RpmVisualizerScopeInfo(appId)
 	}
 
 	private boolean canLoadTraitsForTarget(RpmVisualizerRelInfo relInfo)
