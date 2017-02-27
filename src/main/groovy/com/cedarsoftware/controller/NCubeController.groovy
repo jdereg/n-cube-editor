@@ -209,10 +209,14 @@ class NCubeController extends BaseController
     Object[] search(ApplicationID appId, String cubeNamePattern = null, String content = null, Map options = [(SEARCH_ACTIVE_RECORDS_ONLY):true])
     {
         appId = addTenant(appId)
+        if (cubeNamePattern != null)
+        {
+            cubeNamePattern = cubeNamePattern.trim()
+        }
         List<NCubeInfoDto> cubeInfos = nCubeService.search(appId, cubeNamePattern, content, options)
 
         Collections.sort(cubeInfos, new Comparator<NCubeInfoDto>() {
-            public int compare(NCubeInfoDto info1, NCubeInfoDto info2)
+            int compare(NCubeInfoDto info1, NCubeInfoDto info2)
             {
                 return info1.name.compareToIgnoreCase(info2.name)
             }

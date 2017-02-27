@@ -73,9 +73,9 @@
     </developers>
 
     <properties>
-        <version.ncube>3.6.9</version.ncube>
+        <version.ncube>3.6.10</version.ncube>
         <version.json-command-servlet>1.4.1</version.json-command-servlet>
-        <version.log4j>2.5</version.log4j>
+        <version.log4j>2.8</version.log4j>
         <version.groovy>2.4.8</version.groovy>
         <version.junit>4.12</version.junit>
         <version.spring>4.3.5.RELEASE</version.spring>
@@ -87,7 +87,6 @@
         <version.plugin.assembly>2.6</version.plugin.assembly>
         <version.plugin.gcloud>2.0.9.111.v20160527</version.plugin.gcloud>
         <version.plugin.appengine>1.9.38</version.plugin.appengine>
-        <version.plugin.jetty>9.3.10.v20160621</version.plugin.jetty>
         <version.plugin.compiler>3.5.1</version.plugin.compiler>
         <version.plugin.nexus>1.6.6</version.plugin.nexus>
         <version.plugin.deploy>2.8.2</version.plugin.deploy>
@@ -149,12 +148,6 @@
                 <groupId>com.google.appengine</groupId>
                 <artifactId>appengine-maven-plugin</artifactId>
                 <version>${version.plugin.appengine}</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>${version.plugin.jetty}</version>
             </plugin>
 
             <plugin>
