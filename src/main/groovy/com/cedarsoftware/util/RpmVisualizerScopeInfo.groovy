@@ -49,19 +49,19 @@ class RpmVisualizerScopeInfo extends VisualizerScopeInfo
 	{
 		Object scopeValue = scope[scopeKey]
 		scopeValue =  scopeValue ?: defaultValue
-		addTopNodeScope(null, scopeKey, true)
+		addTopNodeGraphScope(null, scopeKey, true, null)
 		scope[scopeKey] = scopeValue
 	}
 
 	private void loadAvailableScopeValuesEffectiveVersion()
 	{
-		if (!topNodeScopeAvailableValues[EFFECTIVE_VERSION])
+		if (!topNodeGraphScopeAvailableValues[EFFECTIVE_VERSION])
 		{
 			Map<String, List<String>> versionsMap = NCubeManager.getVersions(appId.tenant, appId.app)
 			Set<Object>  values = new TreeSet<>(new VersionComparator())
 			values.addAll(versionsMap[ReleaseStatus.RELEASE.name()])
 			values.addAll(versionsMap[ReleaseStatus.SNAPSHOT.name()])
-			topNodeScopeAvailableValues[EFFECTIVE_VERSION] = new LinkedHashSet(values)
+			topNodeGraphScopeAvailableValues[EFFECTIVE_VERSION] = new LinkedHashSet(values)
 		}
 	}
 

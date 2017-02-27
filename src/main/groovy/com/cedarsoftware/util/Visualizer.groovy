@@ -85,7 +85,7 @@ class Visualizer
 		relInfo.loadCellValues(visInfo, scopeInfo)
 
 		Map node = options.node as Map
-		node.details = relInfo.getDetails(scopeInfo, visInfo.nodeCount)
+		node.details = relInfo.getDetails(scopeInfo)
 		node.showCellValuesLink = relInfo.showCellValuesLink
 		node.cellValuesLoaded = relInfo.cellValuesLoaded
 		boolean showCellValues = relInfo.showCellValues

@@ -32,6 +32,7 @@ var Visualizer = (function ($) {
     var _edges = [];
     var _scopeInfo = null;
     var _scope = null;
+    var _showCellValuesNode;
     var _keepCurrentScope = false;
     var _selectedGroups = null;
     var _availableGroupsAtLevel = null;
@@ -243,23 +244,25 @@ var Visualizer = (function ($) {
     }
 
     function scopeInputEvent(target) {
-        var key, value;
+        var key, value, showCellValues;
         key = target.id;
         value = target.value;
         value = value ? value.trim() : value;
         setScopeValue(key, value);
-        scopeChange();
+        showCellValues = target.className.indexOf('showCellValues') > -1
+        scopeChange(showCellValues);
     }
 
     function scopeClickEvent(target) {
-        var id, scopeParts, key, value;
+        var id, scopeParts, key, value, showCellValues;
         id = target.id;
         if (id) {
             scopeParts = id.split(':');
             key = scopeParts[0];
             value = scopeParts[1].trim();
             setScopeValue(key, value);
-            scopeChange();
+            showCellValues = target.className.indexOf('showCellValues') > -1
+            scopeChange(showCellValues);
         }
     }
 
@@ -493,10 +496,10 @@ var Visualizer = (function ($) {
         }
     }
 
-    function scopeChange()
+    function scopeChange(showCellValues)
     {
         saveToLocalStorage(_scope, SCOPE);
-        load();
+        showCellValues ? loadCellValues(_showCellValuesNode) :  load();
     }
 
     function reload() {
@@ -508,7 +511,10 @@ var Visualizer = (function ($) {
         _visualizerNetwork.show();
      }
 
-    function loadCellValues(node, note) {
+    function loadCellValues(node) {
+        var note;
+        _showCellValuesNode = node.showCellValues ? node : null;
+        note = node.showCellValues ? 'Loading ' + _visInfo.loadCellValuesLabel + '...' : 'Hiding ' + _visInfo.loadCellValuesLabel + '...';
         _nce.clearNotes(STICKY_SCOPE_MESSAGE);
         setTimeout(function () {loadCellValuesFromServer(node);}, PROGRESS_DELAY);
         _nce.showNote(note);
@@ -656,6 +662,7 @@ var Visualizer = (function ($) {
         _nodeCellValues[0].innerHTML = '';
         _nodeAddTypes.innerHTML = '';
         _nodeDetails[0].innerHTML = '';
+        _showCellValuesNode = null;
         _layout.close('west');
     }
 
@@ -1317,8 +1324,7 @@ var Visualizer = (function ($) {
         cellValuesLink.click(function (e) {
             e.preventDefault();
             node.showCellValues = !node.showCellValues;
-            note = node.showCellValues ? 'Loading ' + _visInfo.loadCellValuesLabel + '...' : 'Hiding ' + _visInfo.loadCellValuesLabel + '...';
-            loadCellValues(node, note);
+            loadCellValues(node);
         });
         return cellValuesLink;
     }

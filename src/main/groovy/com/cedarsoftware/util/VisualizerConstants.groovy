@@ -41,6 +41,7 @@ class VisualizerConstants
 	static final String CUBE_TYPE_DEFAULT = null
 
 	static final String DETAILS_CLASS_CELL_VALUES = 'cellValues'
+	static final String DETAILS_CLASS_SHOW_CELL_VALUES = 'showCellValues'
 	static final String DETAILS_CLASS_WORD_WRAP = 'wordwrap'
 	static final String DETAILS_CLASS_SCOPE_CLICK = 'scopeClick'
 	static final String DETAILS_CLASS_SCOPE_INPUT = 'scopeInput'

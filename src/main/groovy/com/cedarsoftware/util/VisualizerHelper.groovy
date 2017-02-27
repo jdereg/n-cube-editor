@@ -30,15 +30,7 @@ class VisualizerHelper
 				String scopeKey = axisEntry.key as String
 				if (relInfo.includeUnboundScopeKey(visInfo, scopeKey))
 				{
-					Set<Object> availableValues
-					if (visInfo.nodeCount == 1l)
-					{
-						availableValues = scopeInfo.addTopNodeScope(cubeName, scopeKey)
-					}
-					else
-					{
-						availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey)
-					}
+					Set<Object> availableValues = scopeInfo.handleMissingScope(relInfo, cubeName, scopeKey)
 					availableValues.each{Object availableValue ->
 						scopeInfo.addValue(scopeKey, nodeAvailableValues, availableValue)
 					}
@@ -54,13 +46,13 @@ class VisualizerHelper
 		return new StringBuilder()
 	}
 
-	protected static StringBuilder handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo, long nodeCount, VisualizerRelInfo relInfo)
+	protected static StringBuilder handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo)
 	{
 		String cubeName = e.cubeName
 		String scopeKey = e.axisName
 		if (cubeName && scopeKey)
 		{
-			return getAdditionalRequiredNodeScopeMessage(scopeInfo, nodeCount, relInfo, scopeKey, null, cubeName, e.coordinate)
+			return getAdditionalRequiredNodeScopeMessage(scopeInfo, relInfo, scopeKey, null, cubeName, e.coordinate)
 		}
 		else
 		{
@@ -69,14 +61,14 @@ class VisualizerHelper
 		}
 	}
 
-	protected static StringBuilder handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerScopeInfo scopeInfo, long nodeCount, VisualizerRelInfo relInfo, Set mandatoryScopeKeys)
+	protected static StringBuilder handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo, Set mandatoryScopeKeys)
 	{
 		Set<String> missingScopeKeys = findMissingScope(relInfo.availableTargetScope, e.requiredKeys, mandatoryScopeKeys)
 		if (missingScopeKeys)
 		{
 			StringBuilder sb = new StringBuilder()
 			missingScopeKeys.each { String scopeKey ->
-				sb.append(getAdditionalRequiredNodeScopeMessage(scopeInfo, nodeCount, relInfo, scopeKey, null, e.cubeName))
+				sb.append(getAdditionalRequiredNodeScopeMessage(scopeInfo, relInfo, scopeKey, null, e.cubeName))
 			}
 			return sb
 		}
@@ -87,18 +79,9 @@ class VisualizerHelper
 		}
 	}
 
-	private static StringBuilder getAdditionalRequiredNodeScopeMessage(VisualizerScopeInfo scopeInfo, long nodeCount, VisualizerRelInfo relInfo, String scopeKey, Object providedScopeValue, String cubeName, Map coordinate = null)
+	private static StringBuilder getAdditionalRequiredNodeScopeMessage(VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo, String scopeKey, Object providedScopeValue, String cubeName, Map coordinate = null)
 	{
-		Set<Object> availableValues
-		if (nodeCount == 1l)
-		{
-			availableValues = scopeInfo.addTopNodeScope(cubeName, scopeKey, false, coordinate)
-		}
-		else
-		{
-			availableValues = scopeInfo.addOptionalGraphScope(cubeName, scopeKey, false, coordinate)
-		}
-
+		Set<Object> availableValues = scopeInfo.handleMissingScope(relInfo, cubeName, scopeKey, coordinate)
 		if (scopeInfo.loadAgain(relInfo, scopeKey))
 		{
 			return new StringBuilder()
@@ -106,7 +89,7 @@ class VisualizerHelper
 		else
 		{
 			StringBuilder title = new StringBuilder("Scope key ${scopeKey} is required by ${cubeName} to load this ${scopeInfo.nodeLabel}")
-			StringBuilder sb = new StringBuilder(scopeInfo.getScopeMessage(scopeKey, availableValues, title, providedScopeValue))
+			StringBuilder sb = new StringBuilder(scopeInfo.getScopeMessage(scopeKey, availableValues, title, providedScopeValue, relInfo.showCellValues))
 			return sb.append(BREAK)
 		}
 	}

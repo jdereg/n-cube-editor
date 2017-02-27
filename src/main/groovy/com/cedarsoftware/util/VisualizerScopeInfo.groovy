@@ -5,14 +5,13 @@ import com.cedarsoftware.ncube.Axis
 import com.cedarsoftware.ncube.Column
 import com.cedarsoftware.ncube.NCube
 import com.cedarsoftware.ncube.NCubeManager
-import com.cedarsoftware.ncube.exception.CoordinateNotFoundException
-import com.cedarsoftware.ncube.exception.InvalidCoordinateException
 import groovy.transform.CompileStatic
 
 import static com.cedarsoftware.util.VisualizerConstants.BREAK
 import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_FORM_CONTROL
 import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_SCOPE_INPUT
 import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_SCOPE_CLICK
+import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_SHOW_CELL_VALUES
 import static com.cedarsoftware.util.VisualizerConstants.DOUBLE_BREAK
 
 /**
@@ -26,11 +25,14 @@ class VisualizerScopeInfo
 	protected Map<String, Object> inputScope
 	protected Map<String, Object> scope  = new CaseInsensitiveMap()
 
-	protected Map<String, Set<Object>> topNodeScopeAvailableValues = new CaseInsensitiveMap()
-	protected Map<String, Set<String>> topNodeScopeCubeNames = new CaseInsensitiveMap()
+	protected Map<String, Set<Object>> topNodeGraphScopeAvailableValues = new CaseInsensitiveMap()
+	protected Map<String, Set<String>> topNodeGraphScopeCubeNames = new CaseInsensitiveMap()
 
 	protected Map<String, Set<Object>> optionalGraphScopeAvailableValues = new CaseInsensitiveMap()
 	protected Map<String, Set<String>> optionalGraphScopeCubeNames = new CaseInsensitiveMap()
+
+	protected Map<String, Set<Object>> showCellValuesScopeAvailableValues = new CaseInsensitiveMap()
+	protected Map<String, Set<String>> showCellValuesScopeCubeNames = new CaseInsensitiveMap()
 
 	String topNodeName
 	String scopeMessage
@@ -43,8 +45,8 @@ class VisualizerScopeInfo
 		scope  = new CaseInsensitiveMap()
 		if (clearMaps)
 		{
-			topNodeScopeAvailableValues = new CaseInsensitiveMap()
-			topNodeScopeCubeNames = new CaseInsensitiveMap()
+			topNodeGraphScopeAvailableValues = new CaseInsensitiveMap()
+			topNodeGraphScopeCubeNames = new CaseInsensitiveMap()
 			optionalGraphScopeAvailableValues = new CaseInsensitiveMap()
 			optionalGraphScopeCubeNames = new CaseInsensitiveMap()
 		}
@@ -52,21 +54,46 @@ class VisualizerScopeInfo
 
 	protected void populateScopeDefaults(String startCubeName){}
 
-	protected Set<Object> addTopNodeScope(String cubeName, String scopeKey, boolean skipAvailableScopeValues = false, Map coordinate = null)
+	protected Set<Object> handleMissingScope(VisualizerRelInfo relInfo, String cubeName, String scopeKey, Map coordinate = null)
 	{
-		addTopNodeScopeValues(cubeName, scopeKey, topNodeScopeAvailableValues, skipAvailableScopeValues, coordinate)
-		addValue(scopeKey, topNodeScopeCubeNames, cubeName)
-		return topNodeScopeAvailableValues[scopeKey]
+		Set<Object> availableValues
+		if (relInfo.showCellValues)
+		{
+			availableValues = addShowCellValuesScope(cubeName, scopeKey, false, coordinate)
+		}
+		else if (relInfo.targetId == 1l)
+		{
+			availableValues = addTopNodeGraphScope(cubeName, scopeKey, false, coordinate)
+		}
+		else
+		{
+			availableValues = addOptionalGraphScope(cubeName, scopeKey, false, coordinate)
+		}
+		return availableValues
 	}
 
-	protected Set<Object> addOptionalGraphScope(String cubeName, String scopeKey, boolean skipAvailableScopeValues = false, Map coordinate = null)
+	protected Set<Object> addTopNodeGraphScope(String cubeName, String scopeKey, boolean skipAvailableScopeValues = false, Map coordinate)
+	{
+		addTopNodeGraphScopeValues(cubeName, scopeKey, topNodeGraphScopeAvailableValues, skipAvailableScopeValues, coordinate)
+		addValue(scopeKey, topNodeGraphScopeCubeNames, cubeName)
+		return topNodeGraphScopeAvailableValues[scopeKey]
+	}
+
+	protected Set<Object> addOptionalGraphScope(String cubeName, String scopeKey, boolean skipAvailableScopeValues = false, Map coordinate)
 	{
 		Set<Object> availableValues = addScopeValues(cubeName, scopeKey, optionalGraphScopeAvailableValues, skipAvailableScopeValues, coordinate)
 		addValue(scopeKey, optionalGraphScopeCubeNames, cubeName)
 		return availableValues
 	}
 
-	private void addTopNodeScopeValues(String cubeName, String scopeKey, Map scopeInfoMap, boolean skipAvailableScopeValues, Map coordinate)
+	protected Set<Object> addShowCellValuesScope(String cubeName, String scopeKey, boolean skipAvailableScopeValues = false, Map coordinate)
+	{
+		Set<Object> availableValues = addScopeValues(cubeName, scopeKey, showCellValuesScopeAvailableValues, skipAvailableScopeValues, coordinate)
+		addValue(scopeKey, showCellValuesScopeCubeNames, cubeName)
+		return availableValues
+	}
+
+	private void addTopNodeGraphScopeValues(String cubeName, String scopeKey, Map scopeInfoMap, boolean skipAvailableScopeValues, Map coordinate)
 	{
 		Set<Object> scopeValues = scopeInfoMap[scopeKey] as Set ?: new LinkedHashSet()
 		if (skipAvailableScopeValues)
@@ -130,14 +157,14 @@ class VisualizerScopeInfo
 	protected void createGraphScopePrompt()
 	{
 		StringBuilder sb = new StringBuilder("${BREAK}")
-		if (topNodeScopeAvailableValues || optionalGraphScopeAvailableValues)
+		if (topNodeGraphScopeAvailableValues || optionalGraphScopeAvailableValues)
 		{
-			if (topNodeScopeAvailableValues)
+			if (topNodeGraphScopeAvailableValues)
 			{
-				Map<String, Set<Object>> sorted = topNodeScopeAvailableValues.sort()
+				Map<String, Set<Object>> sorted = topNodeGraphScopeAvailableValues.sort()
 				sb.append("<b>${topNodeName} scope</b>")
 				sb.append('<hr style="border-top: 1px solid #aaa;margin:2px">')
-				sb.append(getTopNodeScopeMessage(sorted))
+				sb.append(getTopNodeGraphScopeMessage(sorted))
 			}
 			else
 			{
@@ -177,12 +204,12 @@ class VisualizerScopeInfo
 		return sb
 	}
 
-	private StringBuilder getTopNodeScopeMessage(Map<String, Set<Object>> availableValuesMap)
+	private StringBuilder getTopNodeGraphScopeMessage(Map<String, Set<Object>> availableValuesMap)
 	{
 		StringBuilder sb = new StringBuilder()
 		availableValuesMap.keySet().each{ String scopeKey ->
 			sb.append(BREAK)
-			Set<String> cubeNames =  topNodeScopeCubeNames[scopeKey]
+			Set<String> cubeNames =  topNodeGraphScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
 			Set<Object> availableValues = availableValuesMap[scopeKey]
 			String requiredOrOptional = availableValues.contains(null) ? 'optional' : 'required'
@@ -206,13 +233,13 @@ class VisualizerScopeInfo
 			StringBuilder title = new StringBuilder("Scope key ${scopeKey} is optional to load this ${nodeLabel}")
 			title.append(addCubeNamesList('. Used on:', cubeNames))
 			Set<Object> availableValues = nodeAvailableValues[scopeKey]
-			sb.append(getScopeMessage(scopeKey, availableValues, title, scope[scopeKey]))
+			sb.append(getScopeMessage(scopeKey, availableValues, title, scope[scopeKey], relInfo.showCellValues))
 			sb.append(BREAK)
 		}
 		return sb
 	}
 
-	protected static StringBuilder getScopeMessage(String scopeKey, Set<Object> availableScopeValues, StringBuilder title, Object providedScopeValue)
+	protected static StringBuilder getScopeMessage(String scopeKey, Set<Object> availableScopeValues, StringBuilder title, Object providedScopeValue, boolean showCellValues = false)
 	{
 		String value
 		StringBuilder sb = new StringBuilder()
@@ -226,6 +253,7 @@ class VisualizerScopeInfo
 		{
 			value = providedScopeValue ?: ''
 		}
+		String showCellValuesClass = showCellValues ? DETAILS_CLASS_SHOW_CELL_VALUES : ''
 
 		sb.append("""<div class="input-group" title="${title}">""")
 		sb.append("""<div class="input-group-btn">""")
@@ -236,17 +264,17 @@ class VisualizerScopeInfo
 			availableScopeValues.each {Object scopeValue ->
 				if (scopeValue)
 				{
-					sb.append("""<li id="${scopeKey}: ${scopeValue}" class="${DETAILS_CLASS_SCOPE_CLICK}" style="color: black;">${scopeValue}</li>""")
+					sb.append("""<li id="${scopeKey}: ${scopeValue}" class="${DETAILS_CLASS_SCOPE_CLICK} ${showCellValuesClass}" style="color: black;">${scopeValue}</li>""")
 				}
 				else
 				{
-					sb.append("""<li id="${scopeKey}: Default" class="${DETAILS_CLASS_SCOPE_CLICK}" style="color: black;">Default</li>""")
+					sb.append("""<li id="${scopeKey}: Default" class="${DETAILS_CLASS_SCOPE_CLICK} ${showCellValuesClass}" style="color: black;">Default</li>""")
 				}
 			}
 			sb.append("""</ul>""")
 		}
 		sb.append("""</div>""")
-		sb.append("""<input id="${scopeKey}" value="${value}" placeholder="${placeHolder}" class="${DETAILS_CLASS_SCOPE_INPUT} ${DETAILS_CLASS_FORM_CONTROL}" style="color: black;" type="text">""")
+		sb.append("""<input id="${scopeKey}" value="${value}" placeholder="${placeHolder}" class="${DETAILS_CLASS_SCOPE_INPUT} ${DETAILS_CLASS_FORM_CONTROL} ${showCellValuesClass}" style="color: black;" type="text">""")
 		sb.append("""</div>""")
 		return sb
 	}

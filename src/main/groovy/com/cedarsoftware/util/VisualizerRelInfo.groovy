@@ -100,7 +100,7 @@ class VisualizerRelInfo
 		return targetCube.getRequiredScope(availableTargetScope, new CaseInsensitiveMap())
 	}
 
-	protected String getDetails(VisualizerScopeInfo scopeInfo, long nodeCount)
+	protected String getDetails(VisualizerScopeInfo scopeInfo)
 	{
 		StringBuilder sb = new StringBuilder()
 
@@ -111,31 +111,31 @@ class VisualizerRelInfo
 		//Cell values
 		if (cellValuesLoaded && showCellValues)
 		{
-			addCellValueSection(scopeInfo, nodeCount, sb)
+			addCellValueSection(scopeInfo, sb)
 		}
 		return sb.toString()
 	}
 
-	private void addCellValueSection(VisualizerScopeInfo scopeInfo, long nodeCount, StringBuilder sb)
+	private void addCellValueSection(VisualizerScopeInfo scopeInfo, StringBuilder sb)
 	{
 		StringBuilder cellValuesBuilder = new StringBuilder()
 		StringBuilder linkBuilder = new StringBuilder()
 		sb.append("<b>Cell values</b>")
-		getCellValues(scopeInfo, nodeCount, cellValuesBuilder, linkBuilder )
+		getCellValues(scopeInfo, cellValuesBuilder, linkBuilder )
 		sb.append(linkBuilder.toString())
 		sb.append("""<pre><ul class="${DETAILS_CLASS_CELL_VALUES}">""")
 		sb.append(cellValuesBuilder.toString())
 		sb.append("</ul></pre>")
 	}
 
-	private void getCellValues(VisualizerScopeInfo scopeInfo, long nodeCount, StringBuilder cellValuesBuilder, StringBuilder linkBuilder)
+	private void getCellValues(VisualizerScopeInfo scopeInfo, StringBuilder cellValuesBuilder, StringBuilder linkBuilder)
 	{
 		Long id = 0l
 
 		if (cellInfo)
 		{
 			cellInfo.each { VisualizerCellInfo visCellInfo ->
-				visCellInfo.getCellValue(scopeInfo, nodeCount, this, id++, cellValuesBuilder)
+				visCellInfo.getCellValue(scopeInfo, this, id++, cellValuesBuilder)
 			}
 
 			linkBuilder.append(DOUBLE_BREAK)
@@ -249,7 +249,7 @@ class VisualizerRelInfo
 		node.detailsTitle1 = cubeDetailsTitle1
 		node.detailsTitle2 = cubeDetailsTitle2
 		node.title = getCubeDisplayName(targetCubeName)
-		node.details = getDetails(scopeInfo, visInfo.nodeCount )
+		node.details = getDetails(scopeInfo)
 		group = group ?: getGroupName(visInfo)
 		node.group = group
 		node.typesToAdd = visInfo.getTypesToAdd(group)

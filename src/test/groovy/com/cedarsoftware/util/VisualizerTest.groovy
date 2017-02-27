@@ -635,18 +635,19 @@ class VisualizerTest{
         CoordinateNotFoundException e = new CoordinateNotFoundException('CoordinateNotFoundException', null, null, null, null)
         VisualizerScopeInfo scopeInfo = new VisualizerScopeInfo()
         VisualizerRelInfo relInfo = new VisualizerRelInfo()
+        relInfo.targetId = 1l
         scopeInfo.init(appId, [:])
-        String message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l, relInfo)
+        String message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, relInfo)
         checkExceptionMessage(message, 'CoordinateNotFoundException')
 
         //No cube name
         e = new CoordinateNotFoundException('CoordinateNotFoundException', null, null, 'dummyAxis', null)
-        message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l, relInfo)
+        message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, relInfo)
         checkExceptionMessage(message, 'CoordinateNotFoundException')
 
         //No axis name
         e = new CoordinateNotFoundException('CoordinateNotFoundException', 'dummyCube', null, null, null)
-        message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, 1l, relInfo)
+        message = VisualizerHelper.handleCoordinateNotFoundException(e, scopeInfo, relInfo)
         checkExceptionMessage(message, 'CoordinateNotFoundException')
     }
 
@@ -660,9 +661,10 @@ class VisualizerTest{
         VisualizerScopeInfo scopeInfo = new VisualizerScopeInfo()
         scopeInfo.init(appId, [scope: new CaseInsensitiveMap(visInfoScope)])
         VisualizerRelInfo relInfo = new VisualizerRelInfo(appId)
+        relInfo.targetId = 1l
         relInfo.targetCube = cube
         relInfo.availableTargetScope = new CaseInsensitiveMap(relInfoScope)
-        String message = VisualizerHelper.handleInvalidCoordinateException(e, scopeInfo, 1l, relInfo, [] as Set)
+        String message = VisualizerHelper.handleInvalidCoordinateException(e, scopeInfo, relInfo, [] as Set)
         checkExceptionMessage(message, 'InvalidCoordinateException')
     }
 

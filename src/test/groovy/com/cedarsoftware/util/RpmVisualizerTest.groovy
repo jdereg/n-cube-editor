@@ -335,38 +335,19 @@ class RpmVisualizerTest
         assert scope == scopeInfo.scope
         String nodeDetails = node.details as String
         checkScopePromptTitle(nodeDetails, 'businessDivisionCode', false, 'rpm.scope.class.Coverage.traits.StatCode\nrpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field4')
-        checkScopePromptDropdown(nodeDetails, 'businessDivisionCode', 'Default', ['AAADIV', 'BBBDIV', DEFAULT], [], SELECT_OR_ENTER_VALUE)
+        checkScopePromptDropdown(nodeDetails, 'businessDivisionCode', 'Default', ['AAADIV', 'BBBDIV', DEFAULT], [], SELECT_OR_ENTER_VALUE, true)
         checkScopePromptTitle(nodeDetails, 'program', false, 'rpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field4')
-        checkScopePromptDropdown(nodeDetails, 'program', 'Default', ['program1', 'program2', 'program3', DEFAULT], [], SELECT_OR_ENTER_VALUE)
+        checkScopePromptDropdown(nodeDetails, 'program', 'Default', ['program1', 'program2', 'program3', DEFAULT], [], SELECT_OR_ENTER_VALUE, true)
         checkScopePromptTitle(nodeDetails, 'type', false, 'rpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field3CovC\nrpm.scope.class.Coverage.traits.field4')
-        checkScopePromptDropdown(nodeDetails, 'type', 'Default', ['type1', 'type2', 'type3', 'typeA', 'typeB', DEFAULT], [], SELECT_OR_ENTER_VALUE)
-
-
-        //Simulate that the user picks businessDivisionCode = AAADIV
-        scopeInfo.scope.businessDivisionCode = 'AAADIV'
-        scope.businessDivisionCode = 'AAADIV'
-        node.showCellValues = true
-        options = [startCubeName: startCubeName, node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
-        getCellValues(options)
-        node = checkNodeBasics('CCCoverage', 'Coverage', '', DEFAULTS_WERE_USED, false, true)
-        assert nodes.size() == 1
-        assert scope == node.scope
-        assert scope == node.availableScope
-        assert scope == scopeInfo.scope
-        nodeDetails = node.details as String
-        checkNoScopePrompt(node.details as String, 'businessDivisionCode')
-        checkScopePromptTitle(nodeDetails, 'program', false, 'rpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field4')
-        checkScopePromptDropdown(nodeDetails, 'program', 'Default', ['program1', 'program2', 'program3', DEFAULT], [], SELECT_OR_ENTER_VALUE)
-        checkScopePromptTitle(nodeDetails, 'type', false, 'rpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field3CovC\nrpm.scope.class.Coverage.traits.field4')
-        checkScopePromptDropdown(nodeDetails, 'type', 'Default', ['type1', 'type2', 'type3', 'typeA', 'typeB', DEFAULT], [], SELECT_OR_ENTER_VALUE)
+        checkScopePromptDropdown(nodeDetails, 'type', 'Default', ['type1', 'type2', 'type3', DEFAULT], ['typeA', 'typeB'], SELECT_OR_ENTER_VALUE, true)
 
         assert nodeDetails.contains("Exposure</b></li><pre><ul><li>r:declared: true</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
         assert nodeDetails.contains("Location</b></li><pre><ul><li>r:declared: true</li><li>r:exists: true</li><li>r:rpmType: Risk</li><li>v:max: 1</li><li>v:min: 0</li></ul></pre><li><b>")
-        assert nodeDetails.contains("StatCode</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: 1133</li><li>r:exists: true</li><li>r:extends: DataElementInventory[StatCode]</li><li>r:rpmType: string</li></ul></pre>")
-        assert nodeDetails.contains("field1</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: 1133</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("field2</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: 1133</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
+        assert nodeDetails.contains("StatCode</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: None</li><li>r:exists: true</li><li>r:extends: DataElementInventory[StatCode]</li><li>r:rpmType: string</li></ul></pre>")
+        assert nodeDetails.contains("field1</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field1</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
+        assert nodeDetails.contains("field2</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field2</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
         assert nodeDetails.contains("field3</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field3</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("field4</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: 1133</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre></ul></pre>")
+        assert nodeDetails.contains("field4</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field4</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre></ul></pre>")
         assert nodeDetails.contains("${DETAILS_LABEL_CLASS_TRAITS}</b><pre><ul><li>r:exists: true</li><li>r:name: CCCoverage</li><li>r:scopedName: CCCoverage</li></ul></pre><br><b>")
     }
 
@@ -406,7 +387,7 @@ class RpmVisualizerTest
         assert scope == node.availableScope
         String  nodeDetails = node.details as String
         checkScopePromptTitle(nodeDetails, 'businessDivisionCode', false, 'rpm.scope.class.Coverage.traits.StatCode')
-        checkScopePromptDropdown(nodeDetails, 'businessDivisionCode', 'Default', ['AAADIV', 'BBBDIV', DEFAULT], [], SELECT_OR_ENTER_VALUE)
+        checkScopePromptDropdown(nodeDetails, 'businessDivisionCode', 'Default', ['AAADIV', 'BBBDIV', DEFAULT], [], SELECT_OR_ENTER_VALUE, true)
 
         //Simulate that the user picks businessDivisionCode = AAADIV
         scopeInfo.scope.businessDivisionCode = 'AAADIV'
@@ -1276,7 +1257,7 @@ class RpmVisualizerTest
             assert 0 == scopeInfo.optionalGraphScopeAvailableValues.dummyRequiredScopeKey.size()
             assert 1 == scopeInfo.optionalGraphScopeCubeNames.dummyRequiredScopeKey.size()
             assert ['rpm.class.party.ProfitCenter'] as Set== scopeInfo.optionalGraphScopeCubeNames.dummyRequiredScopeKey as Set
-            assert scopeMessage.contains("""<input id="dummyRequiredScopeKey" value="" placeholder="Enter value..." class="scopeInput form-control" """)
+            assert scopeMessage.contains("""<input id="dummyRequiredScopeKey" value="" placeholder="Enter value..." class="scopeInput form-control " """)
             assert !scopeMessage.contains('<li id="dummyRequiredScopeKey"')
 
             //Check node scope prompt
@@ -1320,7 +1301,7 @@ class RpmVisualizerTest
             assert 0 == scopeInfo.optionalGraphScopeAvailableValues.dummyRequiredScopeKey.size()
             assert 1 == scopeInfo.optionalGraphScopeCubeNames.dummyRequiredScopeKey.size()
             assert ['rpm.class.Coverage'] as Set== scopeInfo.optionalGraphScopeCubeNames.dummyRequiredScopeKey as Set
-            assert scopeMessage.contains("""<input id="dummyRequiredScopeKey" value="" placeholder="Enter value..." class="scopeInput form-control" """)
+            assert scopeMessage.contains("""<input id="dummyRequiredScopeKey" value="" placeholder="Enter value..." class="scopeInput form-control " """)
             assert !scopeMessage.contains('<li id="dummyRequiredScopeKey"')
 
             //Check node scope prompt
@@ -1364,25 +1345,34 @@ class RpmVisualizerTest
         node = checkNodeBasics('CCCoverage', 'Coverage', '', DEFAULTS_WERE_USED, false, true)
         String nodeDetails = node.details as String
         checkScopePromptTitle(nodeDetails, 'businessDivisionCode', false, 'rpm.scope.class.Coverage.traits.StatCode\nrpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field4')
-        checkScopePromptDropdown(nodeDetails, 'businessDivisionCode', 'Default', ['AAADIV', 'BBBDIV', DEFAULT], [], SELECT_OR_ENTER_VALUE)
+        checkScopePromptDropdown(nodeDetails, 'businessDivisionCode', 'Default', ['AAADIV', 'BBBDIV', DEFAULT], [], SELECT_OR_ENTER_VALUE, true)
 
         checkScopePromptTitle(nodeDetails, 'program', false, 'rpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field4')
-        checkScopePromptDropdown(nodeDetails, 'program', 'Default', ['program1', 'program2', 'program3', DEFAULT], [], SELECT_OR_ENTER_VALUE)
+        checkScopePromptDropdown(nodeDetails, 'program', 'Default', ['program1', 'program2', 'program3', DEFAULT], [], SELECT_OR_ENTER_VALUE, true)
 
         checkScopePromptTitle(nodeDetails, 'type', false, 'rpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field3CovC\nrpm.scope.class.Coverage.traits.field4')
-        checkScopePromptDropdown(nodeDetails, 'type', 'Default', ['type1', 'type2', 'type3', 'typeA', 'typeB', DEFAULT], [], SELECT_OR_ENTER_VALUE)
+        checkScopePromptDropdown(nodeDetails, 'type', 'Default', ['type1', 'type2', 'type3', DEFAULT], ['typeA', 'typeB'], SELECT_OR_ENTER_VALUE, true)
 
         assert node.availableScope == scope
         assert node.scope == scope
 
-        assert nodeDetails.contains("Exposure</b></li><pre><ul><li>r:declared: true</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("Location</b></li><pre><ul><li>r:declared: true</li><li>r:exists: true</li><li>r:rpmType: Risk</li><li>v:max: 1</li><li>v:min: 0</li></ul></pre><li><b>")
-        assert nodeDetails.contains("StatCode</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: None</li><li>r:exists: true</li><li>r:extends: DataElementInventory[StatCode]</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("field1</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field1</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("field2</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field2</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("field3</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field3</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
-        assert nodeDetails.contains("field4</b></li><pre><ul><li>r:declared: true</li><li>r:defaultValue: DEI default for field4</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre></ul></pre>")
-        assert nodeDetails.contains("${DETAILS_LABEL_CLASS_TRAITS}</b><pre><ul><li>r:exists: true</li><li>r:name: CCCoverage</li><li>r:scopedName: CCCoverage</li></ul></pre><br><b>")
+        //Simulate that the user picks businessDivisionCode = AAADIV
+        scopeInfo.scope.businessDivisionCode = 'AAADIV'
+        scope.businessDivisionCode = 'AAADIV'
+        node.showCellValues = true
+        options = [startCubeName: startCubeName, node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
+        node = checkNodeBasics('CCCoverage', 'Coverage', '', DEFAULTS_WERE_USED, false, true)
+        assert nodes.size() == 1
+        assert scope == node.scope
+        assert scope == node.availableScope
+        assert scope == scopeInfo.scope
+        nodeDetails = node.details as String
+        checkNoScopePrompt(node.details as String, 'businessDivisionCode')
+        checkScopePromptTitle(nodeDetails, 'program', false, 'rpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field4')
+        checkScopePromptDropdown(nodeDetails, 'program', 'Default', ['program1', 'program2', 'program3', DEFAULT], [], SELECT_OR_ENTER_VALUE, true)
+        checkScopePromptTitle(nodeDetails, 'type', false, 'rpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field3CovC\nrpm.scope.class.Coverage.traits.field4')
+        checkScopePromptDropdown(nodeDetails, 'type', 'Default', ['type1', 'type2', 'type3', 'typeA', 'typeB', DEFAULT], [], SELECT_OR_ENTER_VALUE, true)
     }
 
     @Test
@@ -1408,14 +1398,34 @@ class RpmVisualizerTest
         options = [startCubeName: startCubeName, node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
         getCellValues(options)
         assert nodes.size() == 1
+
+        //Check top node graph scope prompt
+        Set<String> scopeKeys = ['policyControlDate', 'quoteDate', '_effectiveVersion', 'coverage', 'points'] as CaseInsensitiveSet
+        Set<String> points = ['A', 'B', 'C'] as CaseInsensitiveSet
+
+        assert 5 == scopeInfo.topNodeGraphScopeAvailableValues.keySet().size()
+        assert scopeInfo.topNodeGraphScopeAvailableValues.keySet().containsAll(scopeKeys)
+        assert scopeInfo.topNodeGraphScopeAvailableValues.points.containsAll(points)
+
+        assert 5 == scopeInfo.topNodeGraphScopeCubeNames.keySet().size()
+        assert scopeInfo.topNodeGraphScopeCubeNames.keySet().containsAll(scopeKeys)
+        assert 1 == scopeInfo.topNodeGraphScopeCubeNames.points.size()
+        assert ['rpm.scope.class.Coverage.traits.fieldTCoverage'] as Set== scopeInfo.topNodeGraphScopeCubeNames.points as Set
+
+        //Check additional graph scope prompt
+        assert 0 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
+        assert 0 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
+
+        //Check node scope prompt
         node = checkNodeBasics('TCoverage', 'Coverage', '', ADDITIONAL_SCOPE_REQUIRED, true, true)
         String nodeDetails = node.details as String
         checkScopePromptTitle(nodeDetails, 'points', true, 'rpm.scope.class.Coverage.traits.fieldTCoverage')
-        checkScopePromptDropdown(nodeDetails, 'points', '', ['A', 'B', 'C' ], [DEFAULT], SELECT_OR_ENTER_VALUE)
+        checkScopePromptDropdown(nodeDetails, 'points', '', ['A', 'B', 'C' ], [DEFAULT], SELECT_OR_ENTER_VALUE, true)
         assert scope == node.scope
         assert scope == node.availableScope
         assert scope == scopeInfo.scope
-      }
+    }
+
 
     @Test
     void testGetCellValues_classNode_show_invalidRequiredScope()
@@ -1446,7 +1456,7 @@ class RpmVisualizerTest
         node = checkNodeBasics('TCoverage', 'Coverage', '', ADDITIONAL_SCOPE_REQUIRED, true, true)
         String nodeDetails = node.details as String
         checkScopePromptTitle(nodeDetails, 'points', true, 'rpm.scope.class.Coverage.traits.fieldTCoverage')
-        checkScopePromptDropdown(nodeDetails, 'points', '', ['A', 'B', 'C' ], [DEFAULT], SELECT_OR_ENTER_VALUE)
+        checkScopePromptDropdown(nodeDetails, 'points', '', ['A', 'B', 'C' ], [DEFAULT], SELECT_OR_ENTER_VALUE, true)
         assert scope == node.scope
         assert scope == node.availableScope
         assert scope == scopeInfo.scope
@@ -1462,7 +1472,7 @@ class RpmVisualizerTest
         node = checkNodeBasics('TCoverage', 'Coverage', '', DIFFERENT_VALUE_MUST_BE_PROVIDED, true, true)
         nodeDetails = node.details as String
         checkScopePromptTitle(nodeDetails, 'points', true, 'rpm.scope.class.Coverage.traits.fieldTCoverage')
-        checkScopePromptDropdown(nodeDetails, 'points', '', ['A', 'B', 'C' ], [DEFAULT], SELECT_OR_ENTER_VALUE)
+        checkScopePromptDropdown(nodeDetails, 'points', '', ['A', 'B', 'C' ], [DEFAULT], SELECT_OR_ENTER_VALUE, true)
         assert scope == node.scope
         assert availableScope == node.availableScope
         assert availableScope == scopeInfo.scope
@@ -1589,10 +1599,10 @@ class RpmVisualizerTest
 
         //Check that sourceRisk is now part of top node scope
         List<String> risks = ['ARisk', 'BRisk', 'DRisk', 'GProductOps', 'GStateOps', 'ProductLocation', 'StateOps', 'WProductOps']
-        assert scopeInfo.topNodeScopeAvailableValues.keySet().contains('sourceRisk')
-        assert risks as Set == scopeInfo.topNodeScopeAvailableValues.sourceRisk as Set
-        assert scopeInfo.topNodeScopeCubeNames.keySet().contains('sourceRisk')
-        assert ['rpm.scope.class.Risk.traits.Risks'] as Set== scopeInfo.topNodeScopeCubeNames.sourceRisk as Set
+        assert scopeInfo.topNodeGraphScopeAvailableValues.keySet().contains('sourceRisk')
+        assert risks as Set == scopeInfo.topNodeGraphScopeAvailableValues.sourceRisk as Set
+        assert scopeInfo.topNodeGraphScopeCubeNames.keySet().contains('sourceRisk')
+        assert ['rpm.scope.class.Risk.traits.Risks'] as Set== scopeInfo.topNodeGraphScopeCubeNames.sourceRisk as Set
         String scopeMessage = scopeInfo.scopeMessage
         checkScopePromptTitle(scopeMessage, 'sourceRisk', true, null, 'topNode')
         checkScopePromptDropdown(scopeMessage, 'sourceRisk', '', risks, [DEFAULT], SELECT_OR_ENTER_VALUE)
@@ -1619,8 +1629,8 @@ class RpmVisualizerTest
         buildGraph(options)
 
         //Check that sourceRisk is not part of required graph scope
-        assert !scopeInfo.topNodeScopeAvailableValues.keySet().contains('sourceRisk')
-        assert !scopeInfo.topNodeScopeCubeNames.keySet().contains('sourceRisk')
+        assert !scopeInfo.topNodeGraphScopeAvailableValues.keySet().contains('sourceRisk')
+        assert !scopeInfo.topNodeGraphScopeCubeNames.keySet().contains('sourceRisk')
         checkNoScopePrompt(scopeInfo.scopeMessage, 'sourceRisk')
         
         //Check node
@@ -1764,22 +1774,22 @@ class RpmVisualizerTest
      Set<String> scopeKeys = ['policyControlDate', 'quoteDate', '_effectiveVersion', 'product'] as CaseInsensitiveSet
      Set<String> products = ['AProduct', 'BProduct', 'GProduct', 'UProduct', 'WProduct'] as CaseInsensitiveSet
 
-     assert 4 == scopeInfo.topNodeScopeAvailableValues.keySet().size()
-     assert scopeInfo.topNodeScopeAvailableValues.keySet().containsAll(scopeKeys)
-     assert 0 == scopeInfo.topNodeScopeAvailableValues.policyControlDate.size()
-     assert 0 == scopeInfo.topNodeScopeAvailableValues.quoteDate.size()
-     assert 1 == scopeInfo.topNodeScopeAvailableValues._effectiveVersion.size()
-     assert [ApplicationID.DEFAULT_VERSION] as Set == scopeInfo.topNodeScopeAvailableValues._effectiveVersion as Set
-     assert 5 == scopeInfo.topNodeScopeAvailableValues.product.size()
-     assert scopeInfo.topNodeScopeAvailableValues.product.containsAll(products)
+     assert 4 == scopeInfo.topNodeGraphScopeAvailableValues.keySet().size()
+     assert scopeInfo.topNodeGraphScopeAvailableValues.keySet().containsAll(scopeKeys)
+     assert 0 == scopeInfo.topNodeGraphScopeAvailableValues.policyControlDate.size()
+     assert 0 == scopeInfo.topNodeGraphScopeAvailableValues.quoteDate.size()
+     assert 1 == scopeInfo.topNodeGraphScopeAvailableValues._effectiveVersion.size()
+     assert [ApplicationID.DEFAULT_VERSION] as Set == scopeInfo.topNodeGraphScopeAvailableValues._effectiveVersion as Set
+     assert 5 == scopeInfo.topNodeGraphScopeAvailableValues.product.size()
+     assert scopeInfo.topNodeGraphScopeAvailableValues.product.containsAll(products)
 
-     assert 4 == scopeInfo.topNodeScopeCubeNames.keySet().size()
-     assert scopeInfo.topNodeScopeCubeNames.keySet().containsAll(scopeKeys)
-     assert 0 == scopeInfo.topNodeScopeCubeNames.policyControlDate.size()
-     assert 0 == scopeInfo.topNodeScopeCubeNames.quoteDate.size()
-     assert 0 == scopeInfo.topNodeScopeCubeNames._effectiveVersion.size()
-     assert 1 == scopeInfo.topNodeScopeCubeNames.product.size()
-     assert ['rpm.scope.class.Product.traits'] as Set== scopeInfo.topNodeScopeCubeNames.product as Set
+     assert 4 == scopeInfo.topNodeGraphScopeCubeNames.keySet().size()
+     assert scopeInfo.topNodeGraphScopeCubeNames.keySet().containsAll(scopeKeys)
+     assert 0 == scopeInfo.topNodeGraphScopeCubeNames.policyControlDate.size()
+     assert 0 == scopeInfo.topNodeGraphScopeCubeNames.quoteDate.size()
+     assert 0 == scopeInfo.topNodeGraphScopeCubeNames._effectiveVersion.size()
+     assert 1 == scopeInfo.topNodeGraphScopeCubeNames.product.size()
+     assert ['rpm.scope.class.Product.traits'] as Set== scopeInfo.topNodeGraphScopeCubeNames.product as Set
 
      String scopeMessage = scopeInfo.scopeMessage
      assert scopeMessage.contains(selectedProductName + SCOPE_UTILIZED_BY_TOP_NODE)
@@ -1870,19 +1880,19 @@ class RpmVisualizerTest
 
  private void checkGraphScopeNonEPM()
  {
-     assert 1 == scopeInfo.topNodeScopeAvailableValues.keySet().size()
-     assert scopeInfo.topNodeScopeAvailableValues.keySet().contains('_effectiveVersion')
-     assert 1 == scopeInfo.topNodeScopeAvailableValues._effectiveVersion.size()
-     assert [ApplicationID.DEFAULT_VERSION] as Set == scopeInfo.topNodeScopeAvailableValues._effectiveVersion as Set
+     assert 1 == scopeInfo.topNodeGraphScopeAvailableValues.keySet().size()
+     assert scopeInfo.topNodeGraphScopeAvailableValues.keySet().contains('_effectiveVersion')
+     assert 1 == scopeInfo.topNodeGraphScopeAvailableValues._effectiveVersion.size()
+     assert [ApplicationID.DEFAULT_VERSION] as Set == scopeInfo.topNodeGraphScopeAvailableValues._effectiveVersion as Set
 
-     assert 1 == scopeInfo.topNodeScopeCubeNames.keySet().size()
-     assert scopeInfo.topNodeScopeCubeNames.keySet().containsAll('_effectiveVersion')
-     assert 0 == scopeInfo.topNodeScopeCubeNames._effectiveVersion.size()
+     assert 1 == scopeInfo.topNodeGraphScopeCubeNames.keySet().size()
+     assert scopeInfo.topNodeGraphScopeCubeNames.keySet().containsAll('_effectiveVersion')
+     assert 0 == scopeInfo.topNodeGraphScopeCubeNames._effectiveVersion.size()
 
      String scopeMessage = scopeInfo.scopeMessage
      assert scopeMessage.contains('partyrole.LossPrevention' + SCOPE_UTILIZED_BY_TOP_NODE )
      assert scopeMessage.contains('title="Scope key _effectiveVersion is required to load partyrole.LossPrevention')
-     assert scopeMessage.contains("""<input id="_effectiveVersion" value="${ApplicationID.DEFAULT_VERSION}" placeholder="Select or enter value..." class="scopeInput form-control" """)
+     assert scopeMessage.contains("""<input id="_effectiveVersion" value="${ApplicationID.DEFAULT_VERSION}" placeholder="Select or enter value..." class="scopeInput form-control " """)
 
      assert 0 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
      assert 0 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
@@ -1926,24 +1936,28 @@ class RpmVisualizerTest
      String nodeDetails = node.details as String
      if (showCellValues && unableToLoad)
      {
+         assert nodeDetails.contains("${UNABLE_TO_LOAD}traits")
          assert false == node.showCellValuesLink
          assert false == node.cellValuesLoaded
          assert true == node.showCellValues
      }
      else if (unableToLoad)
      {
+         assert nodeDetails.contains("${UNABLE_TO_LOAD}")
          assert false == node.showCellValuesLink
          assert false == node.cellValuesLoaded
          assert false == node.showCellValues
      }
      else if (showCellValues)
      {
+         assert !nodeDetails.contains("${UNABLE_TO_LOAD}")
          assert true == node.showCellValuesLink
          assert true == node.cellValuesLoaded
          assert true == node.showCellValues
      }
      else
      {
+         assert !nodeDetails.contains("${UNABLE_TO_LOAD}")
          assert true == node.showCellValuesLink
          assert true == node.cellValuesLoaded
          assert false == node.showCellValues
@@ -1951,7 +1965,6 @@ class RpmVisualizerTest
 
      if (unableToLoad)
      {
-         assert nodeDetails.contains("${UNABLE_TO_LOAD}fields and traits")
          assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
          assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
          assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
@@ -2008,9 +2021,10 @@ class RpmVisualizerTest
      }
  }
 
- private static void checkScopePromptDropdown(String message, String scopeKey, String selectedScopeValue, List<String> availableScopeValues, List<String> unavailableScopeValues, String placeHolder)
+ private static void checkScopePromptDropdown(String message, String scopeKey, String selectedScopeValue, List<String> availableScopeValues, List<String> unavailableScopeValues, String placeHolder, boolean showCellValues = false)
  {
-     assert message.contains("""<input id="${scopeKey}" value="${selectedScopeValue}" placeholder="${placeHolder}" class="scopeInput form-control" """)
+     String showCellValuesClass = showCellValues ? 'showCellValues' : ''
+     assert message.contains("""<input id="${scopeKey}" value="${selectedScopeValue}" placeholder="${placeHolder}" class="scopeInput form-control ${showCellValuesClass}" """)
      if (!availableScopeValues && !unavailableScopeValues)
      {
          assert !message.contains("""<li id=""")
@@ -2018,10 +2032,10 @@ class RpmVisualizerTest
      }
 
      availableScopeValues.each{String scopeValue ->
-         assert message.contains("""<li id="${scopeKey}: ${scopeValue}" class="scopeClick" """)
+         assert message.contains("""<li id="${scopeKey}: ${scopeValue}" class="scopeClick ${showCellValuesClass}" """)
      }
      unavailableScopeValues.each{String scopeValue ->
-         assert !message.contains("""<li id="${scopeKey}: ${scopeValue}" class="scopeClick" """)
+         assert !message.contains("""<li id="${scopeKey}: ${scopeValue}" class="scopeClick ${showCellValuesClass}" """)
      }
  }
 

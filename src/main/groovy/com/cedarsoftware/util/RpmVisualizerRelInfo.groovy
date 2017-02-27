@@ -45,13 +45,20 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	}
 
 	@Override
-	protected String getDetails(VisualizerScopeInfo scopeInfo, long nodeCount)
+	protected String getDetails(VisualizerScopeInfo scopeInfo)
 	{
 		StringBuilder sb = new StringBuilder()
 
 		if (!cellValuesLoaded)
 		{
-			sb.append("<b>Unable to load fields and traits for ${getLabel(targetCube.name)}</b>${DOUBLE_BREAK}")
+			if (showCellValues)
+			{
+				sb.append("<b>Unable to load traits for ${getLabel(targetCube.name)}</b>${DOUBLE_BREAK}")
+			}
+			else
+			{
+				sb.append("<b>Unable to load ${getLabel(targetCube.name)}</b>${DOUBLE_BREAK}")
+			}
 		}
 
 		//Notes
@@ -353,11 +360,11 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			Throwable t = helper.getDeepestException(e)
 			if (t instanceof InvalidCoordinateException)
 			{
-				loadAgain = handleInvalidCoordinateException(t as InvalidCoordinateException, scopeInfo, visInfo.nodeCount)
+				loadAgain = handleInvalidCoordinateException(t as InvalidCoordinateException, scopeInfo)
 			}
 			else if (t instanceof CoordinateNotFoundException)
 			{
-				loadAgain = handleCoordinateNotFoundException(t as CoordinateNotFoundException, scopeInfo, visInfo.nodeCount)
+				loadAgain = handleCoordinateNotFoundException(t as CoordinateNotFoundException, scopeInfo)
 			}
 			else
 			{
@@ -378,14 +385,14 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		return false
 	}
 
-	private boolean handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo, long nodeCount)
+	private boolean handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo)
 	{
-		StringBuilder sb = new StringBuilder("The value ${e.value} is not valid for ${e.axisName}. A different value must be provided:${DOUBLE_BREAK}")
+		StringBuilder sb = new StringBuilder(helper.handleCoordinateNotFoundException(e, scopeInfo, this))
 		if (sb.length() == 0)
 		{
 			return true
 		}
-		StringBuilder message = new StringBuilder(helper.handleCoordinateNotFoundException(e, scopeInfo, nodeCount, this))
+		StringBuilder message = new StringBuilder("The value ${e.value} is not valid for ${e.axisName}. A different value must be provided:${DOUBLE_BREAK}")
 		message.append(sb)
 		notes << message.toString()
 		nodeLabelPrefix = 'Required scope value not found for '
@@ -393,9 +400,9 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		return false
 	}
 
-	private boolean handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerScopeInfo scopeInfo, long nodeCount)
+	private boolean handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerScopeInfo scopeInfo)
 	{
-		StringBuilder sb = helper.handleInvalidCoordinateException(e, scopeInfo, nodeCount, this, MANDATORY_SCOPE_KEYS)
+		StringBuilder sb = helper.handleInvalidCoordinateException(e, scopeInfo, this, MANDATORY_SCOPE_KEYS)
 		if (sb.length() == 0)
 		{
 			return true
