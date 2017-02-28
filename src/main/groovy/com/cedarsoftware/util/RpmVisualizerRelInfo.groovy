@@ -341,10 +341,10 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			Map output = new CaseInsensitiveMap()
 			if (targetCube.name.startsWith(RPM_ENUM))
 			{
-				helper.loadRpmClassFields(appId, RPM_ENUM, targetCube.name - RPM_ENUM_DOT, availableTargetScope, targetTraits, showCellValues, output)
+				helper.loadRpmClassFields(appId, RPM_ENUM, targetCube.name - RPM_ENUM_DOT, availableTargetScope, targetTraits, scopeInfo.loadingCellValues, output)
 			} else
 			{
-				helper.loadRpmClassFields(appId, RPM_CLASS, targetCube.name - RPM_CLASS_DOT, availableTargetScope, targetTraits, showCellValues, output)
+				helper.loadRpmClassFields(appId, RPM_CLASS, targetCube.name - RPM_CLASS_DOT, availableTargetScope, targetTraits, scopeInfo.loadingCellValues, output)
 			}
 			loadAgain = handleUnboundScope(visInfo, scopeInfo, targetCube.getRuleInfo(output))
 			removeNotExistsFields()

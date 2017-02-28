@@ -74,7 +74,7 @@ class Visualizer
 		VisualizerInfo visInfo = options.visInfo as VisualizerInfo
 		visInfo.appId = applicationID
 		VisualizerScopeInfo scopeInfo = options.scopeInfo as VisualizerScopeInfo
-		scopeInfo.init(applicationID, options, false)
+		scopeInfo.init(applicationID, options, true)
 		VisualizerRelInfo relInfo = new VisualizerRelInfo(appId, options.node as Map)
 		return getCellValues(visInfo, scopeInfo, relInfo, options)
 	}
@@ -93,7 +93,6 @@ class Visualizer
 		node.scope = relInfo.targetScope
 		node.availableTargetScope = relInfo.availableTargetScope
 		visInfo.nodes = [node]
-		scopeInfo.scope.putAll(scopeInfo.inputScope)
 		scopeInfo.topNodeName = relInfo.getLabel(options.startCubeName as String)
 		scopeInfo.createGraphScopePrompt()
 		visInfo.convertToSingleMessage()

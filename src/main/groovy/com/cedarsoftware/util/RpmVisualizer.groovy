@@ -38,7 +38,7 @@ class RpmVisualizer extends Visualizer
 		RpmVisualizerInfo visInfo = options.visInfo as RpmVisualizerInfo
 		visInfo.appId = applicationID
 		VisualizerScopeInfo scopeInfo = options.scopeInfo as RpmVisualizerScopeInfo
-		scopeInfo.init(applicationID, options, false)
+		scopeInfo.init(applicationID, options, true)
 		RpmVisualizerRelInfo relInfo = new RpmVisualizerRelInfo(appId, options.node as Map)
 		return getCellValues(visInfo, scopeInfo, relInfo, options)
 	}

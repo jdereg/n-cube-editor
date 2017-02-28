@@ -71,7 +71,10 @@ class RpmVisualizerScopeInfo extends VisualizerScopeInfo
 		Object scopeValue = inputScope[scopeKey]
 		if (relInfo.availableTargetScope[scopeKey] != scopeValue)
 		{
-			scope[scopeKey] = scopeValue
+			if (!loadingCellValues)
+			{
+				scope[scopeKey] = scopeValue
+			}
 			relInfo.availableTargetScope[scopeKey] = scopeValue
 			return true
 		}

@@ -22,6 +22,7 @@ import static com.cedarsoftware.util.VisualizerConstants.DOUBLE_BREAK
 class VisualizerScopeInfo
 {
 	protected ApplicationID appId
+	protected boolean loadingCellValues
 	protected Map<String, Object> inputScope
 	protected Map<String, Object> scope  = new CaseInsensitiveMap()
 
@@ -39,12 +40,13 @@ class VisualizerScopeInfo
 
 	VisualizerScopeInfo(){}
 
-	protected void init(ApplicationID applicationId, Map options, boolean clearMaps = true){
+	protected void init(ApplicationID applicationId, Map options, boolean loadCellValues = false){
 		appId = applicationId
 		inputScope = options.scope as CaseInsensitiveMap ?: new CaseInsensitiveMap()
-		scope  = new CaseInsensitiveMap()
-		if (clearMaps)
+		loadingCellValues = loadCellValues
+		if (!loadingCellValues)
 		{
+			scope  = new CaseInsensitiveMap()
 			topNodeGraphScopeAvailableValues = new CaseInsensitiveMap()
 			topNodeGraphScopeCubeNames = new CaseInsensitiveMap()
 			optionalGraphScopeAvailableValues = new CaseInsensitiveMap()
@@ -57,7 +59,7 @@ class VisualizerScopeInfo
 	protected Set<Object> handleMissingScope(VisualizerRelInfo relInfo, String cubeName, String scopeKey, Map coordinate = null)
 	{
 		Set<Object> availableValues
-		if (relInfo.showCellValues)
+		if (loadingCellValues)
 		{
 			availableValues = addShowCellValuesScope(cubeName, scopeKey, false, coordinate)
 		}
