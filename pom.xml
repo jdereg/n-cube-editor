@@ -76,7 +76,7 @@
         <version.ncube>3.6.10</version.ncube>
         <version.json-command-servlet>1.4.1</version.json-command-servlet>
         <version.log4j>2.8</version.log4j>
-        <version.groovy>2.4.8</version.groovy>
+        <version.groovy>2.4.9</version.groovy>
         <version.junit>4.12</version.junit>
         <version.spring>4.3.5.RELEASE</version.spring>
         <version.servlet>3.1.0</version.servlet>

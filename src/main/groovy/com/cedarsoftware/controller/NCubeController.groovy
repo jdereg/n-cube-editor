@@ -278,10 +278,10 @@ class NCubeController extends BaseController
     // TODO: This needs to be externalized (loaded via Grapes)
     Map<String, Object> getVisualizerJson(ApplicationID appId, Map options)
     {
-        if (!SystemUtilities.getExternalVariable('NCE_VISUALIZER_ENABLED'))
-        {
-            throw new IllegalStateException("""The visualizer is currently available <a href="#" onclick="window.open('https://nce.dockerdev.td.afg/n-cube-editor/#');return false;">here</a>""")
-        }
+//        if (!SystemUtilities.getExternalVariable('NCE_VISUALIZER_ENABLED'))
+//        {
+//            throw new IllegalStateException("""The visualizer is currently available <a href="#" onclick="window.open('https://nce.dockerdev.td.afg/n-cube-editor/#');return false;">here</a>""")
+//        }
         String cubeName = options.startCubeName
         Visualizer vis = cubeName.startsWith(RpmVisualizerConstants.RPM_CLASS) ? new RpmVisualizer() : new Visualizer()
         appId = addTenant(appId)
