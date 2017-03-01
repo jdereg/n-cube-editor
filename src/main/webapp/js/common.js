@@ -198,7 +198,6 @@ function addModalFilters() {
         var checkBoxes = [];
         var checkedItems = [];
         var contentDiv = $(this);
-        var list = contentDiv.find('.modal-body').find('ul,table');
         var countSpan = $('<span/>');
         var div = $('<div/>');
         var input = $('<input/>');
@@ -206,7 +205,7 @@ function addModalFilters() {
         function refreshItems() {
             input.val('');
             input.focus();
-            items = list.is('ul') ? list.find('li') : list.find('tr');
+            items = contentDiv.find('.modal-body').find('li,tr');
             if (items.find('input[type="checkbox"]').length) {
                 items = items.has('input[type="checkbox"]:not(".exclude")');
             }
@@ -275,6 +274,9 @@ function addModalFilters() {
         contentDiv.parent().parent().on('shown.bs.modal', function(){
             refreshItems();
         });
+        contentDiv.on('show', function() {
+            refreshItems();
+        });
     });
 }
 
@@ -334,6 +336,19 @@ function appIdFrom(app, version, status, branch) {
         status: status,
         branch: branch
     };
+}
+
+function populateSelectFromMap(sel, map) {
+    var i, len, options, keys;
+    sel.empty();
+
+    options = '<option></option>';
+    keys = Object.keys(map).sort();
+    for (i = 0, len = keys.length; i < len; i++) {
+        options += '<option>' + keys[i] + '</option>';
+    }
+
+    sel.append(options);
 }
 
 function populateSelect(nce, sel, method, params, defVal, forceRefresh, isInverted) {

@@ -119,7 +119,7 @@ function buildJsonArgs(args)
         args = [];  // empty args
     }
 
-    return encodeURIComponent(JSON.stringify(args));
+    return JSON.stringify(args);
 }
 
 function exec(target, args, params)

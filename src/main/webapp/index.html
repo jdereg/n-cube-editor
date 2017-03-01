@@ -25,7 +25,7 @@
     <div id="fadeMe1"></div>
     <img class="fadeMe2" src="img/splash2.png"/>
     <h3 class="fadeMe2">N-Cube Editor Loading...</h3>
-    <div id="diffOutputModal" style="box-shadow:0 5px 15px rgba(0,0,0,.5)">
+    <div id="diffOutputModal" style="box-shadow:0 5px 15px rgba(0,0,0,.5)" class="modal-filter">
         <div class="modal-header noselect">
             <h3 id="diffTitle" class="modal-title">Compare N-Cubes</h3>
         </div>
@@ -72,6 +72,7 @@
             <li class="dropdown">
                 <a id="DataMenu" href="#" class="dropdown-toggle" data-toggle="dropdown">Data <b class="caret"></b></a>
                 <ul class="dropdown-menu">
+                    <li><a id="view-commits" href="#">View Commits</a></li>
                     <li><a id="clearStorage" href="#">Clear Local Storage</a></li>
                 </ul>
             </li>
@@ -324,6 +325,48 @@
     </div>
 </div>
 
+<!-- View Commits Modal -->
+<div id="view-commits-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="commitRollbackLabel"
+     aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3 id="view-commits-label" class="modal-title">Commit Requests</h3>
+            </div>
+            <div class="modal-body" style="overflow: auto;height:450px">
+                <table id="view-commits-list" style="width:100%;">
+                    <tr>
+                        <th>App</th>
+                        <th>Version</th>
+                        <th>Branch</th>
+                        <th>Status</th>
+                        <th>Requester</th>
+                        <th>Date Requested</th>
+                        <th>Committer</th>
+                        <th>Date Committed</th>
+                        <th>PR ID</th>
+                    </tr>
+                    <tr>
+                        <td><select id="view-commits-app"></select></td>
+                        <td><select id="view-commits-version"></select></td>
+                        <td><select id="view-commits-branch"></select></td>
+                        <td><select id="view-commits-status"></select></td>
+                        <td><select id="view-commits-request-user"></select></td>
+                        <td><select id="view-commits-request-date"></select></td>
+                        <td><select id="view-commits-commit-user"></select></td>
+                        <td><select id="view-commits-commit-date"></select></td>
+                        <td><select id="view-commits-repo"></select></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-sm" data-dismiss="modal" aria-hidden="true">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Commit / Rollback Modal -->
 <div id="commitRollbackModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="commitRollbackLabel"
      aria-hidden="true" data-backdrop="static">
@@ -343,6 +386,7 @@
                 <button class="btn btn-danger btn-sm pull-left accept-mine" aria-hidden="true">Accept Mine</button>
                 <button class="btn btn-danger btn-sm pull-left accept-theirs" aria-hidden="true">Accept Theirs</button>
                 <button class="btn btn-sm" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                <button id="commitLink" class="btn btn-info btn-sm">Generate Commit Link</button>
                 <button id="commitOk" class="btn btn-primary btn-sm">Commit</button>
                 <button id="rollbackOk" class="btn btn-primary btn-sm">Rollback</button>
             </div>

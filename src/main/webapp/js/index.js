@@ -139,8 +139,11 @@ var NCE = (function ($) {
     var _reqScopeList = $('#reqScopeList');
     var _showReqScopeLabel = $('#showReqScopeLabel');
     var _commitOk = $('#commitOk');
+    var _commitLink = $('#commitLink');
     var _rollbackOk = $('#rollbackOk');
     var _commitRollbackLabel = $('#commitRollbackLabel');
+    var _viewCommits = $('#view-commits');
+    var _viewCommitsList = $('#view-commits-list');
 
     //  modal dialogs
     var _selectBranchModal = $('#selectBranchModal');
@@ -158,6 +161,7 @@ var NCE = (function ($) {
     var _deleteCubeModal = $('#deleteCubeModal');
     var _showRefsFromCubeModal = $('#showRefsFromCubeModal');
     var _showReqScopeModal = $('#showReqScopeModal');
+    var _viewCommitsModal = $('#view-commits-modal');
 
     preInit();
     initialize();
@@ -190,7 +194,7 @@ var NCE = (function ($) {
                 _openCubes = [];
             }
         } catch (ignore) {
-            _openCubes = []
+            _openCubes = [];
         }
     }
 
@@ -798,8 +802,10 @@ var NCE = (function ($) {
               + '<div class="divider"/>';
 
         if (cubeInfo[CUBE_INFO.BRANCH] !== head) {
-            html += '<li><a href="#" class="anc-commit-cube">Commit...</a></li>'
-                  + '<li><a href="#" class="anc-rollback-cube">Rollback...</a></li>'
+            if (checkIsAppAdmin()) {
+                html += '<li><a href="#" class="anc-commit-cube">Commit...</a></li>';
+            }
+            html += '<li><a href="#" class="anc-rollback-cube">Rollback...</a></li>'
                   + '<li><a href="#" class="anc-update-cube">Update from HEAD</a></li>'
                   + '<div class="divider"/>'
                   + '<li><a href="#" class="anc-delete-cube">Delete...</a></li>'
@@ -1726,6 +1732,12 @@ var NCE = (function ($) {
         $('#clearStorage').click(function() {
             clearStorage();
         });
+        $(_viewCommits).on('click', function() {
+            viewCommits();
+        });
+        _viewCommitsList.find('select').on('change', function() {
+            viewCommitsFilter();
+        });
         _clearCache.click(function() {
             clearCache();
         });
@@ -2512,7 +2524,6 @@ var NCE = (function ($) {
         var listItemHtml = '';
         _listOfCubes.empty();
 
-
         cubeKeys = Object.keys(cubes);
         for (cubeIdx = 0, cubeLen = cubeKeys.length; cubeIdx < cubeLen; cubeIdx++) {
             loName = cubeKeys[cubeIdx];
@@ -2560,7 +2571,7 @@ var NCE = (function ($) {
         if (isNotHead) {
             if (!infoDto.headSha1) {
                 classes.push(CHANGETYPE.CREATED.CSS_CLASS);
-            } else if (infoDto.headSha1 !== infoDto.sha1) {
+            } else if (infoDto.changed) {
                 classes.push(CHANGETYPE.UPDATED.CSS_CLASS);
             }
         }
@@ -3577,6 +3588,112 @@ var NCE = (function ($) {
         return true;
     }
 
+    function viewCommits() {
+        var result = call(CONTROLLER + CONTROLLER_METHOD.GET_COMMITS, []);
+        if (result.status) {
+            buildUlForCommitView(result.data);
+            _viewCommitsModal.modal();
+        } else {
+            showNote('Unable to get commit list.', 'Error', TWO_SECOND_TIMEOUT);
+        }
+    }
+    
+    function viewCommitsFilter() {
+        var i, len, row, idx, tds, td, el, filterVal, s;
+        var selects = _viewCommitsList.find('select');
+        var populatedSelects = selects.filter(function() { return this.value.length; });
+        var sLen = populatedSelects.length;
+        _viewCommitsList.find('tr:gt(1)').show();
+        if (sLen) {
+            for (s = 0; s < sLen; s++) {
+                el = populatedSelects[s];
+                filterVal = el.value;
+                if (filterVal.length) {
+                    idx = selects.index(el) + 1;
+                    tds = _viewCommitsList.find('tr:gt(1):visible').find('td:nth-child(' + idx + ')');
+                    for (i = 0, len = tds.length; i < len; i++) {
+                        td = tds[i];
+                        row = $(td).parent();
+                        if (td.innerHTML.indexOf(filterVal) === -1) {
+                            row.hide();
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    function buildUlForCommitView(commits) {
+        var i, len, commit;
+        var html = '';
+        var apps = {};
+        var versions = {};
+        var branches = {};
+        var statuses = {};
+        var reqUsers = {};
+        var reqDates = {};
+        var comUsers = {};
+        var comDates = {};
+        var repos = {};
+        
+        for (i = 0, len = commits.length; i < len; i++) {
+            commit = commits[i];
+            apps[commit.appId.app] = '';
+            versions[commit.appId.version] = '';
+            branches[commit.appId.branch] = '';
+            statuses[commit.status] = '';
+            reqUsers[commit.requestUser] = '';
+            reqDates[commit.requestTime.substring(0, commit.requestTime.indexOf(' '))] = '';
+            if (commit.commitUser) {
+                comUsers[commit.commitUser] = '';
+                comDates[commit.commitTime.substring(0, commit.commitTime.indexOf(' '))] = '';
+            }
+            if (commit.prId) {
+                repos[commit.prId.substring(0, commit.prId.indexOf('-'))] = '';
+            }
+
+            html += '<tr>'
+                  + '<td>' + commit.appId.app + '</td>'
+                  + '<td>' + commit.appId.version + '</td>'
+                  + '<td>' + commit.appId.branch + '</td>'
+                  + '<td>' + commit.status + '</td>'
+                  + '<td>' + commit.requestUser + '</td>'
+                  + '<td>' + commit.requestTime + '</td>'
+                  + '<td>' + (commit.commitUser || '') + '</td>'
+                  + '<td>' + (commit.commitTime || '') + '</td>'
+                  + '<td>' + (commit.prId || '') + '</td>'
+                  + '</tr>';
+        }
+        
+        _viewCommitsList.find('tr:gt(1)').remove();
+        _viewCommitsList.append(html);
+        _viewCommitsList.find('tr:gt(1)').on('click', function() {
+            var commit = commits[_viewCommitsList.find('tr').index(this) - 2];
+            commitListClick(commit);
+        });
+
+        populateSelectFromMap($('#view-commits-app'), apps);
+        populateSelectFromMap($('#view-commits-version'), versions);
+        populateSelectFromMap($('#view-commits-branch'), branches);
+        populateSelectFromMap($('#view-commits-status'), statuses);
+        populateSelectFromMap($('#view-commits-request-user'), reqUsers);
+        populateSelectFromMap($('#view-commits-request-date'), reqDates);
+        populateSelectFromMap($('#view-commits-commit-user'), comUsers);
+        populateSelectFromMap($('#view-commits-commit-date'), comDates);
+        populateSelectFromMap($('#view-commits-repo'), repos);
+    }
+    
+    function commitListClick(commit) {
+        var html, cubeNames, i, len;
+        clearNotes(NOTE_CLASS.SYS_META);
+        cubeNames = commit.cubeNames['@items'];
+        html = '';
+        for (i = 0, len = cubeNames.length; i < len; i++) {
+            html += cubeNames[i] + '<br/>';
+        }
+        showNote(html, 'Cube List', null, NOTE_CLASS.SYS_META);
+    }
+
     function clearStorage() {
         var i, len, key;
         var keys = Object.keys(localStorage);
@@ -3645,6 +3762,9 @@ var NCE = (function ($) {
         $('#branchCommit').on('click', function() {
             setTimeout(function() { commitBranch(true); }, PROGRESS_DELAY);
             showNote('Processing commit request...');
+        });
+        _commitLink.on('click', function() {
+            generateCommitLink();
         });
         _commitOk.on('click', function() {
             commitOk();
@@ -4126,14 +4246,18 @@ var NCE = (function ($) {
             errMsg = 'commit to';
             title = 'Commit changes';
             _commitModal.find('.accept-mine, .accept-theirs').show();
-            _commitOk.show();
+            _commitLink.removeAttr('disabled').show();
+            // if (checkIsAppAdmin()) {
+                _commitOk.show();
+            // } else {
+            //     _commitOk.hide();
+            // }
             _rollbackOk.hide();
         } else {
             action = 'rollback';
             errMsg = 'rollback in';
             title = 'Rollback changes';
-            _commitModal.find('.accept-mine, .accept-theirs').hide();
-            _commitOk.hide();
+            _commitModal.find('.accept-mine, .accept-theirs').add(_commitOk).add(_commitLink).hide();
             _rollbackOk.show();
         }
         _commitRollbackList.data('is-commit', state);
@@ -4159,7 +4283,7 @@ var NCE = (function ($) {
         _commitModal.modal('show');
     }
 
-    function commitOk() {
+    function getCommitChanges() {
         var i, len;
         var branchChanges = _commitModal.prop('branchChanges');
         var input = _commitRollbackList.find('.commitCheck');
@@ -4169,14 +4293,36 @@ var NCE = (function ($) {
                 changes.push(branchChanges[i]);
             }
         }
+        return changes;
+    }
+
+    function generateCommitLink() {
+        var url, changes, result;
+        changes = getCommitChanges();
+        if (!changes.length) {
+            showNote('No changes selected!', 'Error', TWO_SECOND_TIMEOUT);
+            return;
+        }
+        result = call(CONTROLLER + CONTROLLER_METHOD.GENERATE_COMMIT_LINK, [getAppId(), changes]);
+        if (result.status) {
+            _commitLink.attr('disabled', '');
+            url = document.URL;
+            url = url.substring(0, url.lastIndexOf('/'));
+            showNote(url + result.data, 'Commit Link', null, NOTE_CLASS.FORCE_MANUAL_CLOSE);
+        } else {
+            showNote('Error generating link: ' + result.data, 'Error');
+        }
+    }
+
+    function commitOk() {
         _commitModal.modal('hide');
-        callCommit(changes);
+        callCommit(getCommitChanges());
     }
 
     function callCommit(changedDtos, appId) {
         showNote('Committing changes on selected cubes...', 'Please wait...');
         setTimeout(function() {
-            var result, note, method, dtos;
+            var result, method, dtos;
             if (appId) {
                 method = CONTROLLER_METHOD.COMMIT_CUBE;
                 dtos = changedDtos.name;
@@ -4206,17 +4352,8 @@ var NCE = (function ($) {
     }
 
     function rollbackOk() {
-        var branchChanges = _commitModal.prop('branchChanges');
-        var input = _commitRollbackList.find('.commitCheck');
-        var changes = [];
-        $.each(input, function (index, label) {
-            if (this.checked) {
-                changes.push(branchChanges[index]);
-            }
-        });
-
         _commitModal.modal('hide');
-        callRollback(changes);
+        callRollback(getCommitChanges());
     }
 
     function callRollback(changes) {
@@ -4512,7 +4649,9 @@ var NCE = (function ($) {
     
     function diffShow(shouldShow) {
         if (shouldShow) {
-            _diffModal.show();
+            _diffModal.show(function() {
+                $(this).trigger('show');
+            });
         } else {
             _diffModal.hide();
             if (_didMergeChange) {

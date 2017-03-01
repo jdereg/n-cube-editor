@@ -258,6 +258,7 @@ var CONTROLLER_METHOD = {
     DUPLICATE_CUBE: 'duplicateCube',
     FETCH_JSON_BRANCH_DIFFS: 'fetchJsonBranchDiffs',
     FETCH_JSON_REV_DIFFS: 'fetchJsonRevDiffs',
+    GENERATE_COMMIT_LINK: 'generateCommitLink',
     GET_APP_LOCKED_BY: 'getAppLockedBy',
     GET_APP_NAMES: 'getAppNames',
     GET_APP_VERSIONS: 'getAppVersions',
@@ -269,8 +270,9 @@ var CONTROLLER_METHOD = {
     GET_BRANCHES: 'getBranches',
     GET_CELL_NO_EXECUTE: 'getCellNoExecute',
     GET_CELLS_NO_EXECUTE: 'getCellsNoExecute',
-    GET_CUBE_METAPROPERTIES: 'getCubeMetaProperties',
     GET_COLUMN_METAPROPERTIES: 'getColumnMetaProperties',
+    GET_COMMITS: 'getCommits',
+    GET_CUBE_METAPROPERTIES: 'getCubeMetaProperties',
     GET_HEADERS: 'getHeaders',
     GET_JSON: 'getJson',
     GET_MENU: 'getMenu',
@@ -340,6 +342,7 @@ var PERMISSION_ACTION = {
 };
 
 var NOTE_CLASS = {
+    FORCE_MANUAL_CLOSE: 'force-manual',
     PROCESS_DURATION: 'process-duration',
     SYS_META: 'sysmeta'
 };

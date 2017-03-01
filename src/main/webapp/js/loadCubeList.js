@@ -29,7 +29,8 @@ onmessage = function(e) {
     optsString = JSON.stringify(opts);
 
     req.open("POST", getSearchUrl(), false);
-    req.send(encodeURIComponent('[' + appIdString + ',"' + nameFilter + '","' + searchOptions.contains + '",' + optsString + ']'));
+    req.setRequestHeader('Content-Type', 'application/json');
+    req.send('[' + appIdString + ',"' + nameFilter + '","' + searchOptions.contains + '",' + optsString + ']');
 
     if (req.response) {
         searchResults = JSON.parse(req.response);
@@ -56,7 +57,7 @@ onmessage = function(e) {
         var match = regexp.exec(location.pathname);
         var url = location.protocol + '//' + location.hostname + ":" + location.port;
 
-        if (match !== null && match.length === 2) {
+        if (null !== match && 2 === match.length) {
             url += "/" + match[1];
         }
         url += '/cmd/ncubeController/search';

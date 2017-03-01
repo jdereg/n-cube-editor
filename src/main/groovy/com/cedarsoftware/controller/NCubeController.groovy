@@ -41,6 +41,7 @@ import com.cedarsoftware.util.StringUtilities
 import com.cedarsoftware.util.SystemUtilities
 import com.cedarsoftware.util.ThreadAwarePrintStream
 import com.cedarsoftware.util.ThreadAwarePrintStreamErr
+import com.cedarsoftware.util.UniqueIdGenerator
 import com.cedarsoftware.util.Visualizer
 import com.cedarsoftware.util.io.JsonReader
 import com.cedarsoftware.util.io.JsonWriter
@@ -112,36 +113,22 @@ class NCubeController extends BaseController
 
     protected String getUserForDatabase()
     {
-        Map<String, String> headers = new CaseInsensitiveMap<String, String>()
-        Set<String> headerList = ['smuser','fakeuser','appid'] as CaseInsensitiveSet
         HttpServletRequest request = JsonCommandServlet.servletRequest.get()
-        Enumeration e = request.headerNames
-        while (e.hasMoreElements())
-        {
-            String headerName = e.nextElement() as String
-            if (headerList.contains(headerName))
-            {
-                headers[headerName] = request.getHeader(headerName)
-                if (headers.containsKey('smuser') && headers.containsKey('fakeuser') && headers.containsKey('appid'))
-                {
-                    break
-                }
-            }
-        }
-
-        String realId = headers.containsKey('smuser') && StringUtilities.hasContent(headers['smuser']) ? headers['smuser'] : System.getProperty('user.name')
+        String smuser = request.getHeader('smuser')
+        String realId = smuser && StringUtilities.hasContent(smuser) ? smuser : System.getProperty('user.name')
         NCubeManager.userId = realId
 
-        if (headers.containsKey('fakeuser') && StringUtilities.hasContent(headers['fakeuser'])
-                && headers.containsKey('appid') && StringUtilities.hasContent(headers['appid']))
+        String fakeuser = request.getHeader('fakeuser')
+        String appid = request.getHeader('appid')
+        if (fakeuser && appid && StringUtilities.hasContent('fakeuser') && StringUtilities.hasContent('appid'))
         {
-            String[] appIdParts = headers['appid'].split('~')
+            String[] appIdParts = appid.split('~')
             if (appIdParts.length > 1)
             {
                 ApplicationID appId = new ApplicationID(tenant, appIdParts[0], appIdParts[1], appIdParts[2], appIdParts[3])
                 if (isAppAdmin(appId, true))
                 {
-                    NCubeManager.fakeId = headers['fakeuser']
+                    NCubeManager.fakeId = fakeuser
                 }
             }
         }
@@ -1352,6 +1339,93 @@ class NCubeController extends BaseController
         return branchChanges.toArray()
     }
 
+    String generateCommitLink(ApplicationID appId, Object[] infoDtos)
+    {
+        // TODO - would like to use constants, but waiting until ncube client refactor complete
+        appId = addTenant(appId)
+        ApplicationID sysAppId = new ApplicationID(tenant, 'sys.app', '0.0.0', ReleaseStatus.SNAPSHOT.toString(), ApplicationID.HEAD)
+        String appIdStr = "new ApplicationID('${appId.tenant}', '${appId.app}', '${appId.version}', '${appId.status}', '${appId.branch}')".toString()
+        List<String> cubeNames = infoDtos.collect { NCubeInfoDto dto -> "'${dto.name}'".toString() }
+        long newId = UniqueIdGenerator.uniqueId
+        String user = NCubeManager.getUserId()
+
+        NCube commitCube = new NCube('sys.commit.' + newId)
+        commitCube.addAxis(new Axis('property', AxisType.DISCRETE, AxisValueType.STRING, false, Axis.DISPLAY, 1))
+        commitCube.addColumn('property', 'status')
+        commitCube.addColumn('property', 'appId')
+        commitCube.addColumn('property', 'cubeNames')
+        commitCube.addColumn('property', 'requestUser')
+        commitCube.addColumn('property', 'requestTime')
+        commitCube.addColumn('property', 'prId')
+        commitCube.addColumn('property', 'commitUser')
+        commitCube.addColumn('property', 'commitTime')
+        commitCube.setCell('open', [property:'status'])
+        commitCube.setCell(new GroovyExpression(appIdStr, null, false), [property:'appId'])
+        commitCube.setCell(new GroovyExpression(cubeNames.toString(), null, false), [property:'cubeNames'])
+        commitCube.setCell(user, [property:'requestUser'])
+        commitCube.setCell(new Date().format('M/d/yyyy HH:mm:ss'), [property:'requestTime'])
+        NCubeManager.getPersister().updateCube(sysAppId, commitCube, user)
+
+        return "/cmd/ncubeController/honorCommit/?json=[${newId}]".toString()
+    }
+
+    Object honorCommit(long commitId)
+    {
+        // TODO - would like to use constants, but waiting until ncube client refactor complete
+        ApplicationID sysAppId = new ApplicationID(tenant, 'sys.app', '0.0.0', ReleaseStatus.SNAPSHOT.toString(), ApplicationID.HEAD)
+        NCube commitsCube = nCubeService.loadCube(sysAppId, 'sys.commit.' + commitId)
+
+        String status = commitsCube.getCell([property:'status'])
+        if (status == 'closed complete')
+        {
+            markRequestFailed('Commit request already closed.')
+            return null
+        }
+
+        ApplicationID commitAppId = commitsCube.getCell([property:'appId'])
+        List<String> commitNames = commitsCube.getCell([property:'cubeNames']) as List<String>
+        String user = NCubeManager.getUserId()
+
+        Object[] allDtos = getBranchChangesForHead(commitAppId)
+        Object[] commitDtos = allDtos.findAll {Object dto -> commitNames.contains((dto as NCubeInfoDto).name)}
+
+        commitsCube.setCell('processing', [property:'status'])
+        commitsCube.setCell(user, [property:'commitUser'])
+        commitsCube.setCell(new Date().format('M/d/yyyy HH:mm:ss'), [property:'commitTime'])
+        NCubeManager.getPersister().updateCube(sysAppId, commitsCube, user)
+
+        Object commitBranchResponse = commitBranch(commitAppId, commitDtos)
+        String message = null
+        if (JsonCommandServlet.servletRequest.get().getAttribute(JsonCommandServlet.ATTRIBUTE_STATUS))
+        {
+            commitsCube.setCell('closed complete', [id:commitId, property:'status'])
+        }
+        else
+        {
+            message = JsonCommandServlet.servletRequest.get().getAttribute(JsonCommandServlet.ATTRIBUTE_FAIL_MESSAGE)
+            commitsCube.setCell('error: ' + message, [id:commitId, property:'status'])
+        }
+        NCubeManager.getPersister().updateCube(sysAppId, commitsCube, NCubeManager.getUserId())
+
+        return message ? 'Failure: ' + message : 'Success!'
+    }
+
+    Object[] getCommits()
+    {
+        List<Map> results = []
+        ApplicationID sysAppId = new ApplicationID(tenant, 'sys.app', '0.0.0', ReleaseStatus.SNAPSHOT.toString(), ApplicationID.HEAD)
+        List<NCubeInfoDto> dtos = nCubeService.search(sysAppId, 'sys.commit.', null, [(SEARCH_ACTIVE_RECORDS_ONLY):true])
+        for (NCubeInfoDto dto : dtos)
+        {
+            NCube cube = nCubeService.loadCubeById(Long.parseLong(dto.id))
+            results.add(cube.getMap([property:[] as Set]))
+        }
+        results.sort {
+            "${it.appId['app']} ${it.appId['version']} ${it.requestTime}".toString()
+        }
+        return results as Object[]
+    }
+
     Object commitCube(ApplicationID appId, String cubeName)
     {
         appId = addTenant(appId)
@@ -1472,7 +1546,7 @@ class NCubeController extends BaseController
     Map execute(ApplicationID appId, Map args, String command)
     {
         appId = addTenant(appId)
-        int dot = command.indexOf('.')
+        int dot = command.lastIndexOf('.')
         String controller = command.substring(0, dot)
         String method = command.substring(dot + 1i)
         Map coordinate = ['method' : method, 'service': nCubeService]

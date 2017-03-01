@@ -15,7 +15,8 @@ onmessage = function(e) {
     var req = new XMLHttpRequest();
 
     req.open('POST', getHeartBeatUrl(), false);
-    req.send(encodeURIComponent(JSON.stringify([obj])));     // tomcat 8.0.38+ implementeds stricter RFC for valid URL characters.
+    req.setRequestHeader('Content-Type','application/json');
+    req.send(JSON.stringify([obj]));
 
     if (req.response) {
         result = JSON.parse(req.response);
@@ -28,10 +29,10 @@ onmessage = function(e) {
                 afterResult = data[key];
 
                 status = null;
-                if (afterResult === null) {
+                if (null === afterResult) {
                     status = 'conflict';
                 }
-                else if (afterResult === false) {
+                else if (false === afterResult) {
                     status = 'out-of-sync';
                 }
                 statuses.push({key:key, status:status});
@@ -46,7 +47,7 @@ onmessage = function(e) {
         var match = regexp.exec(location.pathname);
         var url = location.protocol + '//' + location.hostname + ":" + location.port;
 
-        if (match !== null && match.length === 2) {
+        if (null !== match && 2 === match.length) {
             url += "/" + match[1];
         }
         url += '/cmd/ncubeController/heartBeat';

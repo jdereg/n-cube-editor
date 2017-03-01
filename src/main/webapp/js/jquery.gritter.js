@@ -222,19 +222,26 @@
                 stack: '#gritter-notice-wrapper div'
             });
             item.draggable('disable');
-            $(item).find('.gritter-drag').click(function() {
+            $(item).find('.gritter-drag').on('click', function() {
                 var offset, width;
                 if (item.parent().is('body')) {
                     item.detach();
                     $('#gritter-notice-wrapper').append(item);
-                    item.css({position:'', top:'', left:'', width:''});
+                    item.css({position:'', top:'', left:'', width:'', 'overflow-y':'', 'max-height':''});
                     item.draggable('disable');
                 } else {
                     offset = item.offset();
                     width = item.width();
                     item.detach();
                     $('body').append(item);
-                    item.css({position: 'absolute', top: offset.top, left: offset.left, width: width});
+                    item.css({
+                        position: 'absolute', 
+                        top: offset.top, 
+                        left: offset.left, 
+                        width: width, 
+                        'overflow-y': 'auto', 
+                        'max-height': 450
+                    });
                     item.draggable('enable');
                 }
             });
