@@ -38,8 +38,8 @@ class RpmVisualizer extends Visualizer
 		RpmVisualizerInfo visInfo = options.visInfo as RpmVisualizerInfo
 		visInfo.appId = applicationID
 		VisualizerScopeInfo scopeInfo = options.scopeInfo as RpmVisualizerScopeInfo
+		RpmVisualizerRelInfo relInfo = new RpmVisualizerRelInfo(appId, options.node as Map, scopeInfo)
 		scopeInfo.init(applicationID, options, true)
-		RpmVisualizerRelInfo relInfo = new RpmVisualizerRelInfo(appId, options.node as Map)
 		return getCellValues(visInfo, scopeInfo, relInfo, options)
 	}
 
@@ -208,7 +208,7 @@ class RpmVisualizer extends Visualizer
 			{
 				relInfo.nodeLabelPrefix = 'Unable to load '
 				relInfo.targetTraits = new CaseInsensitiveMap()
-				relInfo.notes << getLoadTraitsForTargetMessage(relInfo, type)
+				relInfo.nodeScopeMessages << getLoadTraitsForTargetMessage(relInfo, type)
 				relInfo.cellValuesLoaded = false
 				relInfo.showCellValuesLink = false
 				return false
@@ -286,7 +286,7 @@ class RpmVisualizer extends Visualizer
 		String targetCubeDisplayName = relInfo.getCubeDisplayName(relInfo.targetCube.name)
 
 		"""\
-${sourceCubeDisplayName} points directly to ${targetCubeDisplayName} via field ${relInfo.sourceFieldName}, but \
-there is no ${type.toLowerCase()} named ${relInfo.sourceFieldName} on ${type}.  ${DOUBLE_BREAK}"""
+<b>Unable to load the class. ${sourceCubeDisplayName} points directly to ${targetCubeDisplayName} via field ${relInfo.sourceFieldName}, but \
+there is no ${type.toLowerCase()} named ${relInfo.sourceFieldName} on ${type}.</b> ${DOUBLE_BREAK}"""
 	}
 }

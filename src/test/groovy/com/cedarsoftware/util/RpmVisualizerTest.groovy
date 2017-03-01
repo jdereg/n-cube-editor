@@ -21,7 +21,7 @@ class RpmVisualizerTest
 {
     static final String PATH_PREFIX = 'rpmvisualizer/**/'
     static final String DETAILS_LABEL_UTILIZED_SCOPE = 'Utilized scope'
-    static final String DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS = 'Utilized scope to load class without all traits'
+    static final String DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_TRAITS = 'Utilized scope with no traits'
     static final String DETAILS_LABEL_FIELDS = 'Fields</b>'
     static final String DETAILS_LABEL_FIELDS_AND_TRAITS = 'Fields and traits'
     static final String DETAILS_LABEL_CLASS_TRAITS = 'Class traits'
@@ -1998,7 +1998,7 @@ class RpmVisualizerTest
 
         if (unableToLoad)
         {
-            assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
+            assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_TRAITS)
             assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
             assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
             assert !nodeDetails.contains(DETAILS_LABEL_FIELDS)
@@ -2008,7 +2008,7 @@ class RpmVisualizerTest
         else if (showCellValues)
         {
             assert !nodeDetails.contains(UNABLE_TO_LOAD)
-            assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
+            assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_TRAITS)
             assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
             assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
             assert nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
@@ -2017,7 +2017,7 @@ class RpmVisualizerTest
         else
         {
             assert !nodeDetails.contains(UNABLE_TO_LOAD)
-            assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
+            assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_TRAITS)
             assert nodeDetails.contains(DETAILS_LABEL_FIELDS)
             assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
             assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)
@@ -2028,29 +2028,15 @@ class RpmVisualizerTest
     {
         if (required)
         {
-            if ('topNode' == scopeType)
-            {
-                assert message.contains("""title="Scope key ${scopeKey} is required to load""") //TODO: Add check for topNodeName and cube names
-            }
-            else
-            {
-                assert message.contains("""title="Scope key ${scopeKey} is required by ${cubeNames} to load this class""")
-            }
+            assert message.contains("""title="Scope key ${scopeKey} is required to load""") //TODO: Add check for end part of message, including cube names
+        }
+        else if ('additionalGraphScope' == scopeType)
+        {
+            assert message.contains("Scope key ${scopeKey} is used in the in the visualization. It may be optional for some classes and required by others.") //TODO: Add check for cube names
         }
         else
         {
-            if ('topNode' == scopeType)
-            {
-                assert message.contains("""title="Scope key ${scopeKey} is optional to load""") //TODO: Add check for topNodeName and cube names
-            }
-            else if ('additionalGraphScope' == scopeType)
-            {
-                assert message.contains("Scope key ${scopeKey} is used in the in the visualization. It may be optional for some classes and required by others.") //TODO: Add check for cube names
-            }
-            else
-            {
-                assert message.contains("""title="Scope key ${scopeKey} is optional to load this class. Used on:\n${cubeNames}""")
-            }
+            assert message.contains("""title="Scope key ${scopeKey} is optional to load""") //TODO: Add check for end part of message, including cube names
         }
     }
 
@@ -2094,7 +2080,7 @@ class RpmVisualizerTest
         assert '1' ==  node.level
         assert scopeInfo.scope == node.scope
         String nodeDetails = node.details as String
-        assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_ALL_TRAITS)
+        assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_TRAITS)
         assert nodeDetails.contains("${DETAILS_LABEL_FIELDS}<pre><ul></ul></pre>")
         assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
         assert !nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)

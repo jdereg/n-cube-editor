@@ -1,13 +1,7 @@
 package com.cedarsoftware.util
 
-import com.cedarsoftware.ncube.ApplicationID
-import com.cedarsoftware.ncube.Axis
-import com.cedarsoftware.ncube.Column
-import com.cedarsoftware.ncube.NCube
 import com.cedarsoftware.ncube.NCubeManager
 import com.cedarsoftware.ncube.ReleaseStatus
-import com.cedarsoftware.ncube.exception.CoordinateNotFoundException
-import com.cedarsoftware.ncube.exception.InvalidCoordinateException
 import com.cedarsoftware.ncube.util.VersionComparator
 import groovy.transform.CompileStatic
 
@@ -15,7 +9,6 @@ import static com.cedarsoftware.util.RpmVisualizerConstants.AXIS_TRAIT
 import static com.cedarsoftware.util.RpmVisualizerConstants.EFFECTIVE_VERSION
 import static com.cedarsoftware.util.RpmVisualizerConstants.POLICY_CONTROL_DATE
 import static com.cedarsoftware.util.RpmVisualizerConstants.QUOTE_DATE
-import static com.cedarsoftware.util.RpmVisualizerConstants.R_EXISTS
 import static com.cedarsoftware.util.RpmVisualizerConstants.R_SCOPED_NAME
 import static com.cedarsoftware.util.VisualizerConstants.DATE_TIME_FORMAT
 
@@ -122,5 +115,10 @@ class RpmVisualizerScopeInfo extends VisualizerScopeInfo
 	protected String getNodeLabel()
 	{
 		return 'class'
+	}
+
+	protected String getCellValuesLabel()
+	{
+		return 'traits'
 	}
 }

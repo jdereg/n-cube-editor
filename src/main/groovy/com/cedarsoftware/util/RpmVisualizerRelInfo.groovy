@@ -29,9 +29,9 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		super(appId)
 	}
 
-	protected RpmVisualizerRelInfo(ApplicationID appId, Map node)
+	protected RpmVisualizerRelInfo(ApplicationID appId, Map node, VisualizerScopeInfo scopeInfo)
 	{
-		super(appId, node)
+		super(appId, node, scopeInfo)
 	}
 
 	@Override
@@ -49,30 +49,13 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	{
 		StringBuilder sb = new StringBuilder()
 
-		if (!cellValuesLoaded)
-		{
-			if (showCellValues)
-			{
-				sb.append("<b>Unable to load traits for ${getLabel(targetCube.name)}</b>${DOUBLE_BREAK}")
-			}
-			else
-			{
-				sb.append("<b>Unable to load ${getLabel(targetCube.name)}</b>${DOUBLE_BREAK}")
-			}
-		}
-
-		//Notes
-		if (notes)
-		{
-			notes.each { String note ->
-				sb.append("${note}")
-			}
-		}
+		//Node scope prompts
+		sb.append(scopeInfo.createNodeScopePrompts(nodeScopeMessages))
 
 		//Scope
 		if (cellValuesLoaded)
 		{
-			String title = showCellValues ? 'Utilized scope' : 'Utilized scope to load class without all traits'
+			String title = showCellValues ? 'Utilized scope' : 'Utilized scope with no traits'
 			getDetailsMap(sb, title, targetScope)
 		}
 		getDetailsMap(sb, 'Available scope', availableTargetScope)
@@ -334,7 +317,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 	@Override
 	protected boolean loadCellValues(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo)
 	{
-		boolean loadAgain
+		loadAgain = false
 		try
 		{
 			targetTraits = new CaseInsensitiveMap()
@@ -346,7 +329,7 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			{
 				helper.loadRpmClassFields(appId, RPM_CLASS, targetCube.name - RPM_CLASS_DOT, availableTargetScope, targetTraits, scopeInfo.loadingCellValues, output)
 			}
-			loadAgain = handleUnboundScope(visInfo, scopeInfo, targetCube.getRuleInfo(output))
+			handleUnboundScope(visInfo, scopeInfo, targetCube.getRuleInfo(output))
 			removeNotExistsFields()
 			addRequiredAndOptionalScopeKeys(visInfo)
 			retainUsedScope(visInfo, output)
@@ -360,68 +343,71 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			Throwable t = helper.getDeepestException(e)
 			if (t instanceof InvalidCoordinateException)
 			{
-				loadAgain = handleInvalidCoordinateException(t as InvalidCoordinateException, scopeInfo)
+				handleInvalidCoordinateException(t as InvalidCoordinateException, scopeInfo)
 			}
 			else if (t instanceof CoordinateNotFoundException)
 			{
-				loadAgain = handleCoordinateNotFoundException(t as CoordinateNotFoundException, scopeInfo)
+				handleCoordinateNotFoundException(t as CoordinateNotFoundException, scopeInfo)
 			}
 			else
 			{
-				loadAgain = handleException(t, scopeInfo)
+				handleException(t, scopeInfo)
 			}
 		}
 		return loadAgain ? loadCellValues(visInfo, scopeInfo) : true
 	}
 
-	private boolean handleUnboundScope(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, RuleInfo ruleInfo)
+	private void handleUnboundScope(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, RuleInfo ruleInfo)
 	{
-		StringBuilder sb = helper.handleUnboundScope(visInfo, scopeInfo, this, ruleInfo)
-		if (sb == null)
-		{
-			return true
+		List<MapEntry> unboundAxesList = ruleInfo.getUnboundAxesList()
+		if (unboundAxesList){
+			helper.handleUnboundScope(visInfo, scopeInfo, this, unboundAxesList)
+			if (loadAgain)
+			{
+				return
+			}
+			if (!scopeInfo.loadingCellValues)
+			{
+				nodeScopeMessages << "Defaults were used for some scope keys. Different values may be provided.${DOUBLE_BREAK}".toString()
+			}
 		}
-		notes << sb.toString()
-		return false
 	}
 
-	private boolean handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo)
+	private void handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo)
 	{
-		StringBuilder sb = new StringBuilder(helper.handleCoordinateNotFoundException(e, scopeInfo, this))
-		if (sb.length() == 0)
+		StringBuilder sb = helper.handleCoordinateNotFoundException(e, scopeInfo, this)
+		if (loadAgain)
 		{
-			return true
+			return
 		}
-		StringBuilder message = new StringBuilder("The value ${e.value} is not valid for ${e.axisName}. A different value must be provided:${DOUBLE_BREAK}")
+		StringBuilder message = new StringBuilder("<b>Unable to load ${scopeInfo.loadTarget}. The value ${e.value} is not valid for ${e.axisName}.</b>${DOUBLE_BREAK}")
 		message.append(sb)
-		notes << message.toString()
+		nodeScopeMessages << message.toString()
 		nodeLabelPrefix = 'Required scope value not found for '
 		targetTraits = new CaseInsensitiveMap()
-		return false
 	}
 
-	private boolean handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerScopeInfo scopeInfo)
+	private void handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerScopeInfo scopeInfo)
 	{
 		StringBuilder sb = helper.handleInvalidCoordinateException(e, scopeInfo, this, MANDATORY_SCOPE_KEYS)
-		if (sb.length() == 0)
+		if (loadAgain)
 		{
-			return true
+			return
 		}
-		StringBuilder message = new StringBuilder("<b>Additional scope is required: </b> ${DOUBLE_BREAK}")
+
+		StringBuilder message = new StringBuilder("<b>Unable to load ${scopeInfo.loadTarget}. Additional scope is required.</b> ${DOUBLE_BREAK}")
 		message.append(sb)
-		notes << message.toString()
+		nodeScopeMessages << message.toString()
 		nodeLabelPrefix = 'Additional scope required for '
 		targetTraits = new CaseInsensitiveMap()
-		return false
 	}
 
-	private boolean handleException(Throwable e, VisualizerScopeInfo scopeInfo)
+	private void handleException(Throwable e, VisualizerScopeInfo scopeInfo)
 	{
-		StringBuilder sb = new StringBuilder("<b>An exception was thrown while loading this ${scopeInfo.nodeLabel}. </b>  ${DOUBLE_BREAK}")
+		StringBuilder sb = new StringBuilder("<b>Unable to load ${scopeInfo.loadTarget} due to an exception.</b>${DOUBLE_BREAK}")
 		sb.append(helper.handleException(e))
-		notes << sb.toString()
+		nodeScopeMessages << sb.toString()
 		nodeLabelPrefix = "Unable to load "
 		targetTraits = new CaseInsensitiveMap()
-		return false
 	}
 }

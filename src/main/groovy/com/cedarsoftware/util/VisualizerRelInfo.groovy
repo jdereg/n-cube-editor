@@ -18,7 +18,7 @@ class VisualizerRelInfo
 {
 	protected ApplicationID appId
 
-	protected Set<String> notes = []
+	protected List<String> nodeScopeMessages = []
 	protected Map<String, Object> availableTargetScope
 
 	protected long targetId
@@ -35,6 +35,7 @@ class VisualizerRelInfo
 	protected boolean cellValuesLoaded
 	protected boolean showCellValuesLink
 	protected boolean showCellValues
+	protected boolean loadAgain
 
 	protected List<VisualizerCellInfo> cellInfo
 
@@ -49,7 +50,7 @@ class VisualizerRelInfo
 		appId = applicationId
 	}
 
-	protected VisualizerRelInfo(ApplicationID applicationId, Map node)
+	protected VisualizerRelInfo(ApplicationID applicationId, Map node, VisualizerScopeInfo scopeInfo)
 	{
 		appId  = applicationId
 		targetCube = NCubeManager.getCube(appId, node.cubeName as String)
@@ -60,6 +61,7 @@ class VisualizerRelInfo
 		targetLevel = Long.valueOf(node.level as String)
 		targetScope = node.scope as CaseInsensitiveMap
 		availableTargetScope = node.availableScope as CaseInsensitiveMap
+		availableTargetScope.keySet().removeAll(scopeInfo.nodeAdditionalScopeAvailableValues.keySet())
 		showCellValuesLink = node.showCellValuesLink as boolean
 		showCellValues = node.showCellValues as boolean
 		cellValuesLoaded = node.cellValuesLoaded as boolean

@@ -32,7 +32,7 @@ var Visualizer = (function ($) {
     var _edges = [];
     var _scopeInfo = null;
     var _scope = null;
-    var _showCellValuesNode;
+    var _showingCellValuesNode;
     var _keepCurrentScope = false;
     var _selectedGroups = null;
     var _availableGroupsAtLevel = null;
@@ -244,25 +244,25 @@ var Visualizer = (function ($) {
     }
 
     function scopeInputEvent(target) {
-        var key, value, showCellValues;
+        var key, value, loadCellValues;
         key = target.id;
         value = target.value;
         value = value ? value.trim() : value;
         setScopeValue(key, value);
-        showCellValues = target.className.indexOf('showCellValues') > -1
-        scopeChange(showCellValues);
+        loadCellValues = target.className.indexOf('loadCellValues') > -1
+        scopeChange(loadCellValues);
     }
 
     function scopeClickEvent(target) {
-        var id, scopeParts, key, value, showCellValues;
+        var id, scopeParts, key, value, loadCellValues;
         id = target.id;
         if (id) {
             scopeParts = id.split(':');
             key = scopeParts[0];
             value = scopeParts[1].trim();
             setScopeValue(key, value);
-            showCellValues = target.className.indexOf('showCellValues') > -1
-            scopeChange(showCellValues);
+            loadCellValues = target.className.indexOf('loadCellValues') > -1
+            scopeChange(loadCellValues);
         }
     }
 
@@ -496,10 +496,10 @@ var Visualizer = (function ($) {
         }
     }
 
-    function scopeChange(showCellValues)
+    function scopeChange(loadCellValues)
     {
         saveToLocalStorage(_scope, SCOPE);
-        showCellValues ? loadCellValues(_showCellValuesNode) :  load();
+        loadCellValues ? loadCellValues(_showingCellValuesNode) :  load();
     }
 
     function reload() {
@@ -513,7 +513,7 @@ var Visualizer = (function ($) {
 
     function loadCellValues(node) {
         var note;
-        _showCellValuesNode = node.showCellValues ? node : null;
+        _showingCellValuesNode = node.showCellValues ? node : null;
         note = node.showCellValues ? 'Loading ' + _visInfo.loadCellValuesLabel + '...' : 'Hiding ' + _visInfo.loadCellValuesLabel + '...';
         _nce.clearNotes(STICKY_SCOPE_MESSAGE);
         setTimeout(function () {loadCellValuesFromServer(node);}, PROGRESS_DELAY);
@@ -662,7 +662,7 @@ var Visualizer = (function ($) {
         _nodeCellValues[0].innerHTML = '';
         _nodeAddTypes.innerHTML = '';
         _nodeDetails[0].innerHTML = '';
-        _showCellValuesNode = null;
+        _showingCellValuesNode = null;
         _layout.close('west');
     }
 
