@@ -40,8 +40,7 @@ class VisualizerConstants
 	static final String CUBE_TYPE = 'cubeType'
 	static final String CUBE_TYPE_DEFAULT = null
 
-	static final String DETAILS_CLASS_BUILDING_GRAPH = 'loadingCellValues'
-	static final String DETAILS_CLASS_LOAD_CELL_VALUES = 'loadCellValues'
+	static final String DETAILS_CLASS_LOAD_CELL_VALUES = 'loadCellValuesAction'
 	static final String DETAILS_CLASS_CELL_VALUES = 'cellValues'
 	static final String DETAILS_CLASS_WORD_WRAP = 'wordwrap'
 	static final String DETAILS_CLASS_SCOPE_CLICK = 'scopeClick'

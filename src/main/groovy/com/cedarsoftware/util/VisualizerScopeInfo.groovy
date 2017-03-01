@@ -40,11 +40,11 @@ class VisualizerScopeInfo
 
 	VisualizerScopeInfo(){}
 
-	protected void init(ApplicationID applicationId, Map options, boolean loadCellValues = false, boolean showingCellValues = false){
+	protected void init(ApplicationID applicationId, Map options, boolean loadCellValues = false){
 		appId = applicationId
 		inputScope = options.scope as CaseInsensitiveMap ?: new CaseInsensitiveMap()
 		loadingCellValues = loadCellValues
-		if (!showingCellValues)
+		if (!loadingCellValues)
 		{
 			scope  = new CaseInsensitiveMap()
 			topNodeGraphScopeAvailableValues = new CaseInsensitiveMap()
@@ -230,22 +230,22 @@ class VisualizerScopeInfo
 		return sb
 	}
 
-	protected StringBuilder createNodeScopePrompts(List<String> nodeScopeMessages)
+	protected StringBuilder createNodeScopePrompts(VisualizerRelInfo relInfo)
 	{
 		StringBuilder sb = new StringBuilder()
-
+		List<String> nodeScopeMessages = relInfo.nodeScopeMessages
 		nodeScopeMessages.each { String msg ->
 			sb.append("${msg}")
 		}
 
 		if (nodeAdditionalScopeAvailableValues)
 		{
-			if (loadingCellValues)
+			if (!nodeScopeMessages)
 			{
-				sb.append("Additional scope used to load ${cellValuesLabel} for this ${nodeLabel}: ${BREAK}")
+				sb.append("Additional scope used to load ${cellValuesLabel} for this ${nodeLabel}: ${DOUBLE_BREAK}")
 			}
 			Map<String, Set<Object>> sorted = nodeAdditionalScopeAvailableValues.sort()
-			sb.append(getNodeScopeMessage(sorted))
+			sb.append(getNodeScopeMessage(sorted, relInfo.availableTargetScope))
 			// sb.append("""<a href="#" title="Reset traits scope" class="traitsScopeReset">Reset traits scope</a>""") //TODO: Maybe add this link
 		}
 		else if(nodeScopeMessages )
@@ -255,7 +255,7 @@ class VisualizerScopeInfo
 		return sb
 	}
 
-	private StringBuilder getNodeScopeMessage(Map<String, Set<Object>> availableValuesMap)
+	private StringBuilder getNodeScopeMessage(Map<String, Set<Object>> availableValuesMap, Map scope)
 	{
 		StringBuilder sb = new StringBuilder()
 		availableValuesMap.keySet().each{ String scopeKey ->

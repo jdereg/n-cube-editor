@@ -75,7 +75,7 @@ class Visualizer
 		visInfo.appId = applicationID
 		VisualizerScopeInfo scopeInfo = options.scopeInfo as VisualizerScopeInfo
 		VisualizerRelInfo relInfo = new VisualizerRelInfo(appId, options.node as Map, scopeInfo)
-		scopeInfo.init(applicationID, options, false)
+		scopeInfo.init(applicationID, options, true)
 		return getCellValues(visInfo, scopeInfo, relInfo, options)
 	}
 

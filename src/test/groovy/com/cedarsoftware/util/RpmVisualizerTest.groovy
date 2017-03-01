@@ -20,7 +20,7 @@ import static com.cedarsoftware.util.VisualizerTestConstants.*
 class RpmVisualizerTest
 {
     static final String PATH_PREFIX = 'rpmvisualizer/**/'
-    static final String DETAILS_LABEL_UTILIZED_SCOPE = 'Utilized scope'
+    static final String DETAILS_LABEL_UTILIZED_SCOPE_WITH_TRAITS = 'Utilized scope with traits'
     static final String DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_TRAITS = 'Utilized scope with no traits'
     static final String DETAILS_LABEL_FIELDS = 'Fields</b>'
     static final String DETAILS_LABEL_FIELDS_AND_TRAITS = 'Fields and traits'
@@ -1999,7 +1999,7 @@ class RpmVisualizerTest
         if (unableToLoad)
         {
             assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_TRAITS)
-            assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
+            assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITH_TRAITS)
             assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
             assert !nodeDetails.contains(DETAILS_LABEL_FIELDS)
             assert !nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
@@ -2009,7 +2009,7 @@ class RpmVisualizerTest
         {
             assert !nodeDetails.contains(UNABLE_TO_LOAD)
             assert !nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITHOUT_TRAITS)
-            assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE)
+            assert nodeDetails.contains(DETAILS_LABEL_UTILIZED_SCOPE_WITH_TRAITS)
             assert nodeDetails.contains(DETAILS_LABEL_AVAILABLE_SCOPE)
             assert nodeDetails.contains(DETAILS_LABEL_FIELDS_AND_TRAITS)
             assert nodeDetails.contains(DETAILS_LABEL_CLASS_TRAITS)

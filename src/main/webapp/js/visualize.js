@@ -31,7 +31,8 @@ var Visualizer = (function ($) {
     var _nodes = [];
     var _edges = [];
     var _scopeInfo = null;
-    var _scope = null;
+    var _graphScope = null;
+    var _nodeScope = null;
     var _showingCellValuesNode;
     var _keepCurrentScope = false;
     var _selectedGroups = null;
@@ -209,16 +210,16 @@ var Visualizer = (function ($) {
         if (e.type === 'click' && target.className.indexOf('scopeClick') > -1) {
             scopeClickEvent(target);
         }
-        else if (e.type === 'change' && target.className.indexOf('scopeInput') > -1) {
+        else if ('change' === e.type && target.className.indexOf('scopeInput') > -1) {
             scopeInputEvent(target);
         }
-        else if (e.type === 'click' && target.className.indexOf('scopeReset') > -1) {
+        else if ('click' === e.type && target.className.indexOf('scopeReset') > -1) {
             scopeResetEvent();
         }
-        else if (e.type === 'click' && target.className.indexOf('toastScopeButton') > -1) {
+        else if ('click' === e.type && target.className.indexOf('toastScopeButton') > -1) {
             scopeButtonClick();
         }
-        else if (e.type === 'click' && target.className.indexOf('findNode') > -1) {
+        else if ('click' === e.type && target.className.indexOf('findNode') > -1) {
             findNode(target);
         }
     }
@@ -239,39 +240,38 @@ var Visualizer = (function ($) {
     }
 
     function scopeResetEvent() {
-        _scope = null;
-        scopeChange();
+        _graphScope = null;
+        saveToLocalStorage(_graphScope, SCOPE);
+        load();
     }
 
     function scopeInputEvent(target) {
-        var key, value, loadCellValues;
+        var key, value, loadCellValuesAction;
         key = target.id;
         value = target.value;
         value = value ? value.trim() : value;
-        setScopeValue(key, value);
-        loadCellValues = target.className.indexOf('loadCellValues') > -1
-        scopeChange(loadCellValues);
+        loadCellValuesAction = target.className.indexOf('loadCellValuesAction') > -1;
+        scopeChange(key, value, loadCellValuesAction);
     }
 
     function scopeClickEvent(target) {
-        var id, scopeParts, key, value, loadCellValues;
+        var id, scopeParts, key, value, loadCellValuesAction;
         id = target.id;
         if (id) {
             scopeParts = id.split(':');
             key = scopeParts[0];
             value = scopeParts[1].trim();
-            setScopeValue(key, value);
-            loadCellValues = target.className.indexOf('loadCellValues') > -1
-            scopeChange(loadCellValues);
+            loadCellValuesAction = target.className.indexOf('loadCellValuesAction') > -1;
+            scopeChange(key, value, loadCellValuesAction);
         }
     }
 
-    function setScopeValue(key, value){
+    function setScopeValue(scope, key, value){
         if (value === null || value === 'Default' || value.length === 0){
-            delete _scope[key];
+            delete scope[key];
         }
         else{
-            _scope[key] = value;
+            scope[key] = value;
         }
     }
 
@@ -496,10 +496,17 @@ var Visualizer = (function ($) {
         }
     }
 
-    function scopeChange(loadCellValues)
+    function scopeChange(key, value, loadCellValuesAction)
     {
-        saveToLocalStorage(_scope, SCOPE);
-        loadCellValues ? loadCellValues(_showingCellValuesNode) :  load();
+        if (loadCellValuesAction){
+            setScopeValue(_nodeScope, key, value);
+            loadCellValues(_showingCellValuesNode)
+        }
+        else{
+            setScopeValue(_graphScope, key, value);
+            saveToLocalStorage(_graphScope, SCOPE);
+            load();
+        }
     }
 
     function reload() {
@@ -511,12 +518,11 @@ var Visualizer = (function ($) {
         _visualizerNetwork.show();
      }
 
-    function loadCellValues(node) {
+    function loadCellValues() {
         var note;
-        _showingCellValuesNode = node.showCellValues ? node : null;
-        note = node.showCellValues ? 'Loading ' + _visInfo.loadCellValuesLabel + '...' : 'Hiding ' + _visInfo.loadCellValuesLabel + '...';
+        note = _showingCellValuesNode.showCellValues ? 'Loading ' + _visInfo.loadCellValuesLabel + '...' : 'Hiding ' + _visInfo.loadCellValuesLabel + '...';
         _nce.clearNotes(STICKY_SCOPE_MESSAGE);
-        setTimeout(function () {loadCellValuesFromServer(node);}, PROGRESS_DELAY);
+        setTimeout(function () {loadCellValuesFromServer(_showingCellValuesNode);}, PROGRESS_DELAY);
         _nce.showNote(note);
     }
 
@@ -526,7 +532,7 @@ var Visualizer = (function ($) {
         node.details = null;
         _visInfo.nodes = {};
         _visInfo.edges = {};
-        options =  {startCubeName: _selectedCubeName, visInfo: _visInfo, scopeInfo: _scopeInfo, scope: _scope, node: node};
+        options =  {startCubeName: _selectedCubeName, visInfo: _visInfo, scopeInfo: _scopeInfo, scope: _nodeScope, node: node};
 
         result = _nce.call('ncubeController.getVisualizerCellValues', [_nce.getSelectedTabAppId(), options]);
         _nce.clearNote();
@@ -574,8 +580,17 @@ var Visualizer = (function ($) {
         _nodeCellValues[0].innerHTML = '';
         _nodeCellValues.append(createCellValuesLink(node));
 
+        if (node.showCellValues){
+            _showingCellValuesNode = node;
+            _nodeScope = node.availableScope;
+        }
+        else{
+            _showingCellValuesNode = null;
+            _nodeScope = null;
+        }
+
         _scopeInfo = scopeInfo;
-        _scope = scopeInfo.scope;
+        _graphScope = scopeInfo.scope;
         _visInfo = visInfo;
     }
 
@@ -614,10 +629,10 @@ var Visualizer = (function ($) {
         if (_visInfo) {
             _visInfo.nodes = {};
             _visInfo.edges = {};
-            options = {startCubeName: _selectedCubeName, visInfo: _visInfo, scope: _scope};
+            options = {startCubeName: _selectedCubeName, visInfo: _visInfo, scope: _graphScope};
         }
         else{
-            options =  {startCubeName: _selectedCubeName, scope: _scope};
+            options =  {startCubeName: _selectedCubeName, scope: _graphScope};
         }
 
         result = _nce.call('ncubeController.getVisualizerJson', [_nce.getSelectedTabAppId(), options]);
@@ -663,6 +678,7 @@ var Visualizer = (function ($) {
         _nodeAddTypes.innerHTML = '';
         _nodeDetails[0].innerHTML = '';
         _showingCellValuesNode = null;
+        _nodeScope = null;
         _layout.close('west');
     }
 
@@ -743,7 +759,7 @@ var Visualizer = (function ($) {
 
     function getScopeString(){
         var scopeLen, key, i, len, scope, scopeString, keys;
-        scope = $.extend(true, {}, _scope);
+        scope = $.extend(true, {}, _graphScope);
         delete scope['@type'];
         delete scope['@id'];
         scopeString = '';
@@ -979,7 +995,7 @@ var Visualizer = (function ($) {
             }
         }
         _scopeInfo = scopeInfo;
-        _scope = scopeInfo.scope;
+        _graphScope = scopeInfo.scope;
         _visInfo = visInfo;
         _loadedVisInfoType = _visInfo['@type'];
      }
@@ -1294,7 +1310,7 @@ var Visualizer = (function ($) {
         visualizerLink.click(function (e) {
             e.preventDefault();
             _keepCurrentScope = true;
-            _scope = node.scope;
+            _graphScope = node.scope;
             _nce.selectCubeByName(cubeName, appId, TAB_VIEW_TYPE_VISUALIZER + PAGE_ID);
         });
         return visualizerLink;
@@ -1313,7 +1329,7 @@ var Visualizer = (function ($) {
     }
 
     function createCellValuesLink(node) {
-        var note, cellValuesLink = $('<a/>');
+        var cellValuesLink = $('<a/>');
         cellValuesLink.addClass('nc-anc');
         if (node.showCellValues) {
             cellValuesLink.html('Hide ' + _visInfo.loadCellValuesLabel);
@@ -1324,7 +1340,9 @@ var Visualizer = (function ($) {
         cellValuesLink.click(function (e) {
             e.preventDefault();
             node.showCellValues = !node.showCellValues;
-            loadCellValues(node);
+            _showingCellValuesNode = node;
+            _nodeScope = node.availableScope;
+            loadCellValues();
         });
         return cellValuesLink;
     }
@@ -1367,7 +1385,7 @@ var Visualizer = (function ($) {
             _keepCurrentScope = false;
         }
         else{
-            _scope = getFromLocalStorage(SCOPE, null);
+            _graphScope = getFromLocalStorage(SCOPE, null);
         }
 
         _selectedGroups = getFromLocalStorage(SELECTED_GROUPS, null);
@@ -1388,7 +1406,7 @@ var Visualizer = (function ($) {
     }
 
     function saveAllToLocalStorage() {
-        saveToLocalStorage(_scope, SCOPE);
+        saveToLocalStorage(_graphScope, SCOPE);
         saveToLocalStorage(_selectedGroups, SELECTED_GROUPS);
         saveToLocalStorage(_selectedLevel, SELECTED_LEVEL);
         saveToLocalStorage(_hierarchical, HIERARCHICAL);

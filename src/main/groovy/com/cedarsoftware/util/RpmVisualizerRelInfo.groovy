@@ -50,12 +50,12 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 		StringBuilder sb = new StringBuilder()
 
 		//Node scope prompts
-		sb.append(scopeInfo.createNodeScopePrompts(nodeScopeMessages))
+		sb.append(scopeInfo.createNodeScopePrompts(this))
 
 		//Scope
 		if (cellValuesLoaded)
 		{
-			String title = showCellValues ? 'Utilized scope' : 'Utilized scope with no traits'
+			String title = showCellValues ? 'Utilized scope with traits' : 'Utilized scope with no traits'
 			getDetailsMap(sb, title, targetScope)
 		}
 		getDetailsMap(sb, 'Available scope', availableTargetScope)
@@ -324,10 +324,10 @@ class RpmVisualizerRelInfo extends VisualizerRelInfo
 			Map output = new CaseInsensitiveMap()
 			if (targetCube.name.startsWith(RPM_ENUM))
 			{
-				helper.loadRpmClassFields(appId, RPM_ENUM, targetCube.name - RPM_ENUM_DOT, availableTargetScope, targetTraits, scopeInfo.loadingCellValues, output)
+				helper.loadRpmClassFields(appId, RPM_ENUM, targetCube.name - RPM_ENUM_DOT, availableTargetScope, targetTraits, showCellValues, output)
 			} else
 			{
-				helper.loadRpmClassFields(appId, RPM_CLASS, targetCube.name - RPM_CLASS_DOT, availableTargetScope, targetTraits, scopeInfo.loadingCellValues, output)
+				helper.loadRpmClassFields(appId, RPM_CLASS, targetCube.name - RPM_CLASS_DOT, availableTargetScope, targetTraits, showCellValues, output)
 			}
 			handleUnboundScope(visInfo, scopeInfo, targetCube.getRuleInfo(output))
 			removeNotExistsFields()
