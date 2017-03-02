@@ -498,39 +498,52 @@ class RpmVisualizerTest
     void testGetCellValues_classNode_hide()
     {
         Map scope = [_effectiveVersion: ApplicationID.DEFAULT_VERSION,
-                     product          : 'WProduct',
                      policyControlDate: '2017-01-01',
                      quoteDate        : '2017-01-01',
-                     sourceCoverage   : 'FCoverage',
-                     coverage         : 'CCCoverage',
-                     sourceFieldName  : 'Coverages',
-                     risk             : 'WProductOps'] as CaseInsensitiveMap
+                     coverage         : 'TCoverage'] as CaseInsensitiveMap
         inputScope = new CaseInsensitiveMap(scope)
 
-        Map nodeScope = new CaseInsensitiveMap(scope)
-        nodeScope.remove('sourceFieldName')
+        Map expectedNodeScope = new CaseInsensitiveMap(scope)
 
         //Build graph
         String startCubeName = 'rpm.class.Coverage'
         Map options = [startCubeName: startCubeName, scope: inputScope]
         buildGraph(options)
-        assert nodes.size() == 2
-        Map nodeWithoutTraits = checkNodeBasics('CCCoverage', 'Coverage')
+        assert nodes.size() == 1
+        Map node = checkNodeBasics('TCoverage', 'Coverage')
 
-        //Simulate that the user clicks Show Traits for the node
-        nodeWithoutTraits.showCellValues = true
-        options = [startCubeName: startCubeName, node: nodeWithoutTraits, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        //Simulate that the user clicks Show Traits for the node.
+        //Required node scope prompt now shows for points.
+        node.showCellValues = true
+        options = [startCubeName: startCubeName, node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
         getCellValues(options)
         assert nodes.size() == 1
-        Map nodeWithTraits = checkNodeBasics('CCCoverage', 'Coverage', '', '', false, true)
+        node = checkNodeBasics('TCoverage', 'Coverage', '', ADDITIONAL_SCOPE_REQUIRED, true, true)
 
-        //Simulate that the user clicks Hide Traits for the node
-        nodeWithTraits.showCellValues = false
-        options = [startCubeName: startCubeName, node: nodeWithTraits, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        //Simulate that the user picks points = A in the node scope prompt. Node scope contains points.
+        expectedNodeScope.points = 'A'
+        inputScope = new CaseInsensitiveMap(scopeInfo.scope)
+        inputScope.points = 'A'
+        options = [startCubeName: startCubeName, node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: inputScope]
         getCellValues(options)
         assert nodes.size() == 1
-        assert nodeWithoutTraits == nodes.first()
-    }
+        node = checkNodeBasics('TCoverage', 'Coverage', '', ADDITIONAL_SCOPE_USED_TO_LOAD_TRAITS, false, true)
+        assert expectedNodeScope == node.scope
+        assert expectedNodeScope == node.availableScope
+        assert scope == scopeInfo.scope
+
+        //Simulate that the user clicks Hide Traits for the node.
+        //No scope prompts show for the node and no traits show. Node scope has been reset.
+        node.showCellValues = false
+        options = [startCubeName: startCubeName, node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: inputScope]
+        getCellValues(options)
+        assert nodes.size() == 1
+        node = checkNodeBasics('TCoverage', 'Coverage')
+        checkNoScopePrompt(node.details as String)
+        assert scope == node.scope
+        assert scope == node.availableScope
+        assert scope == scopeInfo.scope
+      }
 
     @Test
     void testBuildGraph_cubeNotFound()
