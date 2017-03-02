@@ -213,7 +213,7 @@ class VisualizerScopeInfo
 			Set<String> cubeNames = optionalGraphScopeCubeNames[scopeKey]
 			cubeNames.remove(null)
 			StringBuilder title = new StringBuilder("Scope key ${scopeKey} is used in the in the visualization. It may be optional for some ${nodesLabel} and required by others.")
-			title.append(addCubeNamesList('\nFirst encountered on the following cubes, but may also be present on others:', cubeNames))
+			title.append(addCubeNamesList('\n\nFirst encountered on the following cubes, but may also be present on others:', cubeNames))
 			sb.append(getScopeMessage(scopeKey, availableValuesMap[scopeKey], title, scope[scopeKey]))
 		}
 		return sb
@@ -229,7 +229,7 @@ class VisualizerScopeInfo
 			Set<Object> availableValues = availableValuesMap[scopeKey]
 			String requiredOrOptional = availableValues.contains(null) ? 'optional' : 'required'
 			StringBuilder title = new StringBuilder("Scope key ${scopeKey} is ${requiredOrOptional} to load ${topNodeName}")
-			title.append(addCubeNamesList('.\nFirst encountered on the following cubes, but may also be present on others:', cubeNames))
+			title.append(addCubeNamesList('.\n\nFirst encountered on the following cubes, but may also be present on others:', cubeNames))
 			sb.append(getScopeMessage(scopeKey, availableValues, title, scope[scopeKey]))
 		}
 		return sb
@@ -269,7 +269,7 @@ class VisualizerScopeInfo
 			Set<Object> availableValues = availableValuesMap[scopeKey]
 			String requiredOrOptional = availableValues.contains(null) ? 'optional' : 'required'
 			StringBuilder title = new StringBuilder("Scope key ${scopeKey} is ${requiredOrOptional} to load ${loadTarget}")
-			title.append(addCubeNamesList('.\nFirst encountered on the following cubes, but may also be present on others:', cubeNames))
+			title.append(addCubeNamesList('.\n\nFirst encountered on the following cubes, but may also be present on others:', cubeNames))
 			sb.append(getScopeMessage(scopeKey, availableValues, title, scope[scopeKey]))
 			sb.append(BREAK)
 		}
@@ -326,9 +326,9 @@ class VisualizerScopeInfo
 		StringBuilder sb = new StringBuilder()
 		if (cubeNames)
 		{
-			sb.append("${prefix}\n")
+			sb.append("${prefix}\n\n")
 			cubeNames.each { String cubeName ->
-				sb.append("${cubeName}\n")
+				sb.append("  - ${cubeName}\n")
 			}
 		}
 		return sb

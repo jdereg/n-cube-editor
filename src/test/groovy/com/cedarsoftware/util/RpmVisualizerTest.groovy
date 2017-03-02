@@ -369,13 +369,13 @@ class RpmVisualizerTest
 
         node = checkNodeBasics('CCCoverage', 'Coverage', '', ADDITIONAL_SCOPE_USED_TO_LOAD_TRAITS, false, true)
         String nodeDetails = node.details as String
-        checkScopePromptTitle(nodeDetails, 'businessDivisionCode', false, 'rpm.scope.class.Coverage.traits.StatCode\nrpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field4')
+        checkScopePromptTitle(nodeDetails, 'businessDivisionCode', false, '  - rpm.scope.class.Coverage.traits.StatCode\n  - rpm.scope.class.Coverage.traits.field1And2\n  - rpm.scope.class.Coverage.traits.field4')
         checkScopePromptDropdown(nodeDetails, 'businessDivisionCode', 'Default', ['AAADIV', 'BBBDIV', DEFAULT], [], SELECT_OR_ENTER_VALUE, true)
 
-        checkScopePromptTitle(nodeDetails, 'program', false, 'rpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field4')
+        checkScopePromptTitle(nodeDetails, 'program', false, '  - rpm.scope.class.Coverage.traits.field1And2\n  - rpm.scope.class.Coverage.traits.field4')
         checkScopePromptDropdown(nodeDetails, 'program', 'Default', ['program1', 'program2', 'program3', DEFAULT], [], SELECT_OR_ENTER_VALUE, true)
 
-        checkScopePromptTitle(nodeDetails, 'type', false, 'rpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field3CovC\nrpm.scope.class.Coverage.traits.field4')
+        checkScopePromptTitle(nodeDetails, 'type', false, '  - rpm.scope.class.Coverage.traits.field1And2\n  - rpm.scope.class.Coverage.traits.field3CovC\n  - rpm.scope.class.Coverage.traits.field4')
         checkScopePromptDropdown(nodeDetails, 'type', 'Default', ['type1', 'type2', 'type3', 'typeA', 'typeB', DEFAULT], [], SELECT_OR_ENTER_VALUE, true)
 
         assert node.availableScope == scope
@@ -394,11 +394,11 @@ class RpmVisualizerTest
         assert expectedNodeScope == node.availableScope
         assert scope == scopeInfo.scope
         nodeDetails = node.details as String
-        checkScopePromptTitle(nodeDetails, 'businessDivisionCode', false, 'rpm.scope.class.Coverage.traits.StatCode\nrpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field4')
+        checkScopePromptTitle(nodeDetails, 'businessDivisionCode', false, '  - rpm.scope.class.Coverage.traits.StatCode\n  - rpm.scope.class.Coverage.traits.field1And2\n  - rpm.scope.class.Coverage.traits.field4')
         checkScopePromptDropdown(nodeDetails, 'businessDivisionCode', 'AAADIV', ['AAADIV', 'BBBDIV', DEFAULT], [], SELECT_OR_ENTER_VALUE, true)
-        checkScopePromptTitle(nodeDetails, 'program', false, 'rpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field4')
+        checkScopePromptTitle(nodeDetails, 'program', false, '  - rpm.scope.class.Coverage.traits.field1And2\n  - rpm.scope.class.Coverage.traits.field4')
         checkScopePromptDropdown(nodeDetails, 'program', 'Default', ['program1', 'program2', 'program3', DEFAULT], [], SELECT_OR_ENTER_VALUE, true)
-        checkScopePromptTitle(nodeDetails, 'type', false, 'rpm.scope.class.Coverage.traits.field1And2\nrpm.scope.class.Coverage.traits.field3CovC\nrpm.scope.class.Coverage.traits.field4')
+        checkScopePromptTitle(nodeDetails, 'type', false, '  - rpm.scope.class.Coverage.traits.field1And2\n  - rpm.scope.class.Coverage.traits.field3CovC\n  - rpm.scope.class.Coverage.traits.field4')
         checkScopePromptDropdown(nodeDetails, 'type', 'Default', ['type1', 'type2', 'type3', 'typeA', 'typeB', DEFAULT], [], SELECT_OR_ENTER_VALUE, true)
         assert nodeDetails.contains("Exposure</b></li><pre><ul><li>r:declared: true</li><li>r:exists: true</li><li>r:extends: DataElementInventory</li><li>r:rpmType: string</li></ul></pre><li><b>")
         assert nodeDetails.contains("Location</b></li><pre><ul><li>r:declared: true</li><li>r:exists: true</li><li>r:rpmType: Risk</li><li>v:max: 1</li><li>v:min: 0</li></ul></pre><li><b>")
@@ -2052,15 +2052,19 @@ class RpmVisualizerTest
     {
         if (required)
         {
-            assert message.contains("""title="Scope key ${scopeKey} is required to load""") //TODO: Add check for end part of message, including cube names
+            assert message.contains("""title="Scope key ${scopeKey} is required to load""")
         }
         else if ('additionalGraphScope' == scopeType)
         {
-            assert message.contains("Scope key ${scopeKey} is used in the in the visualization. It may be optional for some classes and required by others.") //TODO: Add check for cube names
+            assert message.contains("Scope key ${scopeKey} is used in the in the visualization. It may be optional for some classes and required by others.")
         }
         else
         {
-            assert message.contains("""title="Scope key ${scopeKey} is optional to load""") //TODO: Add check for end part of message, including cube names
+            assert message.contains("""title="Scope key ${scopeKey} is optional to load""")
+        }
+        if (cubeNames)
+        {
+            assert message.contains(cubeNames)
         }
     }
 
