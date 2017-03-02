@@ -3,8 +3,6 @@ package com.cedarsoftware.util
 import com.cedarsoftware.ncube.ApplicationID
 import com.cedarsoftware.ncube.NCube
 import com.cedarsoftware.ncube.NCubeManager
-import com.cedarsoftware.ncube.ReleaseStatus
-import com.cedarsoftware.ncube.util.VersionComparator
 import groovy.transform.CompileStatic
 
 import static com.cedarsoftware.util.RpmVisualizerConstants.*

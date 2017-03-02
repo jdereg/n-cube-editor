@@ -17,7 +17,6 @@ class VisualizerTestConstants
 	static final String ADDITIONAL_SCOPE_REQUIRED = 'Additional scope is required.'
 	static final String IS_NOT_VALID_FOR = 'is not valid for'
 	static final String DEFAULTS_WERE_USED = 'Defaults were used for some scope keys. Different values may be provided.'
-	static final String ADDITIONAL_SCOPE_USED_TO_LOAD_CELL_VALUES = 'Additional scope used to load cell values for this cube'
 	static final String SELECT_OR_ENTER_VALUE = 'Select or enter value...'
 	static final String ENTER_VALUE = 'Enter value...'
 	static final String DEFAULT = 'Default'

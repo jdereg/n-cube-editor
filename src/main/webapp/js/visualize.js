@@ -786,7 +786,7 @@ var Visualizer = (function ($) {
             scopeString = scopeString.substring(0, scopeLen - 2);
         }
         else{
-            scopeString = 'No scope in the visualization.v'
+            scopeString = 'No scope in the visualization.'
         }
         return scopeString;
     }

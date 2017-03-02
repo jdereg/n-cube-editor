@@ -11,7 +11,6 @@ class VisualizerConstants
 {
 	static final String SPACE = '&nbsp;'
 	static final String BREAK = '<br>'
-	static final String COMMA_SPACE = ', '
 	static final String DOUBLE_BREAK = "${BREAK}${BREAK}"
 
 	static final String UNSPECIFIED = 'UNSPECIFIED'
