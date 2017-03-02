@@ -1355,10 +1355,15 @@ var Visualizer = (function ($) {
         }
         cellValuesLink.click(function (e) {
             e.preventDefault();
-            node.showCellValues = !node.showCellValues;
-            _showingCellValuesNode = node;
-            _nodeScope = node.availableScope;
-            loadCellValues();
+            if (_visInfo.loadCellValuesLabel === 'cell values'){
+                _nce.showNote('Show cell values for n-cubes is currently not available.'); //TODO: Temporary
+            }
+            else{
+                node.showCellValues = !node.showCellValues;
+                _showingCellValuesNode = node;
+                _nodeScope = node.availableScope;
+                loadCellValues();
+            }
         });
         return cellValuesLink;
     }

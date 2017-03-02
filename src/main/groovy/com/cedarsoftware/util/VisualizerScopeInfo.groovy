@@ -253,7 +253,6 @@ class VisualizerScopeInfo
 			}
 			Map<String, Set<Object>> sorted = nodeAdditionalScopeAvailableValues.sort()
 			sb.append(getNodeScopeMessage(sorted, relInfo.availableTargetScope))
-			// sb.append("""<a href="#" title="Reset traits scope" class="traitsScopeReset">Reset traits scope</a>""") //TODO: Maybe add this link
 		}
 		else if(nodeScopeMessages )
 		{
