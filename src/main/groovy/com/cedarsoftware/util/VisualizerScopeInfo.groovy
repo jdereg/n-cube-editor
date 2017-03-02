@@ -9,6 +9,7 @@ import groovy.transform.CompileStatic
 
 import static com.cedarsoftware.util.VisualizerConstants.BREAK
 import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_FORM_CONTROL
+import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_HIGHLIGHTED
 import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_SCOPE_INPUT
 import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_SCOPE_CLICK
 import static com.cedarsoftware.util.VisualizerConstants.DETAILS_CLASS_LOAD_CELL_VALUES
@@ -282,6 +283,9 @@ class VisualizerScopeInfo
 		StringBuilder sb = new StringBuilder()
 		String caret = availableScopeValues ? """<span class="caret"></span>""" : ''
 		String placeHolder = availableScopeValues ? 'Select or enter value...' : 'Enter value...'
+		String currentActionClass = loadingCellValues ? DETAILS_CLASS_LOAD_CELL_VALUES : ''
+		String highlightedClass = ''
+
 		if (availableScopeValues.contains(null))
 		{
 			value = providedScopeValue ?: 'Default'
@@ -290,13 +294,13 @@ class VisualizerScopeInfo
 		{
 			value = providedScopeValue ?: ''
 		}
-		String currentActionClass = loadingCellValues ? DETAILS_CLASS_LOAD_CELL_VALUES : ''
 
 		sb.append("""<div class="input-group" title="${title}">""")
 		sb.append("""<div class="input-group-btn">""")
 		sb.append("""<button type="button" class="btn btn-default dropdown-toggle"  data-toggle="dropdown">${scopeKey} ${caret}</button>""")
 		if (availableScopeValues)
 		{
+			highlightedClass = availableScopeValues.contains(providedScopeValue) ? highlightedClass : DETAILS_CLASS_HIGHLIGHTED
 			sb.append("""<ul class="dropdown-menu">""")
 			availableScopeValues.each {Object scopeValue ->
 				if (scopeValue)
@@ -311,7 +315,7 @@ class VisualizerScopeInfo
 			sb.append("""</ul>""")
 		}
 		sb.append("""</div>""")
-		sb.append("""<input id="${scopeKey}" value="${value}" placeholder="${placeHolder}" class="${DETAILS_CLASS_SCOPE_INPUT} ${DETAILS_CLASS_FORM_CONTROL} ${currentActionClass}" style="color: black;" type="text">""")
+		sb.append("""<input id="${scopeKey}" value="${value}" placeholder="${placeHolder}" class="${DETAILS_CLASS_SCOPE_INPUT} ${DETAILS_CLASS_FORM_CONTROL} ${currentActionClass} ${highlightedClass}" style="color: black;" type="text">""")
 		sb.append("""</div>""")
 		return sb
 	}

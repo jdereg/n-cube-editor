@@ -50,4 +50,5 @@ class VisualizerConstants
 	static final String DETAILS_CLASS_COLLAPSE_ALL = 'collapseAll'
 	static final String DETAILS_CLASS_EXECUTED_CELL = 'executedCell'
 	static final String DETAILS_CLASS_FORM_CONTROL = 'form-control'
+	static final String DETAILS_CLASS_HIGHLIGHTED = 'highlighted'
 }
