@@ -551,6 +551,74 @@ class VisualizerTest{
         assert nodeDetails.contains(DETAILS_LABEL_STACK_TRACE)
     }
 
+    /*TODO: Show cell values is temporarily disabled for n-cubes. Will add back in and fix these tests at that time
+    @Test
+    void testGetCellValues_showCellValues_coordinateNotFoundCell_dueToOneNotFoundValue()
+    {
+        //Build graph
+        String startCubeName = 'CubeWithCoordinateNotFoundCell'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode(startCubeName)
+
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
+        assert nodes.size() == 1
+        node = checkNode(startCubeName, false, true)
+
+        String nodeDetails = node.details as String
+        assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
+        assert nodeDetails.contains(DETAILS_TITLE_MISSING_OR_INVALID_COORDINATE)
+        assert nodeDetails.contains('class="' + CoordinateNotFoundException.class.simpleName)
+        assert nodeDetails.contains('CubeMAxis1: CubeMAxis1Col2, CubeMAxis2: CubeMAxis2Col1')
+        assert nodeDetails.contains('class="coord_0 ' + DETAILS_CLASS_WORD_WRAP)
+        assert nodeDetails.contains(DETAILS_LABEL_NON_EXECUTED_VALUE)
+        assert nodeDetails.contains("@CubeWithSingleValue[CubeKAxis1:'bogusScopeValue', CubeKAxis2: 'CubeKAxis2Col3']")
+        assert nodeDetails.contains(DETAILS_LABEL_EXCEPTION)
+        assert nodeDetails.contains("The value bogusScopeValue is not valid for CubeKAxis1")
+        assert nodeDetails.contains(DETAILS_CLASS_SCOPE_CLICK)
+        assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col1")
+        assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col2")
+        assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col3")
+    }
+
+    @Test
+    void testGetCellValues_showCellValues_coordinateNotFoundCell_dueToTwoNotFoundValues()
+    {
+        //Build graph
+        String startCubeName = 'CubeWithCoordinateNotFoundCellDueToTwoNotFoundValues'
+        Map options = [startCubeName: startCubeName, scope: inputScope]
+        buildGraph(options)
+        Map node = checkNode(startCubeName)
+
+        //Simulate that the user clicks Show Cell Values for the node
+        node.showCellValues = true
+        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
+        getCellValues(options)
+        assert nodes.size() == 1
+        node = checkNode(startCubeName, false, true)
+
+        String nodeDetails = node.details as String
+        assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
+        assert nodeDetails.contains(DETAILS_TITLE_MISSING_OR_INVALID_COORDINATE)
+        assert nodeDetails.contains('class="' + CoordinateNotFoundException.class.simpleName)
+        assert nodeDetails.contains('CubeMAxis1: CubeMAxis1Col2, CubeMAxis2: CubeMAxis2Col1')
+        assert nodeDetails.contains('class="coord_0 ' + DETAILS_CLASS_WORD_WRAP)
+        assert nodeDetails.contains(DETAILS_LABEL_NON_EXECUTED_VALUE)
+        assert nodeDetails.contains("@CubeWithSingleValue[CubeKAxis1:'bogusScopeValue', CubeKAxis2: 'dummyScopeValue']")
+        assert nodeDetails.contains(DETAILS_LABEL_EXCEPTION)
+        assert nodeDetails.contains("The value bogusScopeValue is not valid for CubeKAxis1")
+        assert nodeDetails.contains(DETAILS_CLASS_SCOPE_CLICK)
+        assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col1")
+        assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col2")
+        assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col3")
+
+        //TODO: Should have values for CubeKAxis2
+    }
+
+
     @Test
     void testGetCellValues_showCellValues_invalidCoordinateCell_dueToOneInvalidCoordinateKey()
     {
@@ -628,6 +696,8 @@ class VisualizerTest{
         assert nodeDetails.contains("CubeKAxis2: CubeKAxis2Col3")
     }
 
+   */
+
     @Test
     void testHandleCoordinateNotFoundException_withNoCubeNameOrAxisName()
     {
@@ -674,73 +744,6 @@ class VisualizerTest{
         assert message.contains(DETAILS_LABEL_ROOT_CAUSE)
         assert message.contains(exceptionName)
         assert message.contains(DETAILS_LABEL_STACK_TRACE)
-    }
-
-    @Test
-    void testGetCellValues_showCellValues_coordinateNotFoundCell_dueToOneNotFoundValue()
-    {
-        //Build graph
-        String startCubeName = 'CubeWithCoordinateNotFoundCell'
-        Map options = [startCubeName: startCubeName, scope: inputScope]
-        buildGraph(options)
-        Map node = checkNode(startCubeName)
-
-        //Simulate that the user clicks Show Cell Values for the node
-        node.showCellValues = true
-        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
-        getCellValues(options)
-        assert nodes.size() == 1
-        node = checkNode(startCubeName, false, true)
-
-        String nodeDetails = node.details as String
-        assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
-        assert nodeDetails.contains(DETAILS_TITLE_MISSING_OR_INVALID_COORDINATE)
-        assert nodeDetails.contains('class="' + CoordinateNotFoundException.class.simpleName)
-        assert nodeDetails.contains('CubeMAxis1: CubeMAxis1Col2, CubeMAxis2: CubeMAxis2Col1')
-        assert nodeDetails.contains('class="coord_0 ' + DETAILS_CLASS_WORD_WRAP)
-        assert nodeDetails.contains(DETAILS_LABEL_NON_EXECUTED_VALUE)
-        assert nodeDetails.contains("@CubeWithSingleValue[CubeKAxis1:'bogusScopeValue', CubeKAxis2: 'CubeKAxis2Col3']")
-        assert nodeDetails.contains(DETAILS_LABEL_EXCEPTION)
-        assert nodeDetails.contains("The value bogusScopeValue is not valid for CubeKAxis1")
-        assert nodeDetails.contains(DETAILS_CLASS_SCOPE_CLICK)
-        assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col1")
-        assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col2")
-        assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col3")
-    }
-
-
-    @Test
-    void testGetCellValues_showCellValues_coordinateNotFoundCell_dueToTwoNotFoundValues()
-    {
-        //Build graph
-        String startCubeName = 'CubeWithCoordinateNotFoundCellDueToTwoNotFoundValues'
-        Map options = [startCubeName: startCubeName, scope: inputScope]
-        buildGraph(options)
-        Map node = checkNode(startCubeName)
-
-        //Simulate that the user clicks Show Cell Values for the node
-        node.showCellValues = true
-        options = [node: node, visInfo: visInfo, scopeInfo: scopeInfo, scope: scopeInfo.scope]
-        getCellValues(options)
-        assert nodes.size() == 1
-        node = checkNode(startCubeName, false, true)
-
-        String nodeDetails = node.details as String
-        assert nodeDetails.contains('class="' + DETAILS_CLASS_CELL_VALUES)
-        assert nodeDetails.contains(DETAILS_TITLE_MISSING_OR_INVALID_COORDINATE)
-        assert nodeDetails.contains('class="' + CoordinateNotFoundException.class.simpleName)
-        assert nodeDetails.contains('CubeMAxis1: CubeMAxis1Col2, CubeMAxis2: CubeMAxis2Col1')
-        assert nodeDetails.contains('class="coord_0 ' + DETAILS_CLASS_WORD_WRAP)
-        assert nodeDetails.contains(DETAILS_LABEL_NON_EXECUTED_VALUE)
-        assert nodeDetails.contains("@CubeWithSingleValue[CubeKAxis1:'bogusScopeValue', CubeKAxis2: 'dummyScopeValue']")
-        assert nodeDetails.contains(DETAILS_LABEL_EXCEPTION)
-        assert nodeDetails.contains("The value bogusScopeValue is not valid for CubeKAxis1")
-        assert nodeDetails.contains(DETAILS_CLASS_SCOPE_CLICK)
-        assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col1")
-        assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col2")
-        assert nodeDetails.contains("CubeKAxis1: CubeKAxis1Col3")
-
-        //TODO: Should have values for CubeKAxis2
     }
 
     @Test

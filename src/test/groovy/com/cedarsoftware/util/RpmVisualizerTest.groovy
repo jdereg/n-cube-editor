@@ -1324,7 +1324,8 @@ class RpmVisualizerTest
             assert 0 == scopeInfo.optionalGraphScopeAvailableValues.dummyRequiredScopeKey.size()
             assert 1 == scopeInfo.optionalGraphScopeCubeNames.dummyRequiredScopeKey.size()
             assert ['rpm.class.party.ProfitCenter'] as Set== scopeInfo.optionalGraphScopeCubeNames.dummyRequiredScopeKey as Set
-            assert scopeMessage.contains("""<input id="dummyRequiredScopeKey" value="" placeholder="Enter value..." class="scopeInput form-control " """)
+            //TODO: Add check for highlighted class
+            assert scopeMessage.contains("""<input id="dummyRequiredScopeKey" value="" placeholder="Enter value..." class="scopeInput form-control """)
             assert !scopeMessage.contains('<li id="dummyRequiredScopeKey"')
 
             //Check node scope prompt
@@ -1368,7 +1369,8 @@ class RpmVisualizerTest
             assert 0 == scopeInfo.optionalGraphScopeAvailableValues.dummyRequiredScopeKey.size()
             assert 1 == scopeInfo.optionalGraphScopeCubeNames.dummyRequiredScopeKey.size()
             assert ['rpm.class.Coverage'] as Set== scopeInfo.optionalGraphScopeCubeNames.dummyRequiredScopeKey as Set
-            assert scopeMessage.contains("""<input id="dummyRequiredScopeKey" value="" placeholder="Enter value..." class="scopeInput form-control " """)
+            //TODO: Add check for highlighted class
+            assert scopeMessage.contains("""<input id="dummyRequiredScopeKey" value="" placeholder="Enter value..." class="scopeInput form-control """)
             assert !scopeMessage.contains('<li id="dummyRequiredScopeKey"')
 
             //Check node scope prompt
@@ -1949,7 +1951,8 @@ class RpmVisualizerTest
         String scopeMessage = scopeInfo.scopeMessage
         assert scopeMessage.contains('partyrole.LossPrevention' + SCOPE_UTILIZED_BY_TOP_NODE )
         assert scopeMessage.contains('title="Scope key _effectiveVersion is required to load partyrole.LossPrevention')
-        assert scopeMessage.contains("""<input id="_effectiveVersion" value="${ApplicationID.DEFAULT_VERSION}" placeholder="Select or enter value..." class="scopeInput form-control " """)
+        //TODO: Add check for highlighted class
+        assert scopeMessage.contains("""<input id="_effectiveVersion" value="${ApplicationID.DEFAULT_VERSION}" placeholder="Select or enter value..." class="scopeInput form-control """)
 
         assert 0 == scopeInfo.optionalGraphScopeAvailableValues.keySet().size()
         assert 0 == scopeInfo.optionalGraphScopeCubeNames.keySet().size()
@@ -2071,7 +2074,8 @@ class RpmVisualizerTest
     private static void checkScopePromptDropdown(String message, String scopeKey, String selectedScopeValue, List<String> availableScopeValues, List<String> unavailableScopeValues, String placeHolder, boolean showCellValues = false)
     {
         String loadCellValuesClass = showCellValues ? DETAILS_CLASS_LOAD_CELL_VALUES : ''
-        assert message.contains("""<input id="${scopeKey}" value="${selectedScopeValue}" placeholder="${placeHolder}" class="scopeInput form-control ${loadCellValuesClass}" """)
+        //TODO: Add check for highlighted class
+        assert message.contains("""<input id="${scopeKey}" value="${selectedScopeValue}" placeholder="${placeHolder}" class="scopeInput form-control ${loadCellValuesClass} """)
         if (!availableScopeValues && !unavailableScopeValues)
         {
             assert !message.contains("""<li id=""")
