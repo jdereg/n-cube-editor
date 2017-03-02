@@ -3668,8 +3668,7 @@ var NCE = (function ($) {
         _viewCommitsList.find('tr:gt(1)').remove();
         _viewCommitsList.append(html);
         _viewCommitsList.find('tr:gt(1)').on('click', function() {
-            var commit = commits[_viewCommitsList.find('tr').index(this) - 2];
-            commitListClick(commit);
+            commitListClick(this, commits);
         });
 
         populateSelectFromMap($('#view-commits-app'), apps);
@@ -3683,15 +3682,19 @@ var NCE = (function ($) {
         populateSelectFromMap($('#view-commits-repo'), repos);
     }
     
-    function commitListClick(commit) {
-        var html, cubeNames, i, len;
-        clearNotes(NOTE_CLASS.SYS_META);
-        cubeNames = commit.cubeNames['@items'];
-        html = '';
-        for (i = 0, len = cubeNames.length; i < len; i++) {
-            html += cubeNames[i] + '<br/>';
+    function commitListClick(row, commits) {
+        var i, len, self, commit, cubeNames, html;
+        self = $(row);
+        if (!self.has('td[colspan]').length) {
+            self.parent().find('tr').has('td[colspan]').remove();
+            commit = commits[_viewCommitsList.find('tr').index(row) - 2];
+            cubeNames = commit.cubeNames['@items'];
+            html = '<tr><td colspan="' + self.find('td').length + '">';
+            html += '<ul class="list-group"></ul>';
+            html += '</td></tr>';
+            self.after(html);
+            buildUlForCompare(self.parent().find('ul'), commit.appId.branch, cubeNames, {compare:true, html:true, json:true});
         }
-        showNote(html, 'Cube List', null, NOTE_CLASS.SYS_META);
     }
 
     function clearStorage() {
@@ -3995,16 +3998,31 @@ var NCE = (function ($) {
         ul.empty();
         ul.append(buildHtmlListForCompare(branchChanges, options));
         ul.find('a.anc-compare').on('click', function() {
+            var infoDto, leftInfoDto, diffOptions;
             var checkbox = $(this).parent().parent().find('.' + inputClass);
             var ul = $(this).parent().parent().parent().parent();
             var idx = ul.find('.' + inputClass).index(checkbox);
-            var infoDto = $.extend(true, {}, branchChanges[idx]);
-            var leftInfoDto = $.extend(true, {}, infoDto);
-            leftInfoDto.branch = branchName;
-            if ('commit' === options.action) {
-                diffCubes(infoDto, leftInfoDto, infoDto.name, appIdFrom(leftInfoDto.app, leftInfoDto.version, leftInfoDto.status, leftInfoDto.branch));
-            } else { // rollback or update
-                diffCubes(leftInfoDto, infoDto, infoDto.name, appIdFrom(infoDto.app, infoDto.version, infoDto.status, infoDto.branch));
+            var change = branchChanges[idx];
+            if (options.hasOwnProperty('action')) {
+                infoDto = $.extend(true, {}, change);
+                leftInfoDto = $.extend(true, {}, infoDto);
+                leftInfoDto.branch = branchName;
+                if ('commit' === options.action) {
+                    diffCubes(infoDto, leftInfoDto, infoDto.name, appIdFrom(leftInfoDto.app, leftInfoDto.version, leftInfoDto.status, leftInfoDto.branch));
+                } else { // rollback or update
+                    diffCubes(leftInfoDto, infoDto, infoDto.name, appIdFrom(infoDto.app, infoDto.version, infoDto.status, infoDto.branch));
+                }
+            } else {
+                diffOptions = {
+                    leftName: 'BRANCH',
+                    rightName: head,
+                    title: change.name,
+                    appId: null,
+                    cubeName: change.name,
+                    canEdit: false,
+                    cantEditReason: 'Commit request is view-only.'
+                };
+                diffCubeRevs(change.id, change.head, diffOptions);
             }
         });
         addJsonHtmlListeners(ul);
@@ -4160,7 +4178,6 @@ var NCE = (function ($) {
     function buildHtmlListForCompare(branchChanges, options) {
         var i, len, infoDto, prevChangeType, changeType, displayType, shouldCompare;
         var html = '';
-        var inputClass = options.inputClass;
         for (i = 0, len = branchChanges.length; i < len; i++) {
             infoDto = branchChanges[i];
             changeType = infoDto.changeType;
@@ -4192,7 +4209,9 @@ var NCE = (function ($) {
             }
 
             html += '<label class="checkbox checkbox-label ' + displayType.CSS_CLASS + '">';
-            html += '<input class="' + inputClass + '" type="checkbox">';
+            if (options.hasOwnProperty('inputClass')) {
+                html += '<input class="' + options.inputClass + '" type="checkbox">';
+            }
             html += infoDto.name;
             html += '</label>';
 
@@ -4247,11 +4266,7 @@ var NCE = (function ($) {
             title = 'Commit changes';
             _commitModal.find('.accept-mine, .accept-theirs').show();
             _commitLink.removeAttr('disabled').show();
-            // if (checkIsAppAdmin()) {
-                _commitOk.show();
-            // } else {
-            //     _commitOk.hide();
-            // }
+            _commitOk.show();
             _rollbackOk.hide();
         } else {
             action = 'rollback';

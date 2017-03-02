@@ -1344,12 +1344,26 @@ class NCubeController extends BaseController
         // TODO - would like to use constants, but waiting until ncube client refactor complete
         appId = addTenant(appId)
         ApplicationID sysAppId = new ApplicationID(tenant, 'sys.app', '0.0.0', ReleaseStatus.SNAPSHOT.toString(), ApplicationID.HEAD)
+        ApplicationID headAppId = appId.asHead()
         String appIdStr = "new ApplicationID('${appId.tenant}', '${appId.app}', '${appId.version}', '${appId.status}', '${appId.branch}')".toString()
-        List<String> cubeNames = infoDtos.collect { NCubeInfoDto dto -> "'${dto.name}'".toString() }
-        long newId = UniqueIdGenerator.uniqueId
-        String user = NCubeManager.getUserId()
+        StringBuilder sb = new StringBuilder('[')
+        for (Object infoDto : infoDtos)
+        {
+            String headId = null
+            NCubeInfoDto dto = infoDto as NCubeInfoDto
+            if (dto.headSha1)
+            {
+                NCubeInfoDto headDto = nCubeService.search(headAppId, dto.name, null, [(SEARCH_ACTIVE_RECORDS_ONLY):true, (SEARCH_EXACT_MATCH_NAME):true]).first()
+                headId = headDto.id
+            }
+            sb.append("[name:'${dto.name}',changeType:'${dto.changeType}',id:'${dto.id}',head:'${headId}'],".toString())
+        }
+        sb.deleteCharAt(sb.length() - 1).append(']') // replace last comma with bracket
+        Date time = new Date()
+        String newId = time.format('yyyyMMdd.HHmmss.') + String.format('%05d', UniqueIdGenerator.uniqueId % 100000)
+        String user = NCubeManager.userId
 
-        NCube commitCube = new NCube('sys.commit.' + newId)
+        NCube commitCube = new NCube("tx.${newId}")
         commitCube.addAxis(new Axis('property', AxisType.DISCRETE, AxisValueType.STRING, false, Axis.DISPLAY, 1))
         commitCube.addColumn('property', 'status')
         commitCube.addColumn('property', 'appId')
@@ -1361,10 +1375,11 @@ class NCubeController extends BaseController
         commitCube.addColumn('property', 'commitTime')
         commitCube.setCell('open', [property:'status'])
         commitCube.setCell(new GroovyExpression(appIdStr, null, false), [property:'appId'])
-        commitCube.setCell(new GroovyExpression(cubeNames.toString(), null, false), [property:'cubeNames'])
+        commitCube.setCell(new GroovyExpression(sb.toString(), null, false), [property:'cubeNames'])
         commitCube.setCell(user, [property:'requestUser'])
-        commitCube.setCell(new Date().format('M/d/yyyy HH:mm:ss'), [property:'requestTime'])
-        NCubeManager.getPersister().updateCube(sysAppId, commitCube, user)
+        commitCube.setCell(time.format('M/d/yyyy HH:mm:ss'), [property:'requestTime'])
+
+        nCubeService.updateCube(sysAppId, commitCube)
 
         return "/cmd/ncubeController/honorCommit/?json=[${newId}]".toString()
     }
@@ -1373,7 +1388,7 @@ class NCubeController extends BaseController
     {
         // TODO - would like to use constants, but waiting until ncube client refactor complete
         ApplicationID sysAppId = new ApplicationID(tenant, 'sys.app', '0.0.0', ReleaseStatus.SNAPSHOT.toString(), ApplicationID.HEAD)
-        NCube commitsCube = nCubeService.loadCube(sysAppId, 'sys.commit.' + commitId)
+        NCube commitsCube = nCubeService.loadCube(sysAppId, "tx.${commitId}")
 
         String status = commitsCube.getCell([property:'status'])
         if (status == 'closed complete')
@@ -1392,9 +1407,8 @@ class NCubeController extends BaseController
         commitsCube.setCell('processing', [property:'status'])
         commitsCube.setCell(user, [property:'commitUser'])
         commitsCube.setCell(new Date().format('M/d/yyyy HH:mm:ss'), [property:'commitTime'])
-        NCubeManager.getPersister().updateCube(sysAppId, commitsCube, user)
-
-        Object commitBranchResponse = commitBranch(commitAppId, commitDtos)
+        nCubeService.updateCube(sysAppId, commitsCube)
+        commitBranch(commitAppId, commitDtos)
         String message = null
         if (JsonCommandServlet.servletRequest.get().getAttribute(JsonCommandServlet.ATTRIBUTE_STATUS))
         {
@@ -1405,23 +1419,20 @@ class NCubeController extends BaseController
             message = JsonCommandServlet.servletRequest.get().getAttribute(JsonCommandServlet.ATTRIBUTE_FAIL_MESSAGE)
             commitsCube.setCell('error: ' + message, [id:commitId, property:'status'])
         }
-        NCubeManager.getPersister().updateCube(sysAppId, commitsCube, NCubeManager.getUserId())
-
-        return message ? 'Failure: ' + message : 'Success!'
+        nCubeService.updateCube(sysAppId, commitsCube)
+        return message ? "Failure: ${message}" : 'Success!'
     }
 
     Object[] getCommits()
     {
         List<Map> results = []
         ApplicationID sysAppId = new ApplicationID(tenant, 'sys.app', '0.0.0', ReleaseStatus.SNAPSHOT.toString(), ApplicationID.HEAD)
-        List<NCubeInfoDto> dtos = nCubeService.search(sysAppId, 'sys.commit.', null, [(SEARCH_ACTIVE_RECORDS_ONLY):true])
+        List<NCubeInfoDto> dtos = nCubeService.search(sysAppId, 'tx.', null, [(SEARCH_ACTIVE_RECORDS_ONLY):true])
+        dtos.sort {it.name}
         for (NCubeInfoDto dto : dtos)
         {
             NCube cube = nCubeService.loadCubeById(Long.parseLong(dto.id))
             results.add(cube.getMap([property:[] as Set]))
-        }
-        results.sort {
-            "${it.appId['app']} ${it.appId['version']} ${it.requestTime}".toString()
         }
         return results as Object[]
     }

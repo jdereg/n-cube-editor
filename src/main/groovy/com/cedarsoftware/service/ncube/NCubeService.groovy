@@ -377,6 +377,11 @@ class NCubeService
         return NCubeManager.renameCube(appId, oldName, newName)
     }
 
+    void updateCube(ApplicationID appId, NCube cube)
+    {
+        NCubeManager.updateCube(appId, cube)
+    }
+
     /**
      * Update / Save a single n-cube -or- create / update a batch of n-cubes, represented as a JSON
      * array [] of n-cubes.
