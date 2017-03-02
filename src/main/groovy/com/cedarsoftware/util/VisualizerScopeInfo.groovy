@@ -52,6 +52,11 @@ class VisualizerScopeInfo
 			optionalGraphScopeAvailableValues = new CaseInsensitiveMap()
 			optionalGraphScopeCubeNames = new CaseInsensitiveMap()
 		}
+		initNode()
+	}
+
+	protected void initNode()
+	{
 		nodeAdditionalScopeAvailableValues = new CaseInsensitiveMap()
 		nodeAdditionalScopeCubeNames = new CaseInsensitiveMap()
 	}

@@ -142,6 +142,7 @@ class Visualizer
 
 	protected void processCube(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo)
 	{
+		scopeInfo.initNode()
 		NCube targetCube = relInfo.targetCube
 		String targetCubeName = targetCube.name
 

@@ -78,6 +78,7 @@ class RpmVisualizer extends Visualizer
 	@Override
 	protected void processCube(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo)
 	{
+		scopeInfo.initNode()
 		if (relInfo.targetCube.name.startsWith(RPM_CLASS))
 		{
 			processClassCube((RpmVisualizerInfo) visInfo, scopeInfo, (RpmVisualizerRelInfo) relInfo)
