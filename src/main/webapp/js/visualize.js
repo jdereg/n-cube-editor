@@ -54,6 +54,8 @@ var Visualizer = (function ($) {
     var _nodeDetails = null;
     var _layout = null;
     var _scopeButton = null;
+    var _scopeNoteId = null;
+    var _scopePromptTitle =  'Show or hide scope prompt';
     var _findNode = null;
     var STATUS_SUCCESS = 'success';
     var UNSPECIFIED = 'UNSPECIFIED';
@@ -225,15 +227,15 @@ var Visualizer = (function ($) {
     }
 
     function scopeButtonClick(){
-        var button, scopeImage;
+        var button;
         button = $('#scopeButton');
         if (_nce.hasNote(STICKY_SCOPE_MESSAGE)){
             _nce.clearNotes(STICKY_SCOPE_MESSAGE);
             button.removeClass('active');
+            _scopeNoteId = null;
         }
         else{
-            scopeImage =  $.extend({title: getScopeString()}, SCOPE_IMAGE);
-            _nce.showNote(_scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, scopeImage);
+            showScopeNote();
             button.addClass('active');
         }
         _scopeButton = button.hasClass('active');
@@ -521,9 +523,8 @@ var Visualizer = (function ($) {
     function loadCellValues() {
         var note;
         note = _showingCellValuesNode.showCellValues ? 'Loading ' + _visInfo.loadCellValuesLabel + '...' : 'Hiding ' + _visInfo.loadCellValuesLabel + '...';
-        _nce.clearNotes(STICKY_SCOPE_MESSAGE);
         setTimeout(function () {loadCellValuesFromServer(_showingCellValuesNode);}, PROGRESS_DELAY);
-        _nce.showNote(note);
+        showScopeNote(note);
     }
 
     function loadCellValuesFromServer(node)
@@ -600,11 +601,11 @@ var Visualizer = (function ($) {
             _dataLoadStart = performance.now();
             $("#dataLoadStatus").val('loading');
             $("#dataLoadDuration").val(DOT_DOT_DOT);
-            _nce.clearNotes(STICKY_SCOPE_MESSAGE);
+            //_nce.clearNotes(STICKY_SCOPE_MESSAGE);
             setTimeout(function () {
                 loadGraph();
             }, PROGRESS_DELAY);
-            _nce.showNote('Loading data...');
+            showScopeNote('Loading data...');
         }
     }
 
@@ -687,13 +688,25 @@ var Visualizer = (function ($) {
     }
 
     function loadScopeView() {
-        $('#scopeButton-div').prop('title', getScopeString());
-        var button, scopeImage;
+        var button;
+        $('#scopeButton-div').prop('title', _scopePromptTitle + '\n\n' + getScopeString() );
         button = $('#scopeButton');
         button.addClass('active');
         _scopeButton = true;
-        scopeImage =  $.extend({title: getScopeString()}, SCOPE_IMAGE);
-        _nce.showNote(_scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, scopeImage);
+        showScopeNote();
+    }
+
+    function showScopeNote(notePrefix){
+        var scopeImage, scopeMessage;
+        notePrefix = notePrefix ? '<b>' + notePrefix + '</b><br>' : '';
+        scopeMessage = _scopeInfo.scopeMessage ? _scopeInfo.scopeMessage : '';
+        if (_scopeNoteId) {
+            _nce.updateNote(_scopeNoteId, 'scopeMessage', notePrefix + _scopeInfo.scopeMessage);
+        }
+        else{
+            scopeImage = $.extend({title: _scopePromptTitle}, SCOPE_IMAGE);
+            _scopeNoteId = _nce.showNote(notePrefix + _scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, scopeImage);
+        }
     }
 
     function loadGroupsView() {
@@ -1137,7 +1150,7 @@ var Visualizer = (function ($) {
             $("#stabilizationStatus").val(DOT_DOT_DOT);
             $("#stabilizationIterations").val(DOT_DOT_DOT);
             $("#stabilizationDuration").val(DOT_DOT_DOT);
-            _nce.showNote('Stabilizing network...');
+            showScopeNote('Stabilizing network...');
         }
         else if (_fullStabilizationAfterBasic) {
             _stabilizationStart = performance.now();
@@ -1151,7 +1164,7 @@ var Visualizer = (function ($) {
             $("#stabilizationStatus").val(ITERATING);
             $("#stabilizationIterations").val(DOT_DOT_DOT);
             $("#stabilizationDuration").val(DOT_DOT_DOT);
-            _nce.showNote('Stabilizing network...');
+            showScopeNote('Stabilizing network...');
         }
     }
 
@@ -1180,7 +1193,7 @@ var Visualizer = (function ($) {
     }
     
     function stabilizationComplete(iterations){
-        _nce.clearNote();
+        showScopeNote();
         if (_tempNote) {
             _nce.showNote(_tempNote, 'Note', 5000);
         }

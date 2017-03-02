@@ -172,7 +172,7 @@ class VisualizerScopeInfo
 
 	protected void createGraphScopePrompt()
 	{
-		StringBuilder sb = new StringBuilder("${BREAK}")
+		StringBuilder sb = new StringBuilder("""<div id="scopeMessage"> ${BREAK}""")
 		if (topNodeGraphScopeAvailableValues || optionalGraphScopeAvailableValues)
 		{
 			if (topNodeGraphScopeAvailableValues)
@@ -203,6 +203,7 @@ class VisualizerScopeInfo
 		else{
 			sb.append("No scope in the visualization.")
 		}
+		sb.append('</div>')
 		scopeMessage = sb.toString()
 	}
 
