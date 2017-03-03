@@ -377,9 +377,10 @@ class NCubeService
         return NCubeManager.renameCube(appId, oldName, newName)
     }
 
-    void updateCube(ApplicationID appId, NCube cube)
+    // DON'T USE THIS - TODO remove this...put in manager with god thread only
+    void updateHeadCube(ApplicationID appId, NCube cube)
     {
-        NCubeManager.updateCube(appId, cube)
+        NCubeManager.getPersister().updateCube(appId, cube, NCubeManager.getUserId())
     }
 
     /**

@@ -802,10 +802,8 @@ var NCE = (function ($) {
               + '<div class="divider"/>';
 
         if (cubeInfo[CUBE_INFO.BRANCH] !== head) {
-            if (checkIsAppAdmin()) {
-                html += '<li><a href="#" class="anc-commit-cube">Commit...</a></li>';
-            }
-            html += '<li><a href="#" class="anc-rollback-cube">Rollback...</a></li>'
+            html += '<li><a href="#" class="anc-commit-cube">Commit...</a></li>'
+                  + '<li><a href="#" class="anc-rollback-cube">Rollback...</a></li>'
                   + '<li><a href="#" class="anc-update-cube">Update from HEAD</a></li>'
                   + '<div class="divider"/>'
                   + '<li><a href="#" class="anc-delete-cube">Delete...</a></li>'
@@ -3848,6 +3846,9 @@ var NCE = (function ($) {
     function showActiveBranch() {
         if (getBranchNames().indexOf(_selectedBranch) > -1) {
             addToVisitedBranchesList(appIdFrom(_selectedApp, _selectedVersion, _selectedStatus, _selectedBranch));
+        } else if (_selectedBranch === head) {
+            showNote('Unable to get branch list.', 'Error');
+            return;
         } else {
             saveSelectedBranch(head);
             changeBranch(head);
@@ -3999,9 +4000,8 @@ var NCE = (function ($) {
         ul.append(buildHtmlListForCompare(branchChanges, options));
         ul.find('a.anc-compare').on('click', function() {
             var infoDto, leftInfoDto, diffOptions;
-            var checkbox = $(this).parent().parent().find('.' + inputClass);
-            var ul = $(this).parent().parent().parent().parent();
-            var idx = ul.find('.' + inputClass).index(checkbox);
+            var self = $(this);
+            var idx = self.closest('ul').find('.compare-label').index(self.parent())
             var change = branchChanges[idx];
             if (options.hasOwnProperty('action')) {
                 infoDto = $.extend(true, {}, change);
@@ -4323,7 +4323,8 @@ var NCE = (function ($) {
             _commitLink.attr('disabled', '');
             url = document.URL;
             url = url.substring(0, url.lastIndexOf('/'));
-            showNote(url + result.data, 'Commit Link', null, NOTE_CLASS.FORCE_MANUAL_CLOSE);
+            url += '/cmd/ncubeController/honorCommit/?json=["' + result.data + '"]';
+            showNote(url, 'Commit Link', null, NOTE_CLASS.FORCE_MANUAL_CLOSE);
         } else {
             showNote('Error generating link: ' + result.data, 'Error');
         }
@@ -4664,7 +4665,7 @@ var NCE = (function ($) {
     
     function diffShow(shouldShow) {
         if (shouldShow) {
-            _diffModal.show(function() {
+            _diffModal.show(0, function() {
                 $(this).trigger('show');
             });
         } else {
