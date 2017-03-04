@@ -11,7 +11,7 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.4",
+      "referenceVersion":"1.0.6",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Risk",
@@ -136,6 +136,22 @@
       ],
       "type":"string",
       "value":"WProductOps"
+    },
+    {
+      "id":[
+        1000097746519,
+        2000000000007
+      ],
+      "type":"string",
+      "value":"GStateOps"
+    },
+    {
+      "id":[
+        1000097746519,
+        2000000000014
+      ],
+      "type":"string",
+      "value":"GStateOps"
     },
     {
       "id":[

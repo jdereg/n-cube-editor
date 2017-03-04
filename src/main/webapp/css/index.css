@@ -706,3 +706,7 @@ ul .checkbox-label {
 #view-commits-list select {
     width: 90%;
 }
+
+.highlighted{
+    background-color:#FAFAD2;
+}

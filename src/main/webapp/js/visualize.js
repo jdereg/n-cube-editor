@@ -26,13 +26,14 @@ var Visualizer = (function ($) {
     var _edgeDataSet = null;
     var _nce = null;
     var _visInfo = null;
-    var _loadedCubeName = null;
-    var _loadedAppId = null;
     var _loadedVisInfoType = null;
-    var _okToLoadFromServer = true;
+    var _okToLoadGraph = true;
     var _nodes = [];
     var _edges = [];
-    var _scope = null;
+    var _scopeInfo = null;
+    var _graphScope = null;
+    var _nodeScope = null;
+    var _showingCellValuesNode;
     var _keepCurrentScope = false;
     var _selectedGroups = null;
     var _availableGroupsAtLevel = null;
@@ -52,17 +53,20 @@ var Visualizer = (function ($) {
     var _nodeAddTypes = null;
     var _nodeDetails = null;
     var _layout = null;
-    var _scopeInput = null;
+    var _scopeButton = null;
+    var _scopeNoteId = null;
+    var _scopePromptTitle =  'Show or hide scope prompt';
     var _findNode = null;
     var STATUS_SUCCESS = 'success';
-    var STATUS_MISSING_START_SCOPE = 'missingStartScope';
     var UNSPECIFIED = 'UNSPECIFIED';
     var COMPLETE = 'complete';
     var ITERATING = 'iterating...';
     var DOT_DOT_DOT = '...';
     var NA = 'n/a';
     var NO_GROUPS_SELECTED = 'NO GROUPS SELECTED';
-    var STICKY_NOTE_UNTIL_CLOSE_OR_RELOAD = 'STICKY_NOTE_UNTIL_CLOSE_OR_RELOAD';
+    var LEVEL_PREFIX = 'Level ';
+    var STICKY_SCOPE_MESSAGE = 'STICKY_SCOPE_MESSAGE';
+    var SCOPE_IMAGE = {class: 'toastScopeButton', src: './img/scope.png', width: '65px', height: '20px'};
 
     //Network layout parameters
     var _hierarchical = false;
@@ -97,13 +101,13 @@ var Visualizer = (function ($) {
             _layout = $('#visBody').layout({
                 name: 'visLayout'
                 ,	livePaneResizing:			true
-                ,   east__minSize:              EAST_MIN_SIZE
-                ,   east__maxSize:              EAST_MAX_SIZE
-                ,   east__size:                 EAST_SIZE
-                ,   east__closable:             true
-                ,   east__resizeable:           true
-                ,   east__initClosed:           true
-                ,   east__slidable:             true
+                ,   west__minSize:              EAST_MIN_SIZE
+                ,   west__maxSize:              EAST_MAX_SIZE
+                ,   west__size:                 EAST_SIZE
+                ,   west__closable:             true
+                ,   west__resizeable:           true
+                ,   west__initClosed:           true
+                ,   west__slidable:             true
                 ,   center__triggerEventsOnLoad: true
                 ,   center__maskContents:       true
                 ,   togglerLength_open:         EAST_LENGTH_OPEN
@@ -122,15 +126,17 @@ var Visualizer = (function ($) {
             _nodeAddTypes = $('#nodeAddTypes');
             _nodeVisualizer = $('#nodeVisualizer');
             _nodeDetails = $('#nodeDetails');
-            _scopeInput = $('#scope');
+            _scopeButton = $('#scopeButton');
             _findNode = $('#findNode');
             _networkOptionsSection = $('#networkOptionsSection');
 
              $('#selectedLevel-list').on('change', function () {
-                _selectedLevel = Number($('#selectedLevel-list').val());
+                 var selectedLevelString = $('#selectedLevel-list').val().substring(LEVEL_PREFIX.length)
+                _selectedLevel = Number(selectedLevelString);
                 saveToLocalStorage(_selectedLevel, SELECTED_LEVEL);
                 reload();
             });
+
 
             $('#hierarchical').on('change', function () {
                 //Hierarchical mode is disabled due to what appears to be a bug in vis.js or because the
@@ -148,9 +154,8 @@ var Visualizer = (function ($) {
                 //updateNetworkOptions();
             });
 
-            _scopeInput.on('change', function () {
-                _scope = buildScopeFromText(_scopeInput.val());
-                scopeChange();
+            $('#scopeButton').click(function () {
+                scopeButtonClick();
             });
 
             _findNode.on('change', function () {
@@ -204,34 +209,71 @@ var Visualizer = (function ($) {
 
     function onNoteEvent(e) {
         var target = e.target;
-        if (e.type === 'change' && target.className.indexOf('missingScopeSelect') > -1) {
-            missingScopeSelect(target);
+        if (e.type === 'click' && target.className.indexOf('scopeClick') > -1) {
+            scopeClickEvent(target);
         }
-        else if (e.type === 'change' && target.className.indexOf('missingScopeInput') > -1) {
-            missingScopeInput(target);
+        else if ('change' === e.type && target.className.indexOf('scopeInput') > -1) {
+            scopeInputEvent(target);
         }
-        else if (e.type === 'click' && target.className.indexOf('findNode') > -1) {
+        else if ('click' === e.type && target.className.indexOf('scopeReset') > -1) {
+            scopeResetEvent();
+        }
+        else if ('click' === e.type && target.className.indexOf('toastScopeButton') > -1) {
+            scopeButtonClick();
+        }
+        else if ('click' === e.type && target.className.indexOf('findNode') > -1) {
             findNode(target);
         }
     }
 
-    function missingScopeInput(target) {
-        var key = target.title;
-        if (key) {
-            _scope[key] = target.value;
-            scopeChange();
+    function scopeButtonClick(){
+        var button;
+        button = $('#scopeButton');
+        if (_nce.hasNote(STICKY_SCOPE_MESSAGE)){
+            _nce.clearNotes(STICKY_SCOPE_MESSAGE);
+            button.removeClass('active');
+            _scopeNoteId = null;
         }
+        else{
+            showScopeNote();
+            button.addClass('active');
+        }
+        _scopeButton = button.hasClass('active');
     }
 
-    function missingScopeSelect(target) {
-        var id, scopeParts, key, value;
-        id = target.selectedOptions[0].title;
+    function scopeResetEvent() {
+        _graphScope = null;
+        saveToLocalStorage(_graphScope, SCOPE);
+        load();
+    }
+
+    function scopeInputEvent(target) {
+        var key, value, loadCellValuesAction;
+        key = target.id;
+        value = target.value;
+        value = value ? value.trim() : value;
+        loadCellValuesAction = target.className.indexOf('loadCellValuesAction') > -1;
+        scopeChange(key, value, loadCellValuesAction);
+    }
+
+    function scopeClickEvent(target) {
+        var id, scopeParts, key, value, loadCellValuesAction;
+        id = target.id;
         if (id) {
             scopeParts = id.split(':');
             key = scopeParts[0];
             value = scopeParts[1].trim();
-            _scope[key] = value;
-            scopeChange();
+            loadCellValuesAction = target.className.indexOf('loadCellValuesAction') > -1;
+            scopeChange(key, value, loadCellValuesAction);
+        }
+    }
+
+    function setScopeValue(scope, key, value){
+        if (value === null || value === 'Default' || value.length === 0){
+            delete scope[key];
+        }
+        else{
+            scope[key] = value;
         }
     }
 
@@ -456,29 +498,17 @@ var Visualizer = (function ($) {
         }
     }
 
-    function scopeChange()
+    function scopeChange(key, value, loadCellValuesAction)
     {
-        saveToLocalStorage(_scope, SCOPE_MAP);
-        load();
-    }
-
-  
-    function buildScopeFromText(scopeString) {
-        var parts, part, key, value, i, iLen;
-        var newScope = {};
-        newScope['@type'] = _scope['@type'];
-        if (scopeString) {
-            parts = scopeString.split(',');
-            for ( i = 0, iLen = parts.length; i < iLen; i++) {
-                part = parts[i].split(':');
-                key = part[0].trim();
-                value = part[1];
-                if (value) {
-                    newScope[key] = value.trim();
-                }
-            }
-         }
-        return newScope;
+        if (loadCellValuesAction){
+            setScopeValue(_nodeScope, key, value);
+            loadCellValues(_showingCellValuesNode)
+        }
+        else{
+            setScopeValue(_graphScope, key, value);
+            saveToLocalStorage(_graphScope, SCOPE);
+            load();
+        }
     }
 
     function reload() {
@@ -490,23 +520,22 @@ var Visualizer = (function ($) {
         _visualizerNetwork.show();
      }
 
-    function loadCellValues(node, note) {
-        _nce.clearNotes(STICKY_NOTE_UNTIL_CLOSE_OR_RELOAD);
-        setTimeout(function () {loadCellValuesFromServer(node);}, PROGRESS_DELAY);
-        _nce.showNote(note);
+    function loadCellValues() {
+        var note;
+        note = _showingCellValuesNode.showCellValues ? 'Loading ' + _visInfo.loadCellValuesLabel + '...' : 'Hiding ' + _visInfo.loadCellValuesLabel + '...';
+        setTimeout(function () {loadCellValuesFromServer(_showingCellValuesNode);}, PROGRESS_DELAY);
+        showScopeNote(note);
     }
 
     function loadCellValuesFromServer(node)
     {
-        var message, options, result, json;
+        var options, result, json;
         node.details = null;
         _visInfo.nodes = {};
         _visInfo.edges = {};
-
-        options =  {startCubeName: _selectedCubeName, visInfo: _visInfo, node: node};
+        options =  {startCubeName: _selectedCubeName, visInfo: _visInfo, scopeInfo: _scopeInfo, scope: _nodeScope, node: node};
 
         result = _nce.call('ncubeController.getVisualizerCellValues', [_nce.getSelectedTabAppId(), options]);
-        _nce.clearNote();
         if (false === result.status) {
             _nce.showNote('Failed to load ' + _visInfo.loadCellValuesLabel + ': ' + TWO_LINE_BREAKS + result.data);
             return node;
@@ -515,32 +544,27 @@ var Visualizer = (function ($) {
         json = result.data;
 
         if (STATUS_SUCCESS === json.status) {
-            displayMessages(json.visInfo.messages);
-            node = json.visInfo.nodes['@items'][0];
-            loadDataForNode(node)
+            loadDataForNode(json.visInfo, json.scopeInfo);
+            loadScopeView() ;
         }
-        else {
-            message = json.message;
-            if (null !== json.stackTrace) {
-                message = message + TWO_LINE_BREAKS + json.stackTrace
-            }
-            _nce.showNote('Failed to load ' + _visInfo.loadCellValuesLabel +  ': ' + TWO_LINE_BREAKS + message);
-        }
+
+        displayMessages(json.visInfo.messages);
         return node;
     }
 
     function displayMessages(messages){
         var j, jLen, items;
-        if (messages) {
-            items = messages['@items'];
+        items = messages['@items'];
+        if (items) {
             for (j = 0, jLen = items.length; j < jLen; j++) {
-                _nce.showNote(items[j], null, null, STICKY_NOTE_UNTIL_CLOSE_OR_RELOAD);
+                _nce.showNote(items[j]);
             }
         }
     }
 
-    function loadDataForNode(node){
-        var dataSetNode;
+    function loadDataForNode(visInfo, scopeInfo){
+        var node, dataSetNode;
+        node = visInfo.nodes['@items'][0];
         dataSetNode = _nodeDataSet.get(node.id);
         dataSetNode.details = node.details;
         dataSetNode.showCellValuesLink = node.showCellValuesLink;
@@ -555,31 +579,44 @@ var Visualizer = (function ($) {
         _nodeAddTypes = $('#nodeAddTypes');
         _nodeCellValues[0].innerHTML = '';
         _nodeCellValues.append(createCellValuesLink(node));
+
+        if (node.showCellValues){
+            _showingCellValuesNode = node;
+            _nodeScope = node.availableScope;
+        }
+        else{
+            _showingCellValuesNode = null;
+            _nodeScope = null;
+        }
+
+        _scopeInfo = scopeInfo;
+        _graphScope = scopeInfo.scope;
+        _visInfo = visInfo;
     }
 
     function load() {
-        if (_okToLoadFromServer) {
-            _okToLoadFromServer = false;
+        if (_okToLoadGraph) {
+            _okToLoadGraph = false;
             _dataLoadStart = performance.now();
             $("#dataLoadStatus").val('loading');
             $("#dataLoadDuration").val(DOT_DOT_DOT);
-            _nce.clearNotes(STICKY_NOTE_UNTIL_CLOSE_OR_RELOAD);
+            //_nce.clearNotes(STICKY_SCOPE_MESSAGE);
             setTimeout(function () {
-                loadFromServer();
+                loadGraph();
             }, PROGRESS_DELAY);
-            _nce.showNote('Loading data...', null, null, STICKY_NOTE_UNTIL_CLOSE_OR_RELOAD);
+            showScopeNote('Loading data...');
         }
     }
 
-    function loadFromServer() {
-        var options, result, json, message;
-        clearVisLayoutEast();
+    function loadGraph() {
+        var options, result, json;
+        clearVisLayoutWest();
         destroyNetwork();
 
         if (!_nce.getSelectedCubeName()) {
              _visualizerContent.hide();
             _nce.showNote('Failed to load visualizer: ' + TWO_LINE_BREAKS + 'No cube selected.');
-            _okToLoadFromServer = true;
+            _okToLoadGraph = true;
             return;
         }
 
@@ -588,30 +625,21 @@ var Visualizer = (function ($) {
         //TODO: rpm.class.product) after a page refresh.
         _selectedCubeName = _nce.getSelectedCubeName().replace(/_/g, '.');
 
-        if (_loadedAppId && !appIdMatch(_loadedAppId, _nce.getSelectedTabAppId())) {
-            _visInfo = null;
-        }
-        else if (_loadedCubeName && _loadedCubeName !== _selectedCubeName){
-            getAllFromLocalStorage();
-         }
-
-        if (_visInfo){
+        getAllFromLocalStorage();
+        if (_visInfo) {
             _visInfo.nodes = {};
             _visInfo.edges = {};
-            options =  {startCubeName: _selectedCubeName, scope: _scope, visInfo: _visInfo};
+            options = {startCubeName: _selectedCubeName, visInfo: _visInfo, scope: _graphScope};
         }
         else{
-            getAllFromLocalStorage();
-            options =  {startCubeName: _selectedCubeName, scope: _scope};
+            options =  {startCubeName: _selectedCubeName, scope: _graphScope};
         }
 
-
         result = _nce.call('ncubeController.getVisualizerJson', [_nce.getSelectedTabAppId(), options]);
-        _nce.clearNotes(STICKY_NOTE_UNTIL_CLOSE_OR_RELOAD);
         if (!result.status) {
             _nce.showNote(result.data);
              _visualizerContent.hide();
-            _okToLoadFromServer = true;
+            _okToLoadGraph = true;
             return;
         }
 
@@ -619,50 +647,28 @@ var Visualizer = (function ($) {
 
         if (json.status === STATUS_SUCCESS) {
             displayMessages(json.visInfo.messages);
-            loadData(json.visInfo, json.status);
+            loadGraphData(json.visInfo, json.scopeInfo, json.status);
             initNetwork();
             loadSelectedLevelListView();
-            saveAllToLocalStorage();
             loadScopeView();
             loadHierarchicalView();
             loadGroupsView();
             loadCountsView();
+            saveAllToLocalStorage();
             _visualizerContent.show();
             _visualizerInfo.show();
             _visualizerNetwork.show();
         }
-        else if (STATUS_MISSING_START_SCOPE === json.status) {
-            displayMessages(json.visInfo.messages);
-            loadData(json.visInfo, json.status);
-            saveAllToLocalStorage();
-            loadScopeView();
-            _visualizerContent.show();
-            _visualizerInfo.hide();
-            _visualizerNetwork.hide();
-            _networkOptionsSection.hide();
-        }
         else {
              _visualizerContent.hide();
-            message = json.message;
-            if (null !== json.stackTrace) {
-                message = message + TWO_LINE_BREAKS + json.stackTrace
-            }
-            _nce.showNote('Failed to load visualizer: ' + TWO_LINE_BREAKS + message);
+            displayMessages(json.visInfo.messages);
         }
         $("#dataLoadStatus").val(COMPLETE);
         $("#dataLoadDuration").val(Math.round(performance.now() - _dataLoadStart));
-        _okToLoadFromServer = true;
+        _okToLoadGraph = true;
     }
 
-     function appIdMatch(appIdA, appIdB)
-    {
-        return appIdA.appId === appIdB.appId &&
-            appIdA.version === appIdB.version &&
-            appIdA.status ===  appIdB.status &&
-            appIdA.branch === appIdB.branch;
-    }
-
-    function clearVisLayoutEast(){
+    function clearVisLayoutWest(){
         _nodeDetailsTitle1[0].innerHTML = '';
         _nodeDetailsTitle2[0].innerHTML = '';
         _nodeCubeLink[0].innerHTML = '';
@@ -670,7 +676,9 @@ var Visualizer = (function ($) {
         _nodeCellValues[0].innerHTML = '';
         _nodeAddTypes.innerHTML = '';
         _nodeDetails[0].innerHTML = '';
-        _layout.close('east');
+        _showingCellValuesNode = null;
+        _nodeScope = null;
+        _layout.close('west');
     }
 
     function loadHierarchicalView() {
@@ -678,9 +686,26 @@ var Visualizer = (function ($) {
     }
 
     function loadScopeView() {
-        var scope = getScopeString();
-        _scopeInput.val(scope);
-        _scopeInput.prop('title', scope);
+        var button;
+        $('#scopeButton-div').prop('title', _scopePromptTitle + '\n\n' + getScopeString() );
+        button = $('#scopeButton');
+        button.addClass('active');
+        _scopeButton = true;
+        showScopeNote();
+    }
+
+    function showScopeNote(extraMessage){
+        var scopeImage, scopeMessage, scopeMessagePart1, scopeMessagePart2;
+        scopeMessagePart1 = extraMessage ? extraMessage : NBSP;
+        scopeMessagePart2 = _scopeInfo && _scopeInfo.scopeMessage ? _scopeInfo.scopeMessage : '';
+        scopeMessage = '<b>' + scopeMessagePart1 + '</b><br>' + scopeMessagePart2;
+        if (scopeMessage && _scopeNoteId && _nce.updateNote(_scopeNoteId, 'scopeMessage', scopeMessage)){
+            return;
+        }
+        _nce.clearNotes(STICKY_SCOPE_MESSAGE);
+        scopeImage = $.extend({title: _scopePromptTitle}, SCOPE_IMAGE);
+        _scopeNoteId = _nce.showNote(scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, scopeImage);
+
     }
 
     function loadGroupsView() {
@@ -746,7 +771,7 @@ var Visualizer = (function ($) {
 
     function getScopeString(){
         var scopeLen, key, i, len, scope, scopeString, keys;
-        scope = $.extend(true, {}, _scope);
+        scope = $.extend(true, {}, _graphScope);
         delete scope['@type'];
         delete scope['@id'];
         scopeString = '';
@@ -758,6 +783,9 @@ var Visualizer = (function ($) {
         scopeLen = scopeString.length;
         if (1 < scopeLen) {
             scopeString = scopeString.substring(0, scopeLen - 2);
+        }
+        else{
+            scopeString = 'No scope in the visualization.'
         }
         return scopeString;
     }
@@ -829,7 +857,7 @@ var Visualizer = (function ($) {
         var nodesDisplayingAtLevelCount = _network.body.data.nodes.length;
         var nodesAtLevelLabel = 1 === nodesDisplayingAtLevelCount ? 'node' : 'nodes';
 
-        $('#levelCounts')[0].textContent = nodesDisplayingAtLevelCount  + ' ' + nodesAtLevelLabel + ' of ' + _countNodesAtLevel + ' displaying at current level';
+        $('#levelCounts')[0].textContent = nodesDisplayingAtLevelCount  + ' ' + nodesAtLevelLabel + ' of ' + _countNodesAtLevel + ' at current level';
         $('#totalCounts')[0].textContent = totalNodeCount + ' ' + nodeCountLabel + ' total over ' +  maxLevel + ' ' + maxLevelLabel ;
     }
 
@@ -842,11 +870,10 @@ var Visualizer = (function ($) {
         for (j = 1; j <= _visInfo.maxLevel; j++)
         {
             option = $('<option/>');
-            option[0].textContent = j.toString();
+            option[0].textContent = LEVEL_PREFIX + j.toString();
             select.append(option);
         }
-
-        select.val('' + _selectedLevel);
+        select.val(LEVEL_PREFIX + _selectedLevel);
     }
 
     function getVisNetworkHeight() {
@@ -948,7 +975,7 @@ var Visualizer = (function ($) {
         _edgeDataSet.add(edgesToAddBack);
     }
 
-    function loadData(visInfo, status)
+    function loadGraphData(visInfo, scopeInfo, status)
     {
         var nodes, edges, maxLevel;
 
@@ -971,23 +998,20 @@ var Visualizer = (function ($) {
             delete visInfo['nodes'];
             delete visInfo['edges'];
             _availableGroupsAllLevels = visInfo.availableGroupsAllLevels['@items'];
-            if (_selectedGroups === null){
+            if (_selectedGroups === null || _selectedGroups.length === 1){
                 _selectedGroups = _availableGroupsAllLevels;
             }
             maxLevel = visInfo.maxLevel;
-            if (_selectedLevel === null){
+            if (_selectedLevel === null || _selectedLevel === 1){
                 _selectedLevel = visInfo.defaultLevel;
             }
             if (_selectedLevel > maxLevel){
                 _selectedLevel = maxLevel;
             }
         }
-        _scope = visInfo.scope;
-
+        _scopeInfo = scopeInfo;
+        _graphScope = scopeInfo.scope;
         _visInfo = visInfo;
-
-        _loadedCubeName = _selectedCubeName;
-        _loadedAppId = _nce.getSelectedTabAppId();
         _loadedVisInfoType = _visInfo['@type'];
      }
 
@@ -1083,7 +1107,7 @@ var Visualizer = (function ($) {
             });
 
             _network.on('deselectNode', function() {
-                clearVisLayoutEast();
+                clearVisLayoutWest();
             });
 
             _network.on('dragStart', function () {
@@ -1125,7 +1149,7 @@ var Visualizer = (function ($) {
             $("#stabilizationStatus").val(DOT_DOT_DOT);
             $("#stabilizationIterations").val(DOT_DOT_DOT);
             $("#stabilizationDuration").val(DOT_DOT_DOT);
-           _nce.showNote('Stabilizing network...');
+            showScopeNote('Stabilizing network...');
         }
         else if (_fullStabilizationAfterBasic) {
             _stabilizationStart = performance.now();
@@ -1139,7 +1163,7 @@ var Visualizer = (function ($) {
             $("#stabilizationStatus").val(ITERATING);
             $("#stabilizationIterations").val(DOT_DOT_DOT);
             $("#stabilizationDuration").val(DOT_DOT_DOT);
-            _nce.showNote('Stabilizing network...');
+            showScopeNote('Stabilizing network...');
         }
     }
 
@@ -1168,7 +1192,7 @@ var Visualizer = (function ($) {
     }
     
     function stabilizationComplete(iterations){
-        _nce.clearNote();
+        showScopeNote();
         if (_tempNote) {
             _nce.showNote(_tempNote, 'Note', 5000);
         }
@@ -1236,7 +1260,7 @@ var Visualizer = (function ($) {
 
         _nodeDetails[0].innerHTML = node.details;
         addNodeDetailsListeners();
-        _layout.open('east');
+        _layout.open('west');
     }
 
     function addNodeDetailsListeners()
@@ -1246,22 +1270,28 @@ var Visualizer = (function ($) {
         {
             _nodeDetails.change(function (e) {
                 target = e.target;
-                if (target.className.indexOf('missingScopeSelect') > -1) {
-                    missingScopeSelect(target);
-                }
-                else if (target.className.indexOf('missingScopeInput') > -1) {
-                    missingScopeInput(target);
+                if (target.className.indexOf('scopeInput') > -1) {
+                    scopeInputEvent(target);
                 }
             });
             _nodeDetails.click(function (e) {
                 e.preventDefault();
                 target = e.target;
-                if (target.className.indexOf('missingScope') === -1) {
+                if (target.className.indexOf('scopeClick') > -1) {
+                    scopeClickEvent(target);
+                }
+                else if (target.className.indexOf('scope') === -1) {
                     executeCell(target);
                 }
             });
             _nodeDetails.addClass(HAS_EVENT)
         }
+        $('[data-toggle="popover"]').popover({
+            html: true,
+            container: 'body',
+            trigger: 'hover',
+            placement: 'auto'
+        });
     }
 
     function executeCell(target) {
@@ -1295,7 +1325,7 @@ var Visualizer = (function ($) {
         visualizerLink.click(function (e) {
             e.preventDefault();
             _keepCurrentScope = true;
-            _scope = node.scope;
+            _graphScope = node.scope;
             _nce.selectCubeByName(cubeName, appId, TAB_VIEW_TYPE_VISUALIZER + PAGE_ID);
         });
         return visualizerLink;
@@ -1314,7 +1344,7 @@ var Visualizer = (function ($) {
     }
 
     function createCellValuesLink(node) {
-        var note, cellValuesLink = $('<a/>');
+        var cellValuesLink = $('<a/>');
         cellValuesLink.addClass('nc-anc');
         if (node.showCellValues) {
             cellValuesLink.html('Hide ' + _visInfo.loadCellValuesLabel);
@@ -1324,9 +1354,15 @@ var Visualizer = (function ($) {
         }
         cellValuesLink.click(function (e) {
             e.preventDefault();
-            node.showCellValues = !node.showCellValues;
-            note = node.showCellValues ? 'Loading ' + _visInfo.loadCellValuesLabel + '...' : 'Hiding ' + _visInfo.loadCellValuesLabel + '...';
-            loadCellValues(node, note);
+            if (_visInfo.loadCellValuesLabel === 'cell values'){
+                _nce.showNote('Show cell values for n-cubes is currently not available.'); //TODO: Temporary
+            }
+            else{
+                node.showCellValues = !node.showCellValues;
+                _showingCellValuesNode = node;
+                _nodeScope = node.availableScope;
+                loadCellValues();
+            }
         });
         return cellValuesLink;
     }
@@ -1369,7 +1405,7 @@ var Visualizer = (function ($) {
             _keepCurrentScope = false;
         }
         else{
-            _scope = getFromLocalStorage(SCOPE_MAP, null);
+            _graphScope = getFromLocalStorage(SCOPE, null);
         }
 
         _selectedGroups = getFromLocalStorage(SELECTED_GROUPS, null);
@@ -1390,7 +1426,7 @@ var Visualizer = (function ($) {
     }
 
     function saveAllToLocalStorage() {
-        saveToLocalStorage(_scope, SCOPE_MAP);
+        saveToLocalStorage(_graphScope, SCOPE);
         saveToLocalStorage(_selectedGroups, SELECTED_GROUPS);
         saveToLocalStorage(_selectedLevel, SELECTED_LEVEL);
         saveToLocalStorage(_hierarchical, HIERARCHICAL);

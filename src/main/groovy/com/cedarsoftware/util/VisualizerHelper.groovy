@@ -1,5 +1,7 @@
 package com.cedarsoftware.util
 
+import com.cedarsoftware.controller.NCubeController
+import com.cedarsoftware.ncube.RuleInfo
 import com.cedarsoftware.ncube.exception.CoordinateNotFoundException
 import com.cedarsoftware.ncube.exception.InvalidCoordinateException
 import groovy.transform.CompileStatic
@@ -14,125 +16,73 @@ import static com.cedarsoftware.util.VisualizerConstants.*
 @CompileStatic
 class VisualizerHelper
 {
-	static String handleUnboundAxes(VisualizerScopeInfo scopeInfo)
+	protected static void handleUnboundScope(VisualizerInfo visInfo, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo, List<MapEntry> unboundAxesList)
+	{
+		if (unboundAxesList)
+		{
+			unboundAxesList.each { MapEntry unboundAxis ->
+				String cubeName = unboundAxis.key as String
+				MapEntry axisEntry = unboundAxis.value as MapEntry
+				String scopeKey = axisEntry.key as String
+				if (relInfo.includeUnboundScopeKey(visInfo, scopeKey))
+				{
+					relInfo.loadAgain = scopeInfo.loadAgain(relInfo, scopeKey) ?: relInfo.loadAgain
+					scopeInfo.addScope(relInfo, cubeName, scopeKey)
+				}
+			}
+		}
+	}
+
+	protected static StringBuilder handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo)
 	{
 		StringBuilder sb = new StringBuilder()
-		scopeInfo.axisNames.each{ String axisName ->
-			sb.append(BREAK + getOptionalScopeValueMessage(axisName, scopeInfo))
-		}
-		return sb.toString()
-	}
-
-	static String handleCoordinateNotFoundException(CoordinateNotFoundException e, VisualizerInfo visInfo, String targetMsg )
-	{
 		String cubeName = e.cubeName
-		String axisName = e.axisName
-		if (cubeName && axisName)
+		String scopeKey = e.axisName
+		if (cubeName && scopeKey)
 		{
-			return getRequiredScopeValuesMessage(visInfo, [axisName] as Set, cubeName)
+			relInfo.loadAgain = scopeInfo.loadAgain(relInfo, scopeKey)
+			scopeInfo.addScope(relInfo, cubeName, scopeKey)
+			return sb
 		}
 		else
 		{
-			return handleException(e as Exception, targetMsg)
+			sb.append("Unable to handle CoordinateNotFoundException ${DOUBLE_BREAK}")
+			return sb.append(handleException(e as Exception))
 		}
 	}
 
-	static String handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerInfo visInfo, VisualizerRelInfo relInfo, Set mandatoryScopeKeys)
+	protected static StringBuilder handleInvalidCoordinateException(InvalidCoordinateException e, VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo, Set mandatoryScopeKeys)
 	{
-		Set<String> missingScope = findMissingScope(relInfo.scope, e.requiredKeys, mandatoryScopeKeys)
-		if (missingScope)
+		StringBuilder sb = new StringBuilder()
+		Set<String> missingScopeKeys = findMissingScope(relInfo.availableTargetScope, e.requiredKeys, mandatoryScopeKeys)
+		if (missingScopeKeys)
 		{
-			return getRequiredScopeValuesMessage(visInfo, missingScope, e.cubeName)
+			missingScopeKeys.each { String scopeKey ->
+				relInfo.loadAgain = scopeInfo.loadAgain(relInfo, scopeKey) ?: relInfo.loadAgain
+				scopeInfo.addScope(relInfo, e.cubeName, scopeKey)
+			}
+			return sb
 		}
 		else
 		{
-			throw new IllegalStateException("InvalidCoordinateException thrown, but no missing scope keys found for ${relInfo.targetCube.name} and scope ${visInfo.scope.toString()}.", e)
+			sb = new StringBuilder("Unable to handle InvalidCoordinateException ${DOUBLE_BREAK}")
+			return sb.append(handleException(e as Exception))
 		}
 	}
 
-	static String handleException(Throwable e, String targetMsg)
+	protected static String handleException(Throwable e)
 	{
 		Throwable t = getDeepestException(e)
-		return getExceptionMessage(t, e, targetMsg)
+		return getExceptionMessage(t, e)
 	}
 
-	static protected Throwable getDeepestException(Throwable e)
+	protected static Throwable getDeepestException(Throwable e)
 	{
 		while (e.cause != null)
 		{
 			e = e.cause
 		}
 		return e
-	}
-
-	private static String getRequiredScopeValuesMessage(VisualizerInfo visInfo, Set<String> missingScope, String cubeName)
-	{
-		StringBuilder message = new StringBuilder()
-		missingScope.each{ String scopeKey ->
-			Set<Object> requiredScopeValues = visInfo.getRequiredScopeValues(cubeName, scopeKey)
-			message.append(BREAK + getRequiredScopeValueMessage(scopeKey, requiredScopeValues))
-		}
-		return message.toString()
-	}
-
-	static String getOptionalScopeValueMessage(String scopeKey, VisualizerScopeInfo scopeInfo)
-	{
-		Set<Object> scopeValues = scopeInfo.columnValuesForUnboundAxes[scopeKey]
-		Set<Object> unboundValues = scopeInfo.unboundValuesForUnboundAxes[scopeKey]
-		unboundValues.remove(null)
-		String defaultValueSuffix = unboundValues ? " (${unboundValues.join(COMMA_SPACE)} provided, but not found)" : ' (no value provided)'
-		String cubeNames = scopeInfo.cubeNamesForUnboundAxes[scopeKey].join(COMMA_SPACE)
-		String title = "The default for ${scopeKey} was utilized on ${cubeNames}"
-
-		StringBuilder sb = new StringBuilder()
-		sb.append("""<div id="${scopeKey}" title="${title}" class="input-group input-group-sm">""")
-		String selectTag = """<select class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_MISSING_SCOPE_SELECT}">"""
-		if (scopeValues)
-		{
-			sb.append("A different scope value may be supplied for ${scopeKey}:${BREAK}")
-			sb.append(selectTag)
-			sb.append("<option>Default${defaultValueSuffix}</option>")
-
-			scopeValues.each {
-				String value = it.toString()
-				sb.append("""<option title="${scopeKey}: ${value}">${value}</option>""")
-			}
-		}
-		else
-		{
-			sb.append("Default is the only option for ${scopeKey}:${BREAK}")
-			sb.append(selectTag)
-			sb.append("<option>Default${defaultValueSuffix}</option>")
-		}
-		sb.append('</select>')
-		sb.append('</div>')
-		return sb.toString()
-	}
-
-	static String getRequiredScopeValueMessage(String scopeKey, Set<Object> scopeValues)
-	{
-		StringBuilder sb = new StringBuilder()
-		if (scopeValues)
-		{
-			String selectTag = """<select class="${DETAILS_CLASS_FORM_CONTROL} ${DETAILS_CLASS_MISSING_SCOPE_SELECT}">"""
-			sb.append("A scope value must be supplied for ${scopeKey}:")
-			sb.append(selectTag)
-			sb.append('<option>Select...</option>')
-			scopeValues.each {
-				String value = it.toString()
-				sb.append("""<option title="${scopeKey}: ${value}">${value}</option>""")
-			}
-			sb.append('</select>')
-
-		}
-		else
-		{
-			sb.append("""<div id="${scopeKey}" class="input-group input-group-sm">""")
-			sb.append("A scope value must be entered manually for ${scopeKey} since there are no values to choose from: ")
-			sb.append("""<input class="${DETAILS_CLASS_MISSING_SCOPE_INPUT}" title="${scopeKey}" style="color: black;" type="text" placeholder="Enter value..." >""")
-		}
-		sb.append('</div>')
-		return sb.toString()
 	}
 
 	private static Set<String> findMissingScope(Map<String, Object> scope, Set<String> requiredKeys, Set mandatoryScopeKeys)
@@ -142,20 +92,10 @@ class VisualizerHelper
 		}
 	}
 
-	protected static String getMissingMinimumScopeMessage(Map<String, Object> scope, String messageScopeValues)
+	protected static String getExceptionMessage(Throwable t, Throwable e)
 	{
 		"""\
-The scope for the following scope keys was added since required. The default scope values may be changed as desired. \
-${DOUBLE_BREAK}${INDENT}${scope.keySet().join(COMMA_SPACE)}\
-${BREAK} \
-${messageScopeValues}"""
-	}
-
-	static String getExceptionMessage(Throwable t, Throwable e, String targetMsg)
-	{
-		"""\
-An exception was thrown while loading ${targetMsg}. \
-${DOUBLE_BREAK}<b>Message:</b> ${DOUBLE_BREAK}${e.message}${DOUBLE_BREAK}<b>Root cause: </b>\
-${DOUBLE_BREAK}${t.toString()}${DOUBLE_BREAK}<b>Stack trace: </b>${DOUBLE_BREAK}${t.stackTrace.toString()}"""
+<b>Message:</b> ${DOUBLE_BREAK}${e.message}${DOUBLE_BREAK}<b>Root cause: </b>\
+${DOUBLE_BREAK}${t.toString()}${DOUBLE_BREAK}<b>Stack trace: </b>${DOUBLE_BREAK}${NCubeController.getTestCauses(t)}"""
 	}
 }

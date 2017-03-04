@@ -1,23 +1,9 @@
 {
-  "ncube":"rpm.scope.class.Coverage.traits.fieldCCoverage",
+  "ncube":"rpm.scope.enum.Risk.Coverages.traits.exists",
   "defaultCellValueType":"string",
   "defaultCellValue":"#NOT_DEFINED",
   "cube_tags":"EPM",
   "axes":[
-    {
-      "id":1,
-      "name":"coverage",
-      "hasDefault":false,
-      "isRef":true,
-      "referenceTenant":"NONE",
-      "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.6",
-      "referenceStatus":"RELEASE",
-      "referenceBranch":"HEAD",
-      "referenceCubeName":"Coverage",
-      "referenceAxisName":"coverage",
-      "columns":[]
-    },
     {
       "id":3,
       "name":"trait",
@@ -36,8 +22,8 @@
     },
     {
       "id":5,
-      "name":"state",
-      "hasDefault":true,
+      "name":"pgm",
+      "hasDefault":false,
       "type":"DISCRETE",
       "valueType":"STRING",
       "preferredOrder":1,
@@ -46,56 +32,62 @@
         {
           "id":5001683995653,
           "type":"string",
-          "value":"GA"
+          "value":"pgm1"
         },
         {
           "id":5001175698947,
           "type":"string",
-          "value":"IN"
+          "value":"pgm2"
         },
         {
-          "id":5001479111097,
+          "id":5000938928181,
           "type":"string",
-          "value":"NY"
+          "value":"pgm3"
         }
       ]
+    },
+    {
+      "id":6,
+      "name":"name",
+      "hasDefault":true,
+      "isRef":true,
+      "referenceTenant":"NONE",
+      "referenceApp":"test.visualizer",
+      "referenceVersion":"1.0.6",
+      "referenceStatus":"RELEASE",
+      "referenceBranch":"HEAD",
+      "referenceCubeName":"Coverage",
+      "referenceAxisName":"coverage",
+      "columns":[]
     }
   ],
   "cells":[
     {
       "id":[
-        1000000000050,
         3000000000035,
-        5001683995653
+        5001683995653,
+        6001808802272
       ],
-      "type":"exp",
-      "value":"true"
+      "type":"boolean",
+      "value":true
     },
     {
       "id":[
-        1000000000050,
-        3000000000035
+        3000000000035,
+        5000938928181,
+        6001808802272
       ],
-      "type":"exp",
-      "value":"true"
+      "type":"boolean",
+      "value":false
     },
     {
       "id":[
-        1000000000050,
         3000000000035,
-        5001479111097
+        5001175698947,
+        6001808802272
       ],
-      "type":"exp",
-      "value":"true"
-    },
-    {
-      "id":[
-        1000000000050,
-        3000000000035,
-        5001175698947
-      ],
-      "type":"exp",
-      "value":"true"
+      "type":"boolean",
+      "value":true
     }
   ]
 }

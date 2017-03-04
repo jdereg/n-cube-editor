@@ -36,7 +36,7 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.4",
+      "referenceVersion":"1.0.6",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Risk",
@@ -50,7 +50,7 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.4",
+      "referenceVersion":"1.0.6",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Coverage",
@@ -164,6 +164,16 @@
       ],
       "type":"exp",
       "value":"true"
+    },
+    {
+      "id":[
+        2000000000005,
+        3001961257272,
+        4001808802272,
+        5001531994286
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Risk.Coverages.traits.exists[:]"
     },
     {
       "id":[

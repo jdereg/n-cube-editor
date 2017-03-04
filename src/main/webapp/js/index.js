@@ -1347,6 +1347,7 @@ var NCE = (function ($) {
             call: call,
             clearNote: clearNote,
             clearNotes: clearNotes,
+            hasNote: hasNote,
             displayMap: displayMap,
             doesCubeExist: doesCubeExist,
             ensureModifiable: ensureModifiable,
@@ -1368,6 +1369,7 @@ var NCE = (function ($) {
             selectBranch: selectBranch,
             selectCubeByName: selectCubeByName,
             showNote: showNote,
+            updateNote: updateNote,
             loadNCubes: loadNCubes,
             loadNCubeListView: loadNCubeListView,
             runSearch: runSearch,
@@ -4916,11 +4918,11 @@ var NCE = (function ($) {
         }, MINUTE_TIMEOUT);
     }
 
-    function showNote(msg, title, millis, noteClass) {
+    function showNote(msg, title, millis, noteClass, image) {
         var noteId = $.gritter.add({
             title: (title || 'Note'),
             text: msg,
-            image: './img/cube-logo.png',
+            image: image ? image : CUBE_IMAGE,
             sticky: !millis,
             append: false,
             time: (millis || 0),
@@ -4928,6 +4930,16 @@ var NCE = (function ($) {
         });
         addNoteListeners(noteId);
         return noteId;
+    }
+
+    function updateNote(noteId, updateId, html) {
+        var note;
+        note = $('#gritter-item-' + noteId + ' #' + updateId);
+        if (note && note[0] && note[0].innerHTML){
+            note[0].innerHTML = html;
+            return true;
+        }
+        return false;
     }
 
     function addNoteListeners(noteId) {
@@ -4966,6 +4978,10 @@ var NCE = (function ($) {
         } else {
             $.gritter.removeAll();
         }
+    }
+
+    function hasNote(noteClass){
+        return $('.gritter-item-wrapper.' + noteClass).length > 0;
     }
     
     function isHeadSelected() {

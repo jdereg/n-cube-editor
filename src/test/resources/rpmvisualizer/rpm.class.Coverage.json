@@ -4,7 +4,7 @@
   "defaultCellValue":"#NOT_DEFINED",
   "optionalScopeKeys":{
     "type":"exp",
-    "value":"['LocationState', 'action', 'businessDivisionCode', 'context', 'date', 'party', 'policyControlDate', 'product', 'quoteDate', 'risk', 'screen', 'sourceCoverage', 'sourceRisk', 'state', 'transaction', 'transactionsubtype', 'view']"
+    "value":"['LocationState', 'action', 'businessDivisionCode', 'context', 'date', 'party', 'policyControlDate', 'product', 'quoteDate', 'risk', 'screen', 'sourceCoverage', 'sourceRisk', 'transaction', 'transactionsubtype', 'view']"
   },
   "cube_tags":"EPM",
   "axes":[
@@ -76,6 +76,11 @@
           "id":1001011872239,
           "type":"string",
           "value":"fieldCCoverage"
+        },
+        {
+          "id":1000911393185,
+          "type":"string",
+          "value":"fieldTCoverage"
         }
       ]
     },
@@ -256,6 +261,14 @@
     },
     {
       "id":[
+        1000911393185,
+        2000000000007
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
         1001011872239,
         2000000000008
       ],
@@ -392,6 +405,14 @@
     },
     {
       "id":[
+        1000911393185,
+        2000000000045
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
         1000662821702,
         2000000000045
       ],
@@ -421,6 +442,14 @@
       ],
       "type":"exp",
       "value":"@rpm.scope.class.Coverage.traits[:]"
+    },
+    {
+      "id":[
+        1000911393185,
+        2000000000008
+      ],
+      "type":"string",
+      "value":"DataElementInventory"
     },
     {
       "id":[

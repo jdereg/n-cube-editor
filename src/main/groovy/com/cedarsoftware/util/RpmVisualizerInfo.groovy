@@ -16,9 +16,9 @@ class RpmVisualizerInfo extends VisualizerInfo
 {
     RpmVisualizerInfo(){}
 
-    RpmVisualizerInfo(ApplicationID applicationID, Map options)
+    protected RpmVisualizerInfo(ApplicationID applicationID)
     {
-        super(applicationID, options)
+        super(applicationID)
     }
 
     @Override
@@ -28,7 +28,7 @@ class RpmVisualizerInfo extends VisualizerInfo
     }
 
     @Override
-    List getTypesToAdd(String group)
+    protected List getTypesToAdd(String group)
     {
         if (!group.endsWith(groupSuffix))
         {
@@ -38,7 +38,7 @@ class RpmVisualizerInfo extends VisualizerInfo
     }
 
    @Override
-   void loadTypesToAddMap(NCube configCube)
+   protected void loadTypesToAddMap(NCube configCube)
     {
         typesToAddMap = [:]
         String json = NCubeManager.getResourceAsString(JSON_FILE_PREFIX + TYPES_TO_ADD_CUBE_NAME + JSON_FILE_SUFFIX)

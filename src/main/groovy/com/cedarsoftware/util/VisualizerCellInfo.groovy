@@ -16,31 +16,33 @@ import static com.cedarsoftware.util.VisualizerConstants.*
 @CompileStatic
 class VisualizerCellInfo
 {
-	ApplicationID appId
-	String nodeId
+	protected ApplicationID appId
+	protected String nodeId
 
-	Map<String, Object> coordinate
-	Object noExecuteCell
-	Object cell
-	Exception exception
+	protected Map<String, Object> coordinate
+	protected Object noExecuteCell
+	protected Object cell
+	protected Exception exception
 
 	protected Joiner.MapJoiner mapJoiner = Joiner.on(", ").withKeyValueSeparator(": ")
-	VisualizerHelper helper = new VisualizerHelper()
+	protected VisualizerHelper helper = new VisualizerHelper()
 
-	VisualizerCellInfo(String nodeId, Map<String, Object> coordinate)
+	protected VisualizerCellInfo(){}
+
+	protected VisualizerCellInfo(String nodeId, Map<String, Object> coordinate)
 	{
 		this.coordinate = coordinate
 		this.nodeId = nodeId
 	}
 
-	void getCellValue(VisualizerInfo visInfo, VisualizerRelInfo visRelInfo, Long id, StringBuilder sb)
+	protected void getCellValue(VisualizerScopeInfo scopeInfo, VisualizerRelInfo visRelInfo, Long id, StringBuilder sb)
 	{
 		String coordinateString = coordinateString
 
 		if (exception)
 		{
 			//An exception was caught during the execution of the cell.
-			sb.append(getExceptionDetails(visInfo, visRelInfo, id, coordinateString))
+			sb.append(getExceptionDetails( scopeInfo, visRelInfo, id, coordinateString))
 		}
 		else
 		{
@@ -89,7 +91,7 @@ class VisualizerCellInfo
 		return sb.toString()
 	}
 
-	private String getExceptionDetails(VisualizerInfo visInfo, VisualizerRelInfo relInfo, Long id, String coordinateString)
+	private String getExceptionDetails(VisualizerScopeInfo scopeInfo, VisualizerRelInfo relInfo, Long id, String coordinateString)
 	{
 		StringBuilder sb = new StringBuilder()
 		StringBuilder mb = new StringBuilder()
@@ -100,28 +102,27 @@ class VisualizerCellInfo
 
 		if (t instanceof InvalidCoordinateException)
 		{
-			title = 'The cell was executed with a missing or invalid coordinate.'
+			title = 'The cell was executed with a missing or invalid coordinate'
 			listItemClassName = t.class.simpleName
-			mb.append("Additional scope is required to load coordinate ${coordinateString}. ")
-			mb.append(BREAK + helper.handleInvalidCoordinateException(t as InvalidCoordinateException, visInfo, relInfo, new LinkedHashSet()).toString())
+			mb.append("Additional scope is required:${DOUBLE_BREAK}")
+			mb.append(helper.handleInvalidCoordinateException(t as InvalidCoordinateException, scopeInfo, relInfo, new LinkedHashSet()).toString())
 		}
 		else if (t instanceof CoordinateNotFoundException)
 		{
-			title = 'The cell was executed with a missing or invalid coordinate.'
+			title = 'The cell was executed with a missing or invalid coordinate'
 			listItemClassName = t.class.simpleName
 			CoordinateNotFoundException exc = t as CoordinateNotFoundException
 			String scopeKey = exc.axisName
 			Object value = exc.value ?: 'null'
-			String targetMsg = "coordinate ${coordinateString}"
-			mb.append("The scope value ${value} for scope key ${scopeKey} cannot be found on axis ${scopeKey} for ${targetMsg}. ")
-			mb.append(BREAK + helper.handleCoordinateNotFoundException(t as CoordinateNotFoundException, visInfo, targetMsg))
+			mb.append("The value ${value} is not valid for ${scopeKey}. A different value must be provided:${DOUBLE_BREAK}")
+			mb.append(helper.handleCoordinateNotFoundException(t as CoordinateNotFoundException, scopeInfo, relInfo))
 		}
 		else
 		{
-			title = 'An error occurred during the execution of the cell.'
+			title = 'An error occurred during the execution of the cell'
 			listItemClassName = DETAILS_CLASS_EXCEPTION
-			String targetMsg = "coordinate ${coordinateString}"
-			mb.append(helper.handleException(t, targetMsg))
+			mb.append("An exception was thrown while loading the coordinate.${DOUBLE_BREAK}")
+			mb.append(helper.handleException(t))
 		}
 
 		String coordinateClassName = "coord_${id}"
@@ -133,7 +134,7 @@ class VisualizerCellInfo
 		sb.append(DOUBLE_BREAK)
 		sb.append("${noExecuteValue}")
 		sb.append(DOUBLE_BREAK)
-		sb.append("<b>'Exception:'</b>")
+		sb.append("<b>Exception:</b>")
 		sb.append(DOUBLE_BREAK)
 		sb.append("${mb.toString()}>")
 		sb.append("</pre>")

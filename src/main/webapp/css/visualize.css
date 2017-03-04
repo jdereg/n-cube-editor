@@ -10,12 +10,6 @@ div.inline-block {
     padding:0
 }
 
-#scope-info{
-    color:black;
-    background:#D1C5B7;
-    padding:0;
-}
-
 #scope {
     width: 100%;
 }
@@ -95,7 +89,7 @@ ul, li{
 .cellValues li.Exception
 {
     background-image: url('../img/redexclamationmarkcircle.png');
-     background-repeat: no-repeat;
+    background-repeat: no-repeat;
     background-position: 0 50%;
     padding: 3px 0 3px 20px;
     margin: .4em 0;
@@ -148,6 +142,17 @@ h3{
     border: none;
 }
 
+#scopeButton
+{
+    background-image: url('../img/scope.png');
+    cursor:pointer;
+    width: 65px;
+    height: 20px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
 #networkOptionsSection
 {
     display:none;
@@ -159,7 +164,7 @@ h3{
 }
 
 .highlighted{
-    background-color:#FFFF00;
+    background-color:#FAFAD2;
 }
 
 .readOnly{

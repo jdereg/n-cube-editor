@@ -12,7 +12,7 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.4",
+      "referenceVersion":"1.0.6",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Risk",
@@ -186,6 +186,15 @@
       ],
       "type":"exp",
       "value":"@rpm.scope.class.Risk.traits.fieldBRisk[:]"
+    },
+    {
+      "id":[
+        1001961257272,
+        2000000000010,
+        3000000000002
+      ],
+      "type":"boolean",
+      "value":true
     },
     {
       "id":[

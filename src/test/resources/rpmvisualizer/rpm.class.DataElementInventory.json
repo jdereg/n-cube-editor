@@ -107,6 +107,11 @@
           "id":1000223698771,
           "type":"string",
           "value":"fieldObsolete101"
+        },
+        {
+          "id":1001359543243,
+          "type":"string",
+          "value":"fieldTCoverage"
         }
       ]
     },
@@ -152,6 +157,14 @@
     {
       "id":[
         1000000000131,
+        2000000000011
+      ],
+      "type":"string",
+      "value":"string"
+    },
+    {
+      "id":[
+        1001359543243,
         2000000000011
       ],
       "type":"string",

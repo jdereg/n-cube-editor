@@ -12,7 +12,7 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.4",
+      "referenceVersion":"1.0.6",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Coverage",
@@ -82,6 +82,11 @@
           "id":2000910202694,
           "type":"string",
           "value":"fieldCCoverage"
+        },
+        {
+          "id":2000617088306,
+          "type":"string",
+          "value":"fieldTCoverage"
         }
       ]
     },
@@ -271,6 +276,15 @@
       ],
       "type":"string",
       "value":"file:///C:/Users/bheekin/Desktop/honey%20badger%20thumbs%20up.jpg"
+    },
+    {
+      "id":[
+        1000000000060,
+        2000617088306,
+        3000000000035
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.class.Coverage.traits.fieldTCoverage[:]"
     },
     {
       "id":[
@@ -474,6 +488,15 @@
       "id":[
         1000000000050,
         2000000000039,
+        3000000000002
+      ],
+      "type":"boolean",
+      "value":true
+    },
+    {
+      "id":[
+        1000000000060,
+        2000617088306,
         3000000000002
       ],
       "type":"boolean",

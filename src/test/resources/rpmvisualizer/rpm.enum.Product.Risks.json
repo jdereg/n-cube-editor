@@ -46,7 +46,7 @@
       "isRef":true,
       "referenceTenant":"NONE",
       "referenceApp":"test.visualizer",
-      "referenceVersion":"1.0.4",
+      "referenceVersion":"1.0.6",
       "referenceStatus":"RELEASE",
       "referenceBranch":"HEAD",
       "referenceCubeName":"Risk",
@@ -76,6 +76,22 @@
       ],
       "type":"string",
       "value":"1"
+    },
+    {
+      "id":[
+        1000000000016,
+        2001018651315
+      ],
+      "type":"string",
+      "value":"1"
+    },
+    {
+      "id":[
+        1000000000002,
+        2000097746519
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Product.Risks.traits[:]"
     },
     {
       "id":[
@@ -113,6 +129,22 @@
       "id":[
         1000000000015,
         2001427128926
+      ],
+      "type":"string",
+      "value":"1"
+    },
+    {
+      "id":[
+        1000000000016,
+        2000097746519
+      ],
+      "type":"string",
+      "value":"1"
+    },
+    {
+      "id":[
+        1000000000015,
+        2001018651315
       ],
       "type":"string",
       "value":"1"
@@ -159,11 +191,27 @@
     },
     {
       "id":[
+        1000000000015,
+        2000097746519
+      ],
+      "type":"string",
+      "value":"1"
+    },
+    {
+      "id":[
         1000000000016,
         2001427128926
       ],
       "type":"string",
       "value":"1"
+    },
+    {
+      "id":[
+        1000000000007,
+        2000097746519
+      ],
+      "type":"string",
+      "value":"GStateOps"
     },
     {
       "id":[
@@ -180,6 +228,22 @@
       ],
       "type":"string",
       "value":"1"
+    },
+    {
+      "id":[
+        1000000000002,
+        2001018651315
+      ],
+      "type":"exp",
+      "value":"@rpm.scope.enum.Product.Risks.traits[:]"
+    },
+    {
+      "id":[
+        1000000000007,
+        2001018651315
+      ],
+      "type":"string",
+      "value":"GProductOps"
     },
     {
       "id":[
