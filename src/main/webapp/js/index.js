@@ -4933,9 +4933,13 @@ var NCE = (function ($) {
     }
 
     function updateNote(noteId, updateId, html) {
-        var updateDiv;
-        updateDiv = $('#gritter-item-' + noteId + ' #' + updateId);
-        updateDiv[0].innerHTML = html;
+        var note;
+        note = $('#gritter-item-' + noteId + ' #' + updateId);
+        if (note && note[0] && note[0].innerHTML){
+            note[0].innerHTML = html;
+            return true;
+        }
+        return false;
     }
 
     function addNoteListeners(noteId) {

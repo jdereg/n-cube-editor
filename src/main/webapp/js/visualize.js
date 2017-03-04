@@ -536,7 +536,6 @@ var Visualizer = (function ($) {
         options =  {startCubeName: _selectedCubeName, visInfo: _visInfo, scopeInfo: _scopeInfo, scope: _nodeScope, node: node};
 
         result = _nce.call('ncubeController.getVisualizerCellValues', [_nce.getSelectedTabAppId(), options]);
-        _nce.clearNote();
         if (false === result.status) {
             _nce.showNote('Failed to load ' + _visInfo.loadCellValuesLabel + ': ' + TWO_LINE_BREAKS + result.data);
             return node;
@@ -637,7 +636,6 @@ var Visualizer = (function ($) {
         }
 
         result = _nce.call('ncubeController.getVisualizerJson', [_nce.getSelectedTabAppId(), options]);
-        _nce.clearNote();
         if (!result.status) {
             _nce.showNote(result.data);
              _visualizerContent.hide();
@@ -696,17 +694,18 @@ var Visualizer = (function ($) {
         showScopeNote();
     }
 
-    function showScopeNote(notePrefix){
-        var scopeImage, scopeMessage;
-        notePrefix = notePrefix ? '<b>' + notePrefix + '</b><br>' : '';
-        scopeMessage = _scopeInfo.scopeMessage ? _scopeInfo.scopeMessage : '';
-        if (_scopeNoteId) {
-            _nce.updateNote(_scopeNoteId, 'scopeMessage', notePrefix + _scopeInfo.scopeMessage);
+    function showScopeNote(extraMessage){
+        var scopeImage, scopeMessage, scopeMessagePart1, scopeMessagePart2;
+        scopeMessagePart1 = extraMessage ? extraMessage : NBSP;
+        scopeMessagePart2 = _scopeInfo && _scopeInfo.scopeMessage ? _scopeInfo.scopeMessage : '';
+        scopeMessage = '<b>' + scopeMessagePart1 + '</b><br>' + scopeMessagePart2;
+        if (scopeMessage && _scopeNoteId && _nce.updateNote(_scopeNoteId, 'scopeMessage', scopeMessage)){
+            return;
         }
-        else{
-            scopeImage = $.extend({title: _scopePromptTitle}, SCOPE_IMAGE);
-            _scopeNoteId = _nce.showNote(notePrefix + _scopeInfo.scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, scopeImage);
-        }
+        _nce.clearNotes(STICKY_SCOPE_MESSAGE);
+        scopeImage = $.extend({title: _scopePromptTitle}, SCOPE_IMAGE);
+        _scopeNoteId = _nce.showNote(scopeMessage, ' ', null, STICKY_SCOPE_MESSAGE, scopeImage);
+
     }
 
     function loadGroupsView() {
