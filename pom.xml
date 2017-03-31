@@ -81,7 +81,7 @@
         <version.spring>4.3.7.RELEASE</version.spring>
         <version.servlet>3.1.0</version.servlet>
         <version.tomcat>8.0.32</version.tomcat>
-        <version.mysql>5.1.40</version.mysql>
+        <version.mysql>5.1.41</version.mysql>
         <version.tuckey>4.0.4</version.tuckey>
         <!--<version.spymemcached>2.12.1</version.spymemcached>-->
         <version.plugin.assembly>2.6</version.plugin.assembly>
