@@ -73,7 +73,7 @@
     </developers>
 
     <properties>
-        <version.ncube>3.6.14</version.ncube>
+        <version.ncube>3.6.15</version.ncube>
         <version.json-command-servlet>1.4.2</version.json-command-servlet>
         <version.log4j>2.8</version.log4j>
         <version.groovy>2.4.10</version.groovy>
