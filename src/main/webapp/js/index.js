@@ -735,19 +735,14 @@ var NCE = (function ($) {
             template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner tab-tooltip"></div></div>'
         });
         li.on('click auxclick', function(e) {
-            var target, isClose, isDropdown, self;
-            self = $(this);
-            if (e.which === KEY_CODES.MOUSE_MIDDLE) { // middle click should close tab
-                e.preventDefault();
-                self.tooltip('destroy');
-                removeTab(cubeInfo);
-            }
-            target = $(e.target);
-            isClose = target.hasClass('glyphicon-remove');
-            isDropdown = target.hasClass('click-space') || target.hasClass('big-caret');
+            var self = $(this);
+            var target = $(e.target);
+            var isClose = target.hasClass('glyphicon-remove') || e.which === KEY_CODES.MOUSE_MIDDLE;
+            var isDropdown = target.hasClass('click-space') || target.hasClass('big-caret');
 
             // only show dropdown when clicking the caret, not just the tab
             if (isClose) {
+                e.preventDefault();
                 self.tooltip('destroy');
                 removeTab(cubeInfo);
             } else {
