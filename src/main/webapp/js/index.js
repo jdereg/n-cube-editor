@@ -4156,7 +4156,7 @@ var NCE = (function ($) {
                     canEdit: false,
                     cantEditReason: 'Commit request is view-only.'
                 };
-                diffCubeRevs(change.id, change.head, diffOptions);
+                diffCubeRevs(change.head, change.id, diffOptions);
             }
         });
         addJsonHtmlListeners(ul);
