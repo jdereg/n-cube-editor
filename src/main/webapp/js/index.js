@@ -4720,6 +4720,9 @@ var NCE = (function ($) {
             if (options.controllerMethod === CONTROLLER_METHOD.ACCEPT_THEIRS) {
                 loadNCubes();
                 runSearch();
+                if (appIdsEqual(appId, getSelectedTabAppId()) && options.cubeNames.indexOf(_selectedCubeName) > -1) {
+                    reloadCube();
+                }
             }
             if (ul.is(_branchCompareUpdateList)) {
                 compareUpdateBranch(branchName, true)
