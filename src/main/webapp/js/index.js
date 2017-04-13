@@ -4712,8 +4712,9 @@ var NCE = (function ($) {
     }
     
     function callAcceptMineTheirs(ul, options) {
+        var appId = getAppId();
         var branchName = ul.closest('.modal').prop('branchName') || head;
-        var result = call(CONTROLLER + options.controllerMethod, [getAppId(), options.cubeNames, branchName]);
+        var result = call(CONTROLLER + options.controllerMethod, [appId, options.cubeNames, branchName]);
         if (result.status) {
             showNote(result.data.value + ' ' + options.successMsg, 'Note', TEN_SECOND_TIMEOUT);
             removeTabStatusFromCubeList(getAppId(), options.cubeNames);
