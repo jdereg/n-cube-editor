@@ -588,7 +588,7 @@ var NCEBuilderOptions = (function () {
                     type: FormBuilder.INPUT_TYPE.CHECKBOX,
                     readonly: axis.isRef,
                     hidden: ['RULE','NEAREST'].indexOf(axis.type.name) > -1,
-                    data: axis.preferredOrder,
+                    data: !axis.preferredOrder,
                     default: false
                 },
                 fireAll: {
