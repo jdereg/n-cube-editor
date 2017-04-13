@@ -1247,7 +1247,7 @@ var NCubeEditor2 = (function ($) {
         _hiddenColumns = null;
         if (localStorage.hasOwnProperty(storageKey)) {
             _hiddenColumns = JSON.parse(localStorage[storageKey]);
-        } else if (data.hasOwnProperty(METAPROPERTIES.DEFAULT_VIEW.HIDDEN_COLUMNS)) {
+        } else if (data.hasOwnProperty(METAPROPERTIES.DEFAULT_VIEW.HIDDEN_COLUMNS) && !localStorage[getStorageKey(nce, HIDDEN_COLUMNS_OVERRIDE)]) {
             _hiddenColumns = JSON.parse(data[METAPROPERTIES.DEFAULT_VIEW.HIDDEN_COLUMNS]);
         }
         if (!_hiddenColumns) {
@@ -2506,6 +2506,8 @@ var NCubeEditor2 = (function ($) {
 
     function callUpdateMetaPropertiesForDefaultCubeView(shouldClear) {
         var updatedMetaProps = {};
+        overrideDefaultViewHiddenColumns(false);
+        nce.showNote('Default view ' + (shouldClear ? 'cleared' : 'set') + '!', 'Note', TWO_SECOND_TIMEOUT);
         if (shouldClear) {
             updatedMetaProps[METAPROPERTIES.DEFAULT_VIEW.AXIS_ORDER] = '';
             updatedMetaProps[METAPROPERTIES.DEFAULT_VIEW.HIDDEN_AXES] = '';
@@ -4242,7 +4244,14 @@ var NCubeEditor2 = (function ($) {
     }
 
     function storeHiddenColumns() {
+        if (data.hasOwnProperty(METAPROPERTIES.DEFAULT_VIEW.HIDDEN_COLUMNS)) {
+            overrideDefaultViewHiddenColumns(true);
+        }
         saveOrDeleteValue(_hiddenColumns, getStorageKey(nce, HIDDEN_COLUMNS));
+    }
+
+    function overrideDefaultViewHiddenColumns(shouldOverride) {
+        saveOrDeleteValue(shouldOverride, getStorageKey(nce, HIDDEN_COLUMNS_OVERRIDE));
     }
 
     // =============================================== End Column Hiding ===============================================
