@@ -4712,14 +4712,18 @@ var NCE = (function ($) {
     }
     
     function callAcceptMineTheirs(ul, options) {
+        var appId = getAppId();
         var branchName = ul.closest('.modal').prop('branchName') || head;
-        var result = call(CONTROLLER + options.controllerMethod, [getAppId(), options.cubeNames, branchName]);
+        var result = call(CONTROLLER + options.controllerMethod, [appId, options.cubeNames, branchName]);
         if (result.status) {
             showNote(result.data.value + ' ' + options.successMsg, 'Note', TEN_SECOND_TIMEOUT);
             removeTabStatusFromCubeList(getAppId(), options.cubeNames);
             if (options.controllerMethod === CONTROLLER_METHOD.ACCEPT_THEIRS) {
                 loadNCubes();
                 runSearch();
+                if (appIdsEqual(appId, getSelectedTabAppId()) && options.cubeNames.indexOf(_selectedCubeName) > -1) {
+                    reloadCube();
+                }
             }
             if (ul.is(_branchCompareUpdateList)) {
                 compareUpdateBranch(branchName, true)
