@@ -1697,8 +1697,8 @@ class NCubeController extends BaseController
 
     List<Delta> fetchJsonRevDiffs(long newCubeId, long oldCubeId)
     {
-        NCube newCube = nCubeService.loadCubeById(newCubeId)
         NCube oldCube = nCubeService.loadCubeById(oldCubeId)
+        NCube newCube = nCubeService.loadCubeById(newCubeId)
         addTenant(newCube.applicationID)
         addTenant(oldCube.applicationID)
         return getDeltaDescription(newCube, oldCube)
