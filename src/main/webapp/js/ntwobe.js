@@ -1357,6 +1357,7 @@ var NCubeEditor2 = (function ($) {
             } else if (nce.getFilterOutBlankRows()) {
                 _columnIdCombinationsToShow = null;
                 _columnIdCombinationsToShow = [];
+                createFiltersForBlankRows();
                 for (filteredColNum = 0; filteredColNum < colLen; filteredColNum++) {
                     curFilterResult = null;
                     curFilterResult = getFilteredCellsFromData(filteredColNum).idCombinations;
@@ -2552,11 +2553,15 @@ var NCubeEditor2 = (function ($) {
     }
 
     function filterOutBlankRows() {
+        createFiltersForBlankRows();
+        reload();
+    }
+
+    function createFiltersForBlankRows() {
         var topAxis = axes[colOffset];
         var columns = topAxis.columns;
         var columnKeys = Object.keys(columns);
         var colIdx, colLen, colFilter, colId;
-
         clearFilters();
         nce.saveFilterOutBlankRows(true);
         for (colIdx = 0, colLen = columnKeys.length; colIdx < colLen; colIdx++) {
@@ -2571,7 +2576,7 @@ var NCubeEditor2 = (function ($) {
             };
             _filters.push(colFilter);
         }
-        filterSave();
+        saveFilters();
     }
     
     function checkCubeUpdatePermissions(axisName, cacheable) {
@@ -3639,11 +3644,6 @@ var NCubeEditor2 = (function ($) {
 
     // ============================================== Begin Filtering ==================================================
 
-    function filterSave() {
-        saveFilters();
-        reload();
-    }
-
     function filterOpen() {
         var i, len, colId, opts;
         var columnSelectList = [];
@@ -3658,7 +3658,7 @@ var NCubeEditor2 = (function ($) {
         opts = {
             columnSelectList: columnSelectList,
             readonly: nce.getFilterOutBlankRows(),
-            afterSave: function() { filterSave(); removeHotBeforeKeyDown(); },
+            afterSave: function() { saveFilters(); reload(); removeHotBeforeKeyDown(); },
             onClose: removeHotBeforeKeyDown
         };
         FormBuilder.openBuilderModal(NCEBuilderOptions.filterData(opts), _filters);
