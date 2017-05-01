@@ -57,17 +57,18 @@ var NCubeJsonEditor = (function ($) {
         // Attach listener
         $('#saveButton').click(function () {
             var result;
+            var selectedTabAppId = nce.getSelectedTabAppId();
             nce.clearNote();
-            if (nce.isHeadSelected()) {
+            if (selectedTabAppId.branch === 'HEAD') {
                 nce.selectBranch();
                 return;
             }
 
             clearDirtyStatus();
             updateDirtyStatus();
-            result = nce.call(CONTROLLER + CONTROLLER_METHOD.SAVE_JSON, [nce.getSelectedTabAppId(), nce.getSelectedCubeName(), _editor.getText()]);
+            result = nce.call(CONTROLLER + CONTROLLER_METHOD.SAVE_JSON, [selectedTabAppId, _editor.getText()]);
             if (result.status) {
-                nce.updateCubeLeftHandChangedStatus(cubeName, CHANGETYPE.UPDATED);
+                nce.updateCubeLeftHandChangedStatus(nce.getSelectedCubeName(), CHANGETYPE.UPDATED);
             } else {
                 nce.showNote('Error saving JSON n-cube:<hr class="hr-small"/>' + result.data);
             }
