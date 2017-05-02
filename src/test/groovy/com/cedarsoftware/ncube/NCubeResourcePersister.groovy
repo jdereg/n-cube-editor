@@ -50,7 +50,7 @@ class NCubeResourcePersister implements NCubePersister
     }
 
     @Override
-    boolean updateBranchCubeHeadSha1(Long aLong, String s) {
+    boolean updateBranchCubeHeadSha1(Long aLong, String x, String s) {
         return false
     }
 
