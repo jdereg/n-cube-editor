@@ -405,7 +405,7 @@ var NCubeEditor2 = (function ($) {
             }
         }
     }
-    
+
     function addCellsToData(cells) {
         var i, len, cell, cellId, cellObj;
         for (i = 0, len = cells.length; i < len; i++) {
@@ -413,7 +413,11 @@ var NCubeEditor2 = (function ($) {
             cellId = null;
             cellObj = null;
             cell = cells[i]['@items'];
-            cellId = cell[0].sort().join('_');
+            cellId = cell[0]
+                .sort(function(a, b) {
+                    return getAxisIdFromString(a.toString()) - getAxisIdFromString(b.toString());
+                })
+                .join('_');
             cellObj = cell[1];
 
             delete cellObj['@type'];
