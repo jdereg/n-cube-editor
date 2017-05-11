@@ -66,7 +66,7 @@ var NCubeJsonEditor = (function ($) {
 
             clearDirtyStatus();
             updateDirtyStatus();
-            result = nce.call(CONTROLLER + CONTROLLER_METHOD.SAVE_JSON, [selectedTabAppId, _editor.getText()]);
+            result = nce.call(CONTROLLER + CONTROLLER_METHOD.SAVE_JSON, [selectedTabAppId, nce.getSelectedCubeName(), _editor.getText()]);
             if (result.status) {
                 nce.updateCubeLeftHandChangedStatus(nce.getSelectedCubeName(), CHANGETYPE.UPDATED);
             } else {
