@@ -72,7 +72,7 @@
     </parent>
 
     <properties>
-        <version.ncube>4.0.2</version.ncube>
+        <version.ncube>4.0.3</version.ncube>
         <version.springboot>1.5.2.RELEASE</version.springboot>
         <version.plugin.maven-compiler>3.6.1</version.plugin.maven-compiler>
         <version.plugin.gmavenplus>1.5</version.plugin.gmavenplus>
