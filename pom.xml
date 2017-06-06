@@ -83,6 +83,20 @@
         <tomcat.version>8.5.12</tomcat.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>maven.oracle.com</id>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <url>https://maven.oracle.com</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+
     <pluginRepositories>
         <pluginRepository>
             <id>central</id>
@@ -95,6 +109,10 @@
             <releases>
                 <updatePolicy>never</updatePolicy>
             </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>maven.oracle.com</id>
+            <url>https://maven.oracle.com</url>
         </pluginRepository>
     </pluginRepositories>
 
