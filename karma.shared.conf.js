@@ -29,7 +29,6 @@ var mainLibs = [
     'src/main/webapp/js/details.js',
     'src/main/webapp/js/ncube.js',
     'src/main/webapp/js/ncubeJsonEditor.js',
-    'src/main/webapp/js/ntwobe.js',
     'src/main/webapp/js/rpm.js',
     'src/main/webapp/js/test.js',
     'src/main/webapp/js/visualize.js'
