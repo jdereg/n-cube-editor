@@ -1,4 +1,7 @@
 ### Revision History
+* 1.0.3
+  * Consumed n-cube 4.0.22
+  * Enabled Spring Boot /info endpoint to show version information
 * 0.9.0
   * Updated Spring Boot version to 1.5.3
   * Removed logback-spring.xml. Control logging via application.properties
