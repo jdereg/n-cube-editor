@@ -18,3 +18,8 @@
     top: 0;
     z-index: 100;
 }
+
+.modal-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
