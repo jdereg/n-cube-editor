@@ -63,9 +63,6 @@ var NCubeEditor2 = (function ($) {
     var _moveAxesList = null;
     var _moveAxesLabel = null;
     var _moveAxesInstructions = null;
-    var _searchOptionsLabel = null;
-    var _searchOptionsModal = null;
-    var _searchOptionsLoadAllData = null;
     var _permCache = null;
     var _isCellDirty = null;
     var _coordBarRightBtn = null;
@@ -107,9 +104,6 @@ var NCubeEditor2 = (function ($) {
             _moveAxesList = $('#moveAxesList');
             _moveAxesLabel = $('#moveAxesLabel');
             _moveAxesInstructions = $('#moveAxesInstructions');
-            _searchOptionsLabel = $('#searchOptionsLabel');
-            _searchOptionsModal = $('#searchOptionsModal');
-            _searchOptionsLoadAllData = $('#searchOptionsLoadAllData');
             _coordBarRightBtn = $('#coordinate-bar-move-right');
             _coordBarLeftBtn = $('#coordinate-bar-move-left');
             _coordBarText = $('#coordinate-bar-text');
@@ -124,12 +118,6 @@ var NCubeEditor2 = (function ($) {
             modalsDraggable(true);
 
             $('#updateAxisMenu').on('click', updateAxis);
-            $('#searchOptionsCancel').on('click', function() {
-                searchOptionsClose();
-            });
-            $('#searchOptionsOk').on('click', function() {
-                searchOptionsOk();
-            });
 
             $(document).on('keydown', onWindowKeyDown);
 
@@ -511,23 +499,19 @@ var NCubeEditor2 = (function ($) {
     }
     
     function searchOptionsOpen() {
-        $('#searchOptionsLabel')[0].innerHTML = 'Search Options - ' + cubeName;
-        _searchOptionsLoadAllData[0].checked = getShouldLoadAllForSearch();
+        var opts = {
+            loadAll: getShouldLoadAllForSearch(),
+            afterSave: function(data) {
+                saveShouldLoadAllForSearch(data.loadAll);
+                reload();
+            },
+            onClose: function() {
+                removeHotBeforeKeyDown();
+                destroyEditor();
+            }
+        };
         addHotBeforeKeyDown();
-        _searchOptionsModal.modal();
-    }
-
-    function searchOptionsClose() {
-        _searchOptionsModal.modal('hide');
-        removeHotBeforeKeyDown();
-        destroyEditor();
-    }
-    
-    function searchOptionsOk() {
-        var shouldLoadAllData = _searchOptionsLoadAllData[0].checked;
-        saveShouldLoadAllForSearch(shouldLoadAllData);
-        searchOptionsClose();
-        reload();
+        FormBuilder.openBuilderModal(NCEBuilderOptions.cubeDataSearchOptions(opts));
     }
 
     function searchClear() {

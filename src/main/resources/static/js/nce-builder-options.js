@@ -1765,57 +1765,40 @@ var NCEBuilderOptions = (function () {
         };
     }
 
-    /*
-     * additional required options:
-     *  appName
-     *  onHtmlClick
-     *  onJsonClick
-     */
-    function deleteCubes(opts) {
+    function getFormToShowCubeList(opts) {
         function getValue(tr, key) {
             return tr.find('.' + key)[0].textContent;
         }
 
-        function onButtonClick(e, func) {
-            var tr = $(e.target).closest('tr');
-            var cubeName = getValue(tr, 'cubeName');
-            var cubeId = getValue(tr, 'cubeId');
-            var revId = getValue(tr, 'revId');
-            e.preventDefault();
-            func(cubeName, cubeId, revId);
+        function getViewButton(text, func) {
+            return {
+                type: FormBuilder.INPUT_TYPE.BUTTON,
+                css: {width: '9%'},
+                default: text,
+                listeners: {
+                    click: function(e) {
+                        var tr = $(e.target).closest('tr');
+                        var cubeName = getValue(tr, 'cubeName');
+                        var cubeId = getValue(tr, 'cubeId');
+                        var revId = getValue(tr, 'revId');
+                        e.preventDefault();
+                        func(cubeName, cubeId, revId);
+                    }
+                }
+            };
         }
 
         return {
-            title: 'Delete Cubes from ' + opts.appName,
             displayType: FormBuilder.DISPLAY_TYPE.TABLE,
             readonly: opts.readonly,
             afterSave: opts.afterSave,
             onClose: opts.onClose,
-            saveButtonText: 'Delete',
             hasFilter: true,
             hasSelectAllNone: true,
             css: {margin: '0', width: '100%'},
             columns: {
-                html: {
-                    type: FormBuilder.INPUT_TYPE.BUTTON,
-                    css: {width: '9%'},
-                    default: 'HTML',
-                    listeners: {
-                        click: function(e) {
-                            onButtonClick(e, opts.onHtmlClick);
-                        }
-                    }
-                },
-                json: {
-                    type: FormBuilder.INPUT_TYPE.BUTTON,
-                    css: {width: '9%'},
-                    default: 'JSON',
-                    listeners: {
-                        click: function(e) {
-                            onButtonClick(e, opts.onJsonClick);
-                        }
-                    }
-                },
+                html: getViewButton('HTML', opts.onHtmlClick),
+                json: getViewButton('JSON', opts.onJsonClick),
                 isSelected: {
                     heading: '',
                     type: FormBuilder.INPUT_TYPE.CHECKBOX,
@@ -1840,6 +1823,54 @@ var NCEBuilderOptions = (function () {
         };
     }
 
+    /*
+     * additional required options:
+     *  appName
+     *  onHtmlClick
+     *  onJsonClick
+     */
+    function deleteCubes(opts) {
+        var form = getFormToShowCubeList(opts);
+        form.title = 'Delete cubes from ' + opts.appName;
+        form.saveButtonText = 'Delete';
+        return form;
+    }
+
+    /*
+     * additional required options:
+     *  appName
+     *  onHtmlClick
+     *  onJsonClick
+     */
+    function restoreCubes(opts) {
+        var form = getFormToShowCubeList(opts);
+        form.title = 'Restore cubes to' + opts.appName;
+        form.saveButtonText = 'Restore';
+        return form;
+    }
+
+    /*
+     * additional required options:
+     *  loadAll
+     */
+    function cubeDataSearchOptions(opts) {
+        return {
+            title: 'Search Options',
+            displayType: FormBuilder.DISPLAY_TYPE.FORM,
+            size: FormBuilder.MODAL_SIZE.SMALL,
+            afterSave: opts.afterSave,
+            onClose: opts.onClose,
+            saveButtonText: 'OK',
+            formInputs: {
+                loadAll: {
+                    label: 'Load all cube data on search',
+                    type: FormBuilder.INPUT_TYPE.CHECKBOX,
+                    data: opts.loadAll
+                }
+            }
+        };
+    }
+
     return {
         filterData: filterData,
         metaProperties: metaProperties,
@@ -1847,7 +1878,9 @@ var NCEBuilderOptions = (function () {
         deleteAllTests: deleteAllTests,
         deleteBranch: deleteBranch,
         deleteCubes: deleteCubes,
+        restoreCubes: restoreCubes,
         copyCube: copyCube,
+        cubeDataSearchOptions: cubeDataSearchOptions,
         newCube: newCube,
         addAxis: addAxis,
         deleteAxis: deleteAxis,

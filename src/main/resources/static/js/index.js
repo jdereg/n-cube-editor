@@ -88,7 +88,6 @@ var NCE = (function ($) {
     var _branchCompareUpdateOk = $('#branchCompareUpdateOk');
     var _branchCompareUpdateMenu = $('#branchCompareUpdate');
     var _branchCompareUpdateList = $('#branchCompareUpdateList');
-    var _deletedCubeList = $('#deletedCubeList');
     var _revisionHistoryList = $('#revisionHistoryList');
     var _revisionHistoryLabel = $('#revisionHistoryLabel');
     var _diffModalMerge = $('#diffModalMerge');
@@ -118,7 +117,6 @@ var NCE = (function ($) {
     var _diffModal = $('#diffOutputModal');
     var _branchCompareUpdateModal = $('#branchCompareUpdateModal');
     var _revisionHistoryModal = $('#revisionHistoryModal');
-    var _restoreCubeModal = $('#restoreCubeModal');
     var _viewPullRequestsModal = $('#view-pull-requests-modal');
 
     preInit();
@@ -1672,9 +1670,6 @@ var NCE = (function ($) {
         $('#restoreCubeMenu').on('click', function () {
             restoreCube();
         });
-        $('#restoreCubeOk').on('click', function () {
-            restoreCubeOk();
-        });
         $('#revisionHistoryOk').on('click', function () {
             revisionHistoryOk();
         });
@@ -2588,12 +2583,7 @@ var NCE = (function ($) {
 
     function deleteCube() {
         var opts, tableData;
-        if (!_selectedApp || !_selectedVersion || !_selectedStatus) {
-            showNote('Need to have an application, version, and status selected first.');
-            return;
-        }
-        if (isHeadSelected()) {
-            selectBranch();
+        if (!ensureModifiable('Cannot delete cubes.', getAppId())) {
             return;
         }
 
@@ -2601,22 +2591,24 @@ var NCE = (function ($) {
             appName: _selectedApp,
             onHtmlClick: onHtmlViewClick,
             onJsonClick: onJsonViewClick,
-            afterSave: deleteCubeOk
+            afterSave: function(data) {
+                callDelete(getFbCubeListData(data));
+            }
         };
         tableData = buildFbCubesListTableData(_cubeList);
         FormBuilder.openBuilderModal(NCEBuilderOptions.deleteCubes(opts), tableData);
     }
 
-    function deleteCubeOk(data) {
+    function getFbCubeListData(data) {
         var i, len, row;
-        var cubesToDelete = [];
+        var cubeList = [];
         for (i = 0, len = data.length; i < len; i++) {
             row = data[i];
             if (row.isSelected) {
-                cubesToDelete.push(row.cubeName);
+                cubeList.push(row.cubeName);
             }
         }
-        callDelete(cubesToDelete);
+        return cubeList;
     }
 
     function removeDeletedCubeFromOpenCubes(cubeInfo, cubeName) {
@@ -2674,65 +2666,35 @@ var NCE = (function ($) {
     }
 
     function restoreCube() {
-        var ul, result;
-        if (!_selectedApp || !_selectedVersion || !_selectedStatus) {
-            showNote('Need to have an application, version, and status selected first.');
-            return;
-        }
-        if (isHeadSelected()) {
-            selectBranch();
+        var opts, tableData, result;
+        if (!ensureModifiable('Cannot restore cubes.', getAppId())) {
             return;
         }
 
-        _deletedCubeList.empty();
-        $('#restoreCubeLabel')[0].textContent = 'Restore Cubes in ' + _selectedVersion + ', ' + _selectedStatus;
         result = call(CONTROLLER + CONTROLLER_METHOD.SEARCH, [getAppId(), "*", null, getDeletedRecordsSearchOptions()]);
-        if (result.status) {
-            buildUlForRestoreDelete(_deletedCubeList, result.data);
-            _restoreCubeModal.modal();
-        } else {
+        if (!result.status) {
             showNote('Error fetching deleted cubes (' + _selectedVersion + ', ' + _selectedStatus + '):<hr class="hr-small"/>' + result.data);
+            return;
         }
+
+        opts = {
+            appName: _selectedApp,
+            onHtmlClick: onHtmlViewClick,
+            onJsonClick: onJsonViewClick,
+            afterSave: function(data) {
+                callRestore(getFbCubeListData(data));
+            }
+        };
+        tableData = buildFbCubesListTableData(result.data);
+        FormBuilder.openBuilderModal(NCEBuilderOptions.restoreCubes(opts), tableData);
     }
 
-    function buildUlForRestoreDelete(ul, dtos) {
-        var i, len, html, dto, keys, isObj;
-        if (typeof dtos === OBJECT) {
-            isObj = true;
-            keys = Object.keys(dtos);
-            len = keys.length;
-        } else {
-            len = dtos.length;
-        }
-        html = '';
-        for (i = 0; i < len; i++) {
-            dto = isObj ? dtos[keys[i]] : dtos[i];
-            html += '<li class="list-group-item skinny-lr no-margins"><div class="container-fluid">';
-            html += getJsonHtmlLabelsHtml(dto);
-            html += '<label class="checkbox checkbox-label"><input type="checkbox">' + dto.name + '</label>';
-            html += '</div></li>';
-        }
-        ul.append(html);
-        addJsonHtmlListeners(ul);
-    }
-
-    function restoreCubeOk() {
-        var cubesToRestore, result, cubeName, i, len, checkboxes;
-        _restoreCubeModal.modal('hide');
-
-        checkboxes = _deletedCubeList.find(':checked');
-        cubesToRestore = [];
-        for (i = 0, len = checkboxes.length; i < len; i++) {
-            cubesToRestore.push($(checkboxes[i]).parent()[0].textContent);
-        }
-
-        result = call(CONTROLLER + CONTROLLER_METHOD.RESTORE_CUBES, [getAppId(), cubesToRestore]);
+    function callRestore(cubesToRestore) {
+        var result = call(CONTROLLER + CONTROLLER_METHOD.RESTORE_CUBES, [getAppId(), cubesToRestore]);
         if (result.status) {
             loadNCubes();
-            cubeName = _selectedCubeName;
             if (cubesToRestore.length === 1) {
-                cubeName = cubesToRestore[0];
-                selectCubeByName(cubeName);
+                selectCubeByName(cubesToRestore[0]);
             }
             clearSearch();
         } else {
