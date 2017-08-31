@@ -632,7 +632,6 @@ var FormBuilder = (function ($) {
     }
 
     function sortTable(table, data, sortHeader, tableOpts) {
-        // TODO - NEEDS FLESHED OUT
         var asc;
         var headers = table.parent().parent().find('th');
         var curIdx = headers.index(sortHeader);
@@ -679,7 +678,7 @@ var FormBuilder = (function ($) {
     }
 
     function addTableRowForTableTypeBuilder(dataRow) {
-        addTableRow(_modal.find('table.data-table'), dataRow, _options);
+        addTableRow(_modal.find('table.form-builder-data-table'), dataRow, _options);
     }
 
     function addTableRow(table, dataRow, tableOpts) {
