@@ -1,4 +1,6 @@
 ### Revision History
+* 1.1.3
+  * Modal updates for search options and delete/restore cubes; code cleanup.
 * 1.1.2
   * Consumed n-cube 4.1.2
 * 1.1.1
