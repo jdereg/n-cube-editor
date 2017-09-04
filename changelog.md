@@ -1,4 +1,7 @@
 ### Revision History
+* 1.1.4
+  * Added `server.tomcat.max-threads=200` to default `application.properties`
+  * Consumed n-cube 4.1.5
 * 1.1.3
   * Consumed n-cube 4.1.4
 * 1.1.2
