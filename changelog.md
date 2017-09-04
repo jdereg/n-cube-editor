@@ -1,7 +1,11 @@
 ### Revision History
-* 1.1.3
+* 1.1.4
+  * Consumed n-cube 4.1.5
+  * Added `server.tomcat.max-threads=200` to default `application.properties`
   * Modal updates for search options and delete/restore cubes; code cleanup.
   * Bug fix: form-builder not properly adding table rows from add button.
+* 1.1.3
+  * Consumed n-cube 4.1.4
 * 1.1.2
   * Consumed n-cube 4.1.2
 * 1.1.1
