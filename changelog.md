@@ -1,6 +1,9 @@
 ### Revision History
 * 1.1.5
   * Consumed n-cube 4.1.7
+  * Enhancement: Form builder support for table sections
+  * Enhancement: History changed to not include left hand nav for fewer server calls
+  * Bug fix: Commit would call server if no cubes selected
 * 1.1.4
   * Consumed n-cube 4.1.6
   * Faster retrieval of NCubes from storage server - they are now sent compressed (never expanded until being hydrated on the client.)
