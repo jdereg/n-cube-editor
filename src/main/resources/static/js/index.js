@@ -2579,7 +2579,7 @@ var NCE = (function ($) {
                 displayType = getLabelDisplayTypeForInfoDto(dto);
                 obj._sectionHeading = displayType.LABEL;
             }
-            obj._sectionClass = displayType.CSS_CLASS;
+            obj._sectionClass = (displayType || {}).CSS_CLASS;
             obj.cubeName = dto.name;
             obj.cubeId = dto.id;
             obj.revision = dto.revision;
@@ -4104,34 +4104,51 @@ var NCE = (function ($) {
         }
     }
 
-    function commitBranch() {
-        var opts, tableData, result, branchChanges;
-        var appId = getAppId();
+    function commitBranch(state) {
+        var errMsg, title, result, branchChanges, action;
         clearNote();
-        if (!ensureModifiable('Cannot commit cubes.', appId)) {
+        _commitModal.find('.accept-mine, .accept-theirs').add(_pullRequestLink).add(_commitOk).toggle(state);
+        _rollbackOk.toggle(!state);
+        action = state ? 'commit' : 'rollback';
+        errMsg = state ? 'commit to' : 'rollback in';
+        title = (state ? 'Commit' : 'Rollback') + ' changes';
+        _commitRollbackList.data('is-commit', state);
+        if (state) {
+            _pullRequestLink.add(_commitOk).removeAttr('disabled');
+        }
+
+        if (isHeadSelected()) {
+            showNote('You cannot ' + errMsg + ' HEAD.');
             return;
         }
 
-        result = call(CONTROLLER + CONTROLLER_METHOD.GET_BRANCH_CHANGES_FOR_HEAD, [appId]);
+        result = call(CONTROLLER + CONTROLLER_METHOD.GET_BRANCH_CHANGES_FOR_HEAD, [getAppId()]);
         if (!result.status || !result.data) {
             showNote('Unable to get branch changes:<hr class="hr-small"/>' + result.data);
             return;
         }
 
-        opts = {
-            title: 'Commit cubes to ' + _selectedApp,
-            saveButtonText: 'Commit',
-            onHtmlClick: onHtmlViewClick,
-            onJsonClick: onJsonViewClick,
-            afterSave: function(data) {
-                callCommit(getFbCubeListData(data));
-            }
-        };
+        _commitRollbackLabel[0].textContent = title;
 
         branchChanges = result.data;
         branchChanges.sort(sortBranchChanges);
-        tableData = buildFbCubesListTableData(branchChanges);
-        FormBuilder.openBuilderModal(NCEBuilderOptions.showCubeList(opts), tableData);
+
+        _commitModal.prop('branchChanges', branchChanges);
+        buildUlForCompare(_commitRollbackList, head, branchChanges, {inputClass:'commitCheck', compare:true, html:true, json:true, action: action});
+        _commitModal.modal('show');
+    }
+
+    function getCommitChanges() {
+        var i, len;
+        var branchChanges = _commitModal.prop('branchChanges');
+        var input = _commitRollbackList.find('.commitCheck');
+        var changes = [];
+        for (i = 0, len = input.length; i < len; i++) {
+            if (input[i].checked) {
+                changes.push(branchChanges[i]);
+            }
+        }
+        return changes;
     }
 
     function generatePullRequestLink() {
@@ -4159,6 +4176,16 @@ var NCE = (function ($) {
     function pullRequestLinkClick(txid) {
         closeOpenModal();
         viewPullRequests(true, txid);
+    }
+
+    function commitOk() {
+        var changes = getCommitChanges();
+        if (!changes.length) {
+            showNote('No changes selected!', 'Error', TWO_SECOND_TIMEOUT);
+            return;
+        }
+        _commitModal.modal('hide');
+        callCommit(changes);
     }
 
     function callCommit(changedDtos, appId) {
