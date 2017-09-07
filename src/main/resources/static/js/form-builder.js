@@ -82,6 +82,7 @@ var FormBuilder = (function ($) {
         'text-align':'center'
     };
     var TR_CLASS = 'form-builder-data-row';
+    var TR_SECTION_HEADING_CLASS = 'form-builder-data-row-section-heading';
 
     var ID_PREFIX = {
         COLLAPSE: 'form-builder-collapse-',
@@ -261,7 +262,7 @@ var FormBuilder = (function ($) {
     }
 
     function buildModalContent() {
-        var style = _options.size === MODAL_SIZE.SMALL ? '' : 'overflow-y:auto;min-height:450px;';
+        var style = _options.size === MODAL_SIZE.SMALL ? '' : 'overflow-y:auto;min-height:450px;max-height:600px;';
         var body = $('<div class="modal-body" style="'+ style + '">');
 
         if (_options.hasOwnProperty('instructionsTitle') && _options.hasOwnProperty('instructionsText')) {
@@ -603,6 +604,7 @@ var FormBuilder = (function ($) {
     function buildTable(data, tableOpts) {
         var columns, columnKeys, headingRow, c, cLen, column, header, key;
         var style = tableOpts.css || { margin: '0 auto' };
+        var maxHeight = style.hasOwnProperty('max-height') ? style['max-height'] : '450px';
         var dataTable= $('<table class="form-builder-data-table"/>').css(style);
 
         columns = tableOpts.columns;
@@ -628,7 +630,9 @@ var FormBuilder = (function ($) {
             headingRow.append('<th/>');
         }
 
-        return $('<div/>').append($('<div style="max-height:300px; overflow-y:auto;"/>').append(dataTable));
+        addTableSectionListeners(dataTable);
+        addCountsToTableSectionHeaders(dataTable);
+        return $('<div/>').append($('<div style="max-height:' + maxHeight + ';overflow-y:auto;"/>').append(dataTable));
     }
 
     function sortTable(table, data, sortHeader, tableOpts) {
@@ -682,22 +686,31 @@ var FormBuilder = (function ($) {
     }
 
     function addTableRow(table, dataRow, tableOpts) {
-        var c, cLen, key, column, dataVal, inputElement, closeBtn, td;
-        var tr = $('<tr/>').addClass(TR_CLASS);
+        var c, cLen, key, column, dataVal, inputElement, closeBtn, tr, td;
         var columnKeys = tableOpts.columnKeys;
         var columns = tableOpts.columns;
+        var isDataRowObject = dataRow !== null && typeof dataRow === 'object';
         if (tableOpts.canAddRemoveRows && !tableOpts.readonly) {
             closeBtn = $('<span/>').addClass('glyphicon glyphicon-remove tab-close-icon');
             closeBtn.click(function () {
                 $(this).closest('tr').remove();
             });
         }
+        tr = $('<tr/>').addClass(TR_CLASS);
+        if (isDataRowObject) {
+            if (dataRow.hasOwnProperty('_sectionHeading')) {
+                table.append(buildTableSectionHeadingRow(dataRow, tableOpts.columnKeys.length));
+            }
+            if (dataRow.hasOwnProperty('_sectionClass')) {
+                tr.addClass(dataRow._sectionClass);
+            }
+        }
         for (c = 0, cLen = columnKeys.length; c < cLen; c++) {
             key = columnKeys[c];
             column = columns[key];
             dataVal = undefined;
             if (dataRow) {
-                dataVal = typeof dataRow === 'object' ? dataRow[key] : dataRow;
+                dataVal = isDataRowObject ? dataRow[key] : dataRow;
             }
             if (dataVal === undefined) {
                 dataVal = column.hasOwnProperty('default') ? column.default : null;
@@ -718,6 +731,57 @@ var FormBuilder = (function ($) {
             tr.append($('<td/>').append(closeBtn));
         }
         tr.find('input').first().focus();
+    }
+
+    function buildTableSectionHeadingRow(dataRow, numTableCols) {
+        var html = '<tr class="' + TR_SECTION_HEADING_CLASS + '"><th colspan="' + numTableCols + '">'
+                 + '<span class="glyphicon glyphicon-minus"></span>'
+                 + '<b class="' + dataRow._sectionClass + '"> ' + dataRow._sectionHeading + ' </b>'
+                 + '<a href="#" class="form-builder-data-section-all">All</a>'
+                 + '<a href="#" class="form-builder-data-section-none">None</a>'
+                 + '</th></tr>';
+        return $(html);
+    }
+
+    function addTableSectionListeners(table) {
+        var headingRows = getTableSectionHeadingRows(table);
+        headingRows.find('.form-builder-data-section-all').on('click', function () { selectAllNoneTableSectionHeaderClick($(this), true); });
+        headingRows.find('.form-builder-data-section-none').on('click', function () { selectAllNoneTableSectionHeaderClick($(this), false); });
+        headingRows.find('span.glyphicon, b').on('click', function() { expandCollapseTableSectionClick($(this)); });
+    }
+
+    function getTableSectionHeadingRows(table) {
+        return table.find('tr.' + TR_SECTION_HEADING_CLASS);
+    }
+
+    function expandCollapseTableSectionClick(el) {
+        var prefix = 'glyphicon-';
+        var plus = 'plus';
+        var minus = 'minus';
+        var span = el.parent().find('span.glyphicon');
+        var show = span.hasClass(prefix + plus);
+        span.removeClass(prefix + (show ? plus : minus)).addClass(prefix + (show ? minus : plus));
+        getTableSectionRows(el).toggle(show);
+    }
+
+    function selectAllNoneTableSectionHeaderClick(el, state) {
+        getTableSectionRows(el).find('input[type="checkbox"]').prop('checked', state);
+    }
+
+    function getTableSectionRows(el) {
+        var th = el.parent();
+        var cssClass = th.find('b')[0].className;
+        return th.parent().parent().find('tr.' + cssClass);
+    }
+
+    function addCountsToTableSectionHeaders(table) {
+        var i, len, el, count;
+        var headingRows = getTableSectionHeadingRows(table);
+        for (i = 0, len = headingRows.length; i < len; i++) {
+            el = $(headingRows[i]).find('b');
+            count = getTableSectionRows(el).length;
+            el.after('<span class="form-builder-data-section-count">(' + count + ')</span>');
+        }
     }
 
     function getDataRowInput(column, dataVal) {

@@ -974,7 +974,7 @@ var NCEBuilderOptions = (function () {
                     formInputs: {
                         branchList: {
                             type: FormBuilder.INPUT_TYPE.TABLE,
-                            css: {},
+                            css: { 'max-height':'300px;' },
                             data: opts.branchNames,
                             columns: {
                                 branchName: {
@@ -1376,7 +1376,12 @@ var NCEBuilderOptions = (function () {
                 },
                 refAxTable: {
                     type: FormBuilder.INPUT_TYPE.TABLE,
-                    css: {margin: '0', width: '100%', 'table-layout':'fixed'},
+                    css: {
+                        margin: '0',
+                        width: '100%',
+                        'table-layout':'fixed',
+                        'max-height': '400px'
+                    },
                     data: opts.refAxList,
                     columns: getRefAxTableColumns()
                 }
@@ -1765,7 +1770,14 @@ var NCEBuilderOptions = (function () {
         };
     }
 
-    function getFormToShowCubeList(opts) {
+    /*
+     * additional required options:
+     *  title
+     *  saveButtonText
+     *  onHtmlClick
+     *  onJsonClick
+     */
+    function showCubeList(opts) {
         function getValue(tr, key) {
             return tr.find('.' + key)[0].textContent;
         }
@@ -1790,6 +1802,8 @@ var NCEBuilderOptions = (function () {
 
         return {
             displayType: FormBuilder.DISPLAY_TYPE.TABLE,
+            title: opts.title,
+            saveButtonText: opts.saveButtonText,
             readonly: opts.readonly,
             afterSave: opts.afterSave,
             onClose: opts.onClose,
@@ -1825,32 +1839,6 @@ var NCEBuilderOptions = (function () {
 
     /*
      * additional required options:
-     *  appName
-     *  onHtmlClick
-     *  onJsonClick
-     */
-    function deleteCubes(opts) {
-        var form = getFormToShowCubeList(opts);
-        form.title = 'Delete cubes from ' + opts.appName;
-        form.saveButtonText = 'Delete';
-        return form;
-    }
-
-    /*
-     * additional required options:
-     *  appName
-     *  onHtmlClick
-     *  onJsonClick
-     */
-    function restoreCubes(opts) {
-        var form = getFormToShowCubeList(opts);
-        form.title = 'Restore cubes to' + opts.appName;
-        form.saveButtonText = 'Restore';
-        return form;
-    }
-
-    /*
-     * additional required options:
      *  loadAll
      */
     function cubeDataSearchOptions(opts) {
@@ -1877,8 +1865,6 @@ var NCEBuilderOptions = (function () {
         copyBranch: copyBranch,
         deleteAllTests: deleteAllTests,
         deleteBranch: deleteBranch,
-        deleteCubes: deleteCubes,
-        restoreCubes: restoreCubes,
         copyCube: copyCube,
         cubeDataSearchOptions: cubeDataSearchOptions,
         newCube: newCube,
@@ -1895,6 +1881,7 @@ var NCEBuilderOptions = (function () {
         createSnapshotFromRelease: createSnapshotFromRelease,
         changeSnapshotVersion: changeSnapshotVersion,
         releaseVersion: releaseVersion,
-        referenceAxisUpdater: referenceAxisUpdater
+        referenceAxisUpdater: referenceAxisUpdater,
+        showCubeList: showCubeList
     };
 })(jQuery);

@@ -24,3 +24,19 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+a.form-builder-data-section-all,
+a.form-builder-data-section-none,
+a.form-builder-data-section-all:focus,
+a.form-builder-data-section-none:focus,
+a.form-builder-data-section-all:hover,
+a.form-builder-data-section-none:hover {
+    text-decoration: none;
+    color: #999;
+    margin-left: 10px;
+}
+
+.form-builder-data-section-count {
+    color: #999;
+    text-decoration: none;
+}

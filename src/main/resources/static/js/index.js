@@ -2562,7 +2562,7 @@ var NCE = (function ($) {
     }
 
     function buildFbCubesListTableData(dtos) {
-        var i, len, dto, keys;
+        var i, len, dto, keys, changeType, displayType, prevChangeType, obj;
         var tableData = [];
         if (typeof dtos === OBJECT) {
             keys = Object.keys(dtos);
@@ -2571,12 +2571,19 @@ var NCE = (function ($) {
             len = dtos.length;
         }
         for (i = 0; i < len; i++) {
+            obj = {};
             dto = keys ? dtos[keys[i]] : dtos[i];
-            tableData.push({
-                cubeName: dto.name,
-                cubeId: dto.id,
-                revId: dto.revision
-            });
+            changeType = dto.changeType;
+            if (changeType && changeType !== prevChangeType) {
+                prevChangeType = changeType;
+                displayType = getLabelDisplayTypeForInfoDto(dto);
+                obj._sectionHeading = displayType.LABEL;
+            }
+            obj._sectionClass = displayType.CSS_CLASS;
+            obj.cubeName = dto.name;
+            obj.cubeId = dto.id;
+            obj.revision = dto.revision;
+            tableData.push(obj);
         }
         return tableData;
     }
@@ -2588,7 +2595,8 @@ var NCE = (function ($) {
         }
 
         opts = {
-            appName: _selectedApp,
+            title: 'Delete cubes from ' + _selectedApp,
+            saveButtonText: 'Delete',
             onHtmlClick: onHtmlViewClick,
             onJsonClick: onJsonViewClick,
             afterSave: function(data) {
@@ -2596,7 +2604,7 @@ var NCE = (function ($) {
             }
         };
         tableData = buildFbCubesListTableData(_cubeList);
-        FormBuilder.openBuilderModal(NCEBuilderOptions.deleteCubes(opts), tableData);
+        FormBuilder.openBuilderModal(NCEBuilderOptions.showCubeList(opts), tableData);
     }
 
     function getFbCubeListData(data) {
@@ -2667,6 +2675,7 @@ var NCE = (function ($) {
 
     function restoreCube() {
         var opts, tableData, result;
+        clearNote();
         if (!ensureModifiable('Cannot restore cubes.', getAppId())) {
             return;
         }
@@ -2678,7 +2687,8 @@ var NCE = (function ($) {
         }
 
         opts = {
-            appName: _selectedApp,
+            title: 'Restore cubes to ' + _selectedApp,
+            saveButtonText: 'Restore',
             onHtmlClick: onHtmlViewClick,
             onJsonClick: onJsonViewClick,
             afterSave: function(data) {
@@ -2686,7 +2696,7 @@ var NCE = (function ($) {
             }
         };
         tableData = buildFbCubesListTableData(result.data);
-        FormBuilder.openBuilderModal(NCEBuilderOptions.restoreCubes(opts), tableData);
+        FormBuilder.openBuilderModal(NCEBuilderOptions.showCubeList(opts), tableData);
     }
 
     function callRestore(cubesToRestore) {
@@ -4061,10 +4071,6 @@ var NCE = (function ($) {
         return html;
     }
     
-    function getJsonHtmlLabelsHtml(dto) {
-        return getHtmlLabelHtml(dto) + getJsonLabelHtml(dto);
-    }
-    
     function getJsonLabelHtml(dto) {
         var html = '<label class="json-label">';
         html += '<a href="#" class="anc-json" data-cube-id="' + dto.id + '" data-rev-id="' + dto.revision + '" data-cube-name="' + dto.name + '"><kbd>JSON</kbd></a>';
@@ -4098,51 +4104,34 @@ var NCE = (function ($) {
         }
     }
 
-    function commitBranch(state) {
-        var errMsg, title, result, branchChanges, action;
+    function commitBranch() {
+        var opts, tableData, result, branchChanges;
+        var appId = getAppId();
         clearNote();
-        _commitModal.find('.accept-mine, .accept-theirs').add(_pullRequestLink).add(_commitOk).toggle(state);
-        _rollbackOk.toggle(!state);
-        action = state ? 'commit' : 'rollback';
-        errMsg = state ? 'commit to' : 'rollback in';
-        title = (state ? 'Commit' : 'Rollback') + ' changes';
-        _commitRollbackList.data('is-commit', state);
-        if (state) {
-            _pullRequestLink.add(_commitOk).removeAttr('disabled');
-        }
-
-        if (isHeadSelected()) {
-            showNote('You cannot ' + errMsg + ' HEAD.');
+        if (!ensureModifiable('Cannot commit cubes.', appId)) {
             return;
         }
 
-        result = call(CONTROLLER + CONTROLLER_METHOD.GET_BRANCH_CHANGES_FOR_HEAD, [getAppId()]);
+        result = call(CONTROLLER + CONTROLLER_METHOD.GET_BRANCH_CHANGES_FOR_HEAD, [appId]);
         if (!result.status || !result.data) {
             showNote('Unable to get branch changes:<hr class="hr-small"/>' + result.data);
             return;
         }
 
-        _commitRollbackLabel[0].textContent = title;
+        opts = {
+            title: 'Commit cubes to ' + _selectedApp,
+            saveButtonText: 'Commit',
+            onHtmlClick: onHtmlViewClick,
+            onJsonClick: onJsonViewClick,
+            afterSave: function(data) {
+                callCommit(getFbCubeListData(data));
+            }
+        };
 
         branchChanges = result.data;
         branchChanges.sort(sortBranchChanges);
-
-        _commitModal.prop('branchChanges', branchChanges);
-        buildUlForCompare(_commitRollbackList, head, branchChanges, {inputClass:'commitCheck', compare:true, html:true, json:true, action: action});
-        _commitModal.modal('show');
-    }
-
-    function getCommitChanges() {
-        var i, len;
-        var branchChanges = _commitModal.prop('branchChanges');
-        var input = _commitRollbackList.find('.commitCheck');
-        var changes = [];
-        for (i = 0, len = input.length; i < len; i++) {
-            if (input[i].checked) {
-                changes.push(branchChanges[i]);
-            }
-        }
-        return changes;
+        tableData = buildFbCubesListTableData(branchChanges);
+        FormBuilder.openBuilderModal(NCEBuilderOptions.showCubeList(opts), tableData);
     }
 
     function generatePullRequestLink() {
@@ -4170,11 +4159,6 @@ var NCE = (function ($) {
     function pullRequestLinkClick(txid) {
         closeOpenModal();
         viewPullRequests(true, txid);
-    }
-
-    function commitOk() {
-        _commitModal.modal('hide');
-        callCommit(getCommitChanges());
     }
 
     function callCommit(changedDtos, appId) {
