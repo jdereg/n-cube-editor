@@ -1477,7 +1477,7 @@ var NCE = (function ($) {
         _cubeCount[0].textContent = Object.keys(_cubeList).length;
     }
 
-    function selectCubeByName(cubeName, differentAppId, newTab) {
+    function selectCubeByName(cubeName, differentAppId, newTab, dontSaveState) {
         var cubeInfo, cis, found, i, len, oci, idx, tab;
         if (!cubeName) {
             return;
@@ -1519,7 +1519,9 @@ var NCE = (function ($) {
             cubeInfo.push(getActiveTabViewType());
             addCurrentCubeTab(null, cubeInfo);
         }
-        saveState();
+        if (!dontSaveState) {
+            saveState();
+        }
     }
 
     function hasSearchOptions(opts) {
@@ -1795,30 +1797,13 @@ var NCE = (function ($) {
 
     function onWindowPopstate(e) {
         var state = e.originalEvent.state;
-        if (state) {
-            _selectedCubeName = state.cube;
-            if (_selectedApp === state.app &&
-                _selectedVersion === state.version &&
-                _selectedStatus === state.status &&
-                _selectedBranch === state.branch)
-            {   // Make Back button WAY faster when only cube name changes - no need to reload other lists.
-                selectCubeByName(_selectedCubeName);
-            } else {
-                saveSelectedApp(state.app);
-                saveSelectedVersion(state.version);
-                saveSelectedStatus(state.status);
-                saveSelectedBranch(state.branch);
-                _selectedCubeName = state.cube;
-                loadAppListView();
-                loadVersionListView();
-                buildBranchUpdateMenu();
-                buildBranchQuickSelectMenu();
-                showActiveBranch();
-                loadNCubes();
-                selectCubeByName(_selectedCubeName);
-                buildMenu();
-            }
+        if (!state) {
+            return;
         }
+
+        document.title = state.title;
+        saveSelectedCubeName(state.cube);
+        selectCubeByName(_selectedCubeName, state.tabAppId, null, true);
     }
 
     function runAppTests() {
@@ -2240,22 +2225,24 @@ var NCE = (function ($) {
     }
 
     function saveState() {
-        var title = (_selectedApp ? _selectedApp : '') + ' - ' + (_selectedVersion ? _selectedVersion : '') + ' - ' + (_selectedStatus ? _selectedStatus : '') + ' - ' + (_selectedBranch ? _selectedBranch : '') + ' - ' + (_selectedCubeName ? _selectedCubeName : '');
-        var state = history.state;
-        document.title = title;
-        if (state && state.app == _selectedApp &&
-            state.version == _selectedVersion &&
-            state.status == _selectedStatus &&
-            state.branch == _selectedBranch &&
-            state.cube == _selectedCubeName)
-        {   // Don't save redundant selection
+        var title, state;
+        var tabAppId = getSelectedTabAppId();
+        if (!tabAppId) {
             return;
         }
-        history.pushState({app: _selectedApp,
-            version: _selectedVersion,
-            status: _selectedStatus,
-            branch: _selectedBranch,
-            cube: _selectedCubeName}, title);
+        title = [tabAppId.app || '',
+                     tabAppId.version || '',
+                     tabAppId.status || '',
+                     tabAppId.branch || '',
+                     _selectedCubeName || ''].join(' - ');
+        document.title = title;
+        state = history.state;
+        if (state && appIdsEqual(state.tabAppId, tabAppId)
+            && state.cube === _selectedCubeName) {
+                // Don't save redundant selection
+                return;
+        }
+        history.pushState({tabAppId:tabAppId, cube:_selectedCubeName, title:title}, title);
     }
 
     function loadVersionListView() {
