@@ -4257,7 +4257,7 @@ var NCubeEditor2 = (function ($) {
         for (i = 0, len = axisColumns.length; i < len; i++) {
             column = axisColumns[i];
             ruleLabel = '';
-            if (column.metaProps) {
+            if (column.hasOwnProperty('metaProps') && column.metaProps.hasOwnProperty('name')) {
                 ruleLabel = column.metaProps.name + ': ';
             }
             labelText = column.value === null ? DEFAULT_TEXT : column.value;
