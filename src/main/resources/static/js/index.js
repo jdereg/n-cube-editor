@@ -4193,9 +4193,13 @@ var NCE = (function ($) {
     }
 
     function handlePullRequestResult(appId, result) {
+        var exception, errors, message;
         clearNote();
         if (!result.status) {
-            handleUpdateReturnValues(appId, {}, false, false, result.exception.detailMessage);
+            exception = result.exception || {};
+            errors = exception.errors || {};
+            message = exception.detailMessage || '';
+            handleUpdateReturnValues(appId, errors, false, false, message);
             return;
         }
 

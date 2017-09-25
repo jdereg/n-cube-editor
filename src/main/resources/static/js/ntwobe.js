@@ -2010,11 +2010,13 @@ var NCubeEditor2 = (function ($) {
     }
     
     function renderColumnHeader(td, col, cellProperties) {
-        var axis, column;
+        var axis, column, headerVal;
         axis = axes[colOffset];
         if (axes.length > 1) {
             column = getColumnHeader(col);
-            td.innerHTML = getRowHeaderValue(axis, column);
+            headerVal = getRowHeaderValue(axis, column);
+            td.innerHTML = addCubeLinksToString(headerVal);
+            activateLinks(td);
             if (column.isSearchResult) {
                 td.className += CLASS_HANDSON_SEARCH_RESULT;
             }
@@ -2024,12 +2026,15 @@ var NCubeEditor2 = (function ($) {
     }
 
     function renderRowHeader(td, row, col, cellProperties) {
+        var headerVal;
         var rowHeader = getRowHeader(row, col);
         var axis = axes[col];
         if (row > 2 && getColumnLength(axis) > 1  && col < colOffset - 1 && rowHeader.id === getRowHeader(row - 1, col).id && (!col || (col && getRowHeader(row, col - 1) === getRowHeader(row - 1, col - 1)))) {
             td.style.borderTop = NONE;
         } else {
-            td.innerHTML = getRowHeaderValue(axis, rowHeader);
+            headerVal = getRowHeaderValue(axis, rowHeader);
+            td.innerHTML = addCubeLinksToString(headerVal);
+            activateLinks(td);
         }
         td.className += CLASS_HANDSON_TABLE_HEADER;
         if (getRowHeader(row, col).isSearchResult) {
@@ -2192,6 +2197,12 @@ var NCubeEditor2 = (function ($) {
             return '<a class="nc-anc-url">' + matched + '</a>';
         });
     }
+
+    function addCubeLinksToString(str) {
+        return str.replace(cubeMapRegex, function (matched) {
+            return '<a class="nc-anc-cube">' + matched + '</a>';
+        });
+    }
     
     function buildExpressionLink(url, highlightLanguage) {
         var val, shouldHighlight, highlighted, tempHighlight, top, ancIdx, text, endIdx;
@@ -2201,9 +2212,7 @@ var NCubeEditor2 = (function ($) {
         if (url && url.length > 2) {
             shouldHighlight = highlightLanguage !== NONE;
         
-            url = url.replace(cubeMapRegex, function (matched) {
-                return '<a class="nc-anc-cube">' + matched + '</a>';
-            });
+            url = addCubeLinksToString(url);
         
             if (shouldHighlight) {
                 if (url.indexOf('<a class="nc-anc-') > -1) {
