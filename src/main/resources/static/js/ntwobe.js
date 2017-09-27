@@ -3549,6 +3549,7 @@ var NCubeEditor2 = (function ($) {
             popoutAceEditor({
                 value: val,
                 mode: mode,
+                readonly: !nce.ensureModifiable(),
                 onSave: function(newVal) {
                     _editCellValue.val(newVal);
                     _isCellDirty = true;

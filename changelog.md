@@ -1,4 +1,6 @@
 ### Revision History
+* 1.1.14
+  * Bug fix: Ace pop-out would not be readonly while viewing HEAD.
 * 1.1.13
   * Enhancement: Add error map from `BranchMergeException` during pull request merge.
   * Enhancement: Add clickable cube links from column names.
