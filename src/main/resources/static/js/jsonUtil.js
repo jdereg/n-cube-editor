@@ -155,7 +155,7 @@ function call(target, args, params) {
     }
     if (!params.hasOwnProperty('timeout'))
     {
-        params.timeout = 60000;
+        params.timeout = 420000;
     }
     if (!params.hasOwnProperty('noResolveRefs'))
     {
