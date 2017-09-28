@@ -1,4 +1,6 @@
 ### Revision History
+* 1.1.15
+  * Removed `Clear Server Cache` option as it was not relevant now that caches are removed.
 * 1.1.14
   * Bug fix: Ace pop-out would not be readonly while viewing HEAD.
   * Consumed n-cube 4.1.16

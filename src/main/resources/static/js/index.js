@@ -80,7 +80,6 @@ var NCE = (function ($) {
     var _branchCommit = $('#branchCommit');
     var _commitRollbackList = $('#commitRollbackList');
     var _branchQuickSelectHeader = $('#branchQuickSelectHeader');
-    var _clearCache = $('#clearCache');
     var _releaseCubesNewVersion = null;
     var _releaseCubesProgressPct = null;
     var _releaseCubesProgressText = null;
@@ -2051,7 +2050,6 @@ var NCE = (function ($) {
 
         enableDisableReleaseMenu(canReleaseApp);
         enableDisableCommitBranch(canCommitOnApp);
-        enableDisableMenuButton(_clearCache, isAppAdmin || head !== getAppId().branch, clearCache);
         enableDisableLockMenu(isAppAdmin);
     }
     
@@ -3552,13 +3550,6 @@ var NCE = (function ($) {
             if (key.startsWith(NCE_PREFIX)) {
                 delete localStorage[key];
             }
-        }
-    }
-
-    function clearCache() {
-        var result = call(CONTROLLER + CONTROLLER_METHOD.CLEAR_CACHE, [getAppId()]);
-        if (!result.status) {
-            showNote('Unable to clear cache:<hr class="hr-small"/>' + result.data);
         }
     }
 
