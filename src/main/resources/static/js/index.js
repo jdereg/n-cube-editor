@@ -99,6 +99,7 @@ var NCE = (function ($) {
     var _viewPullRequestsSearchText = $('#view-pull-requests-search-text');
     var _viewPullRequestsSearchButton = $('#view-pull-requests-search-btn');
     var _viewPullRequestsSearchClear = $('#view-pull-requests-search-clear');
+    var _viewPullRequestsRefresh = $('#view-pull-requests-refresh');
     var _viewPullRequestsList = $('#view-pull-requests-list');
     var _viewPullRequestsApp = $('#view-pull-requests-app');
     var _viewPullRequestsVersion = $('#view-pull-requests-version');
@@ -534,21 +535,7 @@ var NCE = (function ($) {
             _heartBeatThread = new Worker('js/heartBeat.js');
             _heartBeatThread.onmessage = function (event) {
                 handleHearbeatStatusResult(event.data.obj[0]);
-                handleHeartbeatPullRequestResult();
             };
-        }
-    }
-
-    function handleHeartbeatPullRequestResult() {
-        var idx, txid, allRows, openRow;
-        if (_viewPullRequestsModal.hasClass('in')) {
-            openRow = _viewPullRequestsList.find('tr:not([data-txid])');
-            if (openRow.length) {
-                allRows = _viewPullRequestsList.find('tr');
-                idx = allRows.index(openRow[0]);
-                txid = $(allRows.get(idx - 1)).data('txid');
-            }
-            viewPullRequests(true, txid);
         }
     }
 
@@ -1716,6 +1703,9 @@ var NCE = (function ($) {
         });
         _viewPullRequestsSearchClear.on('click', function() {
             _viewPullRequestsSearchText.val('');
+        });
+        _viewPullRequestsRefresh.on('click', function() {
+            pullRequestModalRefresh();
         });
     }
 
@@ -3361,6 +3351,17 @@ var NCE = (function ($) {
         return true;
     }
 
+    function pullRequestModalRefresh() {
+        var idx, txid, allRows, openRow;
+        openRow = _viewPullRequestsList.find('tr:not([data-txid])');
+        if (openRow.length) {
+            allRows = _viewPullRequestsList.find('tr');
+            idx = allRows.index(openRow[0]);
+            txid = $(allRows.get(idx - 1)).data('txid');
+        }
+        viewPullRequests(true, txid);
+    }
+
     function viewPullRequestsSearchTransactionId(txid) {
         var jqrow = _viewPullRequestsList.find('[data-txid="' + txid + '"]');
         var row = jqrow[0];
@@ -4133,11 +4134,12 @@ var NCE = (function ($) {
         var urlPrefix, viewUrl, result, txid, html;
         var appId = getAppId();
         var changes = getCommitChanges();
+        var notes = $('#pull-notes').val();
         if (!changes.length) {
             showNote('No changes selected!', 'Error', TWO_SECOND_TIMEOUT);
             return;
         }
-        result = call(CONTROLLER + CONTROLLER_METHOD.GENERATE_PULL_REQUEST_LINK, [appId, changes]);
+        result = call(CONTROLLER + CONTROLLER_METHOD.GENERATE_PULL_REQUEST_LINK, [appId, changes, notes]);
         if (result.status) {
             _pullRequestLink.add(_commitOk).attr('disabled', '');
             txid = result.data;

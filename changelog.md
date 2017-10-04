@@ -1,5 +1,7 @@
 ### Revision History
 * 1.1.15
+  * Enhancement: Ability to add notes to pull requests.
+  * Enhancement: Pull request modal no longer refreshes on heartbeat, has button instead for performance.
   * Removed `Clear Server Cache` option as it was not relevant now that caches are removed.
 * 1.1.14
   * Bug fix: Ace pop-out would not be readonly while viewing HEAD.
