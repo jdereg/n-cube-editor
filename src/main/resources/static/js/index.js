@@ -93,6 +93,7 @@ var NCE = (function ($) {
     var _diffInstructions = $('#diffInstructions');
     var _commitOk = $('#commitOk');
     var _pullRequestLink = $('#pull-link');
+    var _pullRequestNotes = $('#pull-notes');
     var _rollbackOk = $('#rollbackOk');
     var _commitRollbackLabel = $('#commitRollbackLabel');
     var _viewPullRequests = $('#view-pull-requests');
@@ -4092,6 +4093,8 @@ var NCE = (function ($) {
         errMsg = state ? 'commit to' : 'rollback in';
         title = (state ? 'Commit' : 'Rollback') + ' changes';
         _commitRollbackList.data('is-commit', state);
+        _pullRequestNotes.toggle(state);
+        _pullRequestNotes.val('');
         if (state) {
             _pullRequestLink.add(_commitOk).removeAttr('disabled');
         }
@@ -4134,7 +4137,7 @@ var NCE = (function ($) {
         var urlPrefix, viewUrl, result, txid, html;
         var appId = getAppId();
         var changes = getCommitChanges();
-        var notes = $('#pull-notes').val();
+        var notes = _pullRequestNotes.val();
         if (!changes.length) {
             showNote('No changes selected!', 'Error', TWO_SECOND_TIMEOUT);
             return;
@@ -4171,16 +4174,15 @@ var NCE = (function ($) {
     function callCommit(changedDtos, appId) {
         showNote('Committing changes on selected cubes...', 'Please wait...');
         setTimeout(function() {
-            var result, method, dtos;
+            var result, method, args;
             if (appId) {
                 method = CONTROLLER_METHOD.COMMIT_CUBE;
-                dtos = changedDtos.name;
+                args = [appId, changedDtos.name];
             } else {
-                appId = getAppId();
                 method = CONTROLLER_METHOD.COMMIT_BRANCH;
-                dtos = changedDtos;
+                args = [getAppId(), changedDtos, _pullRequestNotes.val()];
             }
-            result = call(CONTROLLER + method, [appId, dtos]);
+            result = call(CONTROLLER + method, args);
             handlePullRequestResult(appId, result);
         }, PROGRESS_DELAY);
     }
