@@ -601,6 +601,13 @@ var FormBuilder = (function ($) {
         });
     }
 
+    function populateTable(key, data) {
+        var parent = _modal.find('#' + key);
+        var tableOpts = findOptionsFormElement(key);
+        parent.empty();
+        parent.append(buildTable(data, tableOpts));
+    }
+
     function buildTable(data, tableOpts) {
         var columns, columnKeys, headingRow, c, cLen, column, header, key;
         var style = tableOpts.css || { margin: '0 auto' };
@@ -1093,6 +1100,28 @@ var FormBuilder = (function ($) {
         _modal.find('.modal-body').prepend(warning);
     }
 
+    function findOptionsFormElement(elementKey, formElements) {
+        var i, len, key, keys, formElement, formElementChild;
+        if (!formElements) {
+            formElements = _options.formElements;
+        }
+        keys = Object.keys(formElements);
+        for (i = 0, len = keys.length; i < len; i++) {
+            key = keys[i];
+            formElement = formElements[key];
+            if (key === elementKey) {
+                return formElement;
+            }
+            if (formElement.hasOwnProperty('formElements')) {
+                formElementChild = findOptionsFormElement(elementKey, formElement.formElements);
+                if (formElementChild) {
+                    return formElementChild;
+                }
+            }
+        }
+        return null;
+    }
+
     return {
         closeBuilderModal: closeBuilderModal,
         findElementByKey: findElementByKey,
@@ -1102,6 +1131,7 @@ var FormBuilder = (function ($) {
         openBuilderModal: openBuilderModal,
         populateSelect: populateSelect,
         populateTextSelect: populateTextSelect,
+        populateTable: populateTable,
         showAlert: showAlert,
         toggle: toggle,
         setDataValue: setDataValue,
