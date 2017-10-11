@@ -2266,18 +2266,11 @@ var NCubeEditor2 = (function ($) {
             if (!link.indexOf('http:') || !link.indexOf('https:') || !link.indexOf('file:')) {
                 window.open(link);
             } else {
-                result = nce.call(CONTROLLER + CONTROLLER_METHOD.RESOLVE_RELATIVE_URL, [nce.getSelectedTabAppId(), link], {noResolveRefs:true});
+                result = nce.call(CONTROLLER + CONTROLLER_METHOD.FETCH_URL_CONTENT, [nce.getSelectedTabAppId(), link], {noResolveRefs:true});
                 if (result.status && result.data) {
-                    $.ajax({
-                        async: false,
-                        type: 'GET',
-                        url: result.data,
-                        success: function (data) {
-                            popoutAceEditor({
-                                value: data,
-                                readonly: true
-                            });
-                        }
+                    popoutAceEditor({
+                        value: result.data,
+                        readonly: true
                     });
                 } else {
                     msg = result.data ? result.data : 'Unable to resolve relative URL against entries in sys.classpath';
