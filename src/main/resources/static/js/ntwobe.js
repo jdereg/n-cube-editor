@@ -155,6 +155,7 @@ var NCubeEditor2 = (function ($) {
                 switch (keyCode) {
                     case KEY_CODES.F:
                         e.preventDefault();
+                        destroyEditor();
                         _searchField[0].focus();
                         break;
                     case KEY_CODES.X:
@@ -527,9 +528,10 @@ var NCubeEditor2 = (function ($) {
 
     function runSearch(forceSearch) {
         var query = _searchField.val();
-        if (forceSearch || _searchText !== query) {
+        var isDiff = _searchText !== query;
+        if (forceSearch || isDiff) {
             if (query && query.length) {
-                searchCubeData(query, false);
+                searchCubeData(query, isDiff);
             } else {
                 clearSearchMatches();
             }
@@ -548,6 +550,8 @@ var NCubeEditor2 = (function ($) {
     function highlightSearchResult(idx) {
         var result = getSearchResult(idx);
         hot.selectCell(result.row, result.col);
+        destroyEditor();
+        _searchField[0].focus();
         setSearchHelperText();
     }
 
