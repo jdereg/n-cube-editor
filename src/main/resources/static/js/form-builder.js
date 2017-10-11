@@ -602,17 +602,20 @@ var FormBuilder = (function ($) {
     }
 
     function populateTable(key, data) {
-        var parent = _modal.find('#' + key);
+        var parent = _modal.find('#' + ID_PREFIX.INPUT + key);
         var tableOpts = findOptionsFormElement(key);
         parent.empty();
         parent.append(buildTable(data, tableOpts));
     }
 
     function buildTable(data, tableOpts) {
-        var columns, columnKeys, headingRow, c, cLen, column, header, key;
-        var style = tableOpts.css || { margin: '0 auto' };
-        var maxHeight = style.hasOwnProperty('max-height') ? style['max-height'] : '450px';
-        var dataTable= $('<table class="form-builder-data-table"/>').css(style);
+        var columns, columnKeys, headingRow, c, cLen, column, header, key, style, maxHeight, dataTable;
+        if (!data) {
+            return;
+        }
+        style = tableOpts.css || { margin: '0 auto' };
+        maxHeight = style.hasOwnProperty('max-height') ? style['max-height'] : '450px';
+        dataTable = $('<table class="form-builder-data-table"/>').css(style);
 
         columns = tableOpts.columns;
         columnKeys = Object.keys(columns);
@@ -635,6 +638,10 @@ var FormBuilder = (function ($) {
 
         if (tableOpts.canAddRemoveRows && !tableOpts.readonly) {
             headingRow.append('<th/>');
+        }
+
+        if (tableOpts.hasOwnProperty('listeners') && tableOpts.listeners.hasOwnProperty('populate')) {
+            dataTable.on('populate', tableOpts.listeners.populate);
         }
 
         addTableSectionListeners(dataTable);
@@ -854,6 +861,7 @@ var FormBuilder = (function ($) {
                         break;
                     case INPUT_TYPE.TABLE:
                         copyFormTableDataToModel(inputOpts.columns);
+                        break;
                     case INPUT_TYPE.CHECKBOX:
                         val = input.prop('checked');
                         break;
@@ -1100,20 +1108,20 @@ var FormBuilder = (function ($) {
         _modal.find('.modal-body').prepend(warning);
     }
 
-    function findOptionsFormElement(elementKey, formElements) {
+    function findOptionsFormElement(elementKey, formInputs) {
         var i, len, key, keys, formElement, formElementChild;
-        if (!formElements) {
-            formElements = _options.formElements;
+        if (!formInputs) {
+            formInputs = _options.formInputs;
         }
-        keys = Object.keys(formElements);
+        keys = Object.keys(formInputs);
         for (i = 0, len = keys.length; i < len; i++) {
             key = keys[i];
-            formElement = formElements[key];
+            formElement = formInputs[key];
             if (key === elementKey) {
                 return formElement;
             }
-            if (formElement.hasOwnProperty('formElements')) {
-                formElementChild = findOptionsFormElement(elementKey, formElement.formElements);
+            if (formElement.hasOwnProperty('formInputs')) {
+                formElementChild = findOptionsFormElement(elementKey, formElement.formInputs);
                 if (formElementChild) {
                     return formElementChild;
                 }

@@ -1,6 +1,7 @@
 ### Revision History
 * 1.1.18-SNAPSHOT
   * Updated toast to show full message on pull requests errors.
+  * Added dynamic table population support to form builder.
 * 1.1.17
   * Consumed n-cube 4.1.20
 * 1.1.16
