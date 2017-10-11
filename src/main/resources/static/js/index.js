@@ -4193,7 +4193,7 @@ var NCE = (function ($) {
         if (!result.status) {
             exception = result.exception || {};
             errors = exception.errors || {};
-            message = exception.detailMessage || '';
+            message = result.data || '';
             handleUpdateReturnValues(appId, errors, false, false, message);
             return;
         }
