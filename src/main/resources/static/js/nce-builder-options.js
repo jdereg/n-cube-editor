@@ -1800,6 +1800,41 @@ var NCEBuilderOptions = (function () {
             };
         }
 
+        function getColumns() {
+            var i, len, key;
+            var columns = {};
+            var buttons = opts.cubeButtons;
+            var keys = Object.keys(buttons);
+
+            for (i = 0, len = keys.length; i < len; i++) {
+                key = keys[i];
+                columns[key] = getViewButton(key, buttons[key]);
+            }
+
+            columns.isSelected = {
+                heading: '',
+                type: FormBuilder.INPUT_TYPE.CHECKBOX,
+                css: {}
+            };
+            columns.cubeName = {
+                heading: '',
+                type: FormBuilder.INPUT_TYPE.READONLY,
+                css: {}
+            };
+            columns.cubeId = {
+                heading: '',
+                type: FormBuilder.INPUT_TYPE.READONLY,
+                css: { display: 'none' }
+            };
+            columns.revId = {
+                heading: '',
+                type: FormBuilder.INPUT_TYPE.READONLY,
+                css: { display: 'none' }
+            };
+
+            return columns;
+        }
+
         return {
             displayType: FormBuilder.DISPLAY_TYPE.TABLE,
             title: opts.title,
@@ -1810,30 +1845,7 @@ var NCEBuilderOptions = (function () {
             hasFilter: true,
             hasSelectAllNone: true,
             css: {margin: '0', width: '100%'},
-            columns: {
-                html: getViewButton('HTML', opts.onHtmlClick),
-                json: getViewButton('JSON', opts.onJsonClick),
-                isSelected: {
-                    heading: '',
-                    type: FormBuilder.INPUT_TYPE.CHECKBOX,
-                    css: {}
-                },
-                cubeName: {
-                    heading: '',
-                    type: FormBuilder.INPUT_TYPE.READONLY,
-                    css: {}
-                },
-                cubeId: {
-                    heading: '',
-                    type: FormBuilder.INPUT_TYPE.READONLY,
-                    css: { display: 'none' }
-                },
-                revId: {
-                    heading: '',
-                    type: FormBuilder.INPUT_TYPE.READONLY,
-                    css: { display: 'none' }
-                }
-            }
+            columns: getColumns()
         };
     }
 
