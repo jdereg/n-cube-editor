@@ -640,10 +640,6 @@ var FormBuilder = (function ($) {
             headingRow.append('<th/>');
         }
 
-        if (tableOpts.hasOwnProperty('listeners') && tableOpts.listeners.hasOwnProperty('populate')) {
-            dataTable.on('populate', tableOpts.listeners.populate);
-        }
-
         addTableSectionListeners(dataTable);
         addCountsToTableSectionHeaders(dataTable);
         return $('<div/>').append($('<div style="max-height:' + maxHeight + ';overflow-y:auto;"/>').append(dataTable));
