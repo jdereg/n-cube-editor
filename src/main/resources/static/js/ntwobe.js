@@ -2266,7 +2266,7 @@ var NCubeEditor2 = (function ($) {
             if (!link.indexOf('http:') || !link.indexOf('https:') || !link.indexOf('file:')) {
                 window.open(link);
             } else {
-                result = nce.call(CONTROLLER + CONTROLLER_METHOD.FETCH_URL_CONTENT, [nce.getSelectedTabAppId(), link], {noResolveRefs:true});
+                result = nce.call(CONTROLLER + CONTROLLER_METHOD.GET_URL_CONTENT, [nce.getSelectedTabAppId(), link], {noResolveRefs:true});
                 if (result.status && result.data) {
                     popoutAceEditor({
                         value: result.data,
