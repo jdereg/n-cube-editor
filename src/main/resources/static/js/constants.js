@@ -308,6 +308,7 @@ var CONTROLLER_METHOD = {
     GET_REQUIRED_SCOPE: 'getRequiredScope',
     GET_REVISION_HISTORY: 'getRevisionHistory',
     GET_TESTS: 'getTests',
+    GET_URL_CONTENT: 'getUrlContent',
     GET_VERSIONS: 'getVersions',
     HEALTH: 'health',
     HEARTBEAT: 'heartBeat',
