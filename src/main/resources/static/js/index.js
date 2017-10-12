@@ -2573,8 +2573,10 @@ var NCE = (function ($) {
         opts = {
             title: 'Delete cubes from ' + _selectedApp,
             saveButtonText: 'Delete',
-            onHtmlClick: onHtmlViewClick,
-            onJsonClick: onJsonViewClick,
+            cubeButtons: {
+                HTML: onHtmlViewClick,
+                JSON: onJsonViewClick
+            },
             afterSave: function(data) {
                 callDelete(getFbCubeListData(data));
             }
@@ -2665,8 +2667,18 @@ var NCE = (function ($) {
         opts = {
             title: 'Restore cubes to ' + _selectedApp,
             saveButtonText: 'Restore',
-            onHtmlClick: onHtmlViewClick,
-            onJsonClick: onJsonViewClick,
+            cubeButtons: {
+                HTML: onHtmlViewClick,
+                JSON: onJsonViewClick,
+                Revisions: function(cubeName) {
+                    call(CONTROLLER + CONTROLLER_METHOD.GET_REVISION_HISTORY, [getAppId(), cubeName, false], {callback:function(result) {
+                        FormBuilder.closeBuilderModal();
+                        _revisionHistoryList.empty();
+                        _revisionHistoryLabel[0].textContent = 'Revision History for ' + cubeName;
+                        revisionHistoryCallback(getAppId(), false, result);
+                    }});
+                }
+            },
             afterSave: function(data) {
                 callRestore(getFbCubeListData(data));
             }

@@ -155,6 +155,7 @@ var NCubeEditor2 = (function ($) {
                 switch (keyCode) {
                     case KEY_CODES.F:
                         e.preventDefault();
+                        destroyEditor();
                         _searchField[0].focus();
                         break;
                     case KEY_CODES.X:
@@ -527,9 +528,10 @@ var NCubeEditor2 = (function ($) {
 
     function runSearch(forceSearch) {
         var query = _searchField.val();
-        if (forceSearch || _searchText !== query) {
+        var isDiff = _searchText !== query;
+        if (forceSearch || isDiff) {
             if (query && query.length) {
-                searchCubeData(query, false);
+                searchCubeData(query, isDiff);
             } else {
                 clearSearchMatches();
             }
@@ -548,6 +550,8 @@ var NCubeEditor2 = (function ($) {
     function highlightSearchResult(idx) {
         var result = getSearchResult(idx);
         hot.selectCell(result.row, result.col);
+        destroyEditor();
+        _searchField[0].focus();
         setSearchHelperText();
     }
 
@@ -2266,18 +2270,11 @@ var NCubeEditor2 = (function ($) {
             if (!link.indexOf('http:') || !link.indexOf('https:') || !link.indexOf('file:')) {
                 window.open(link);
             } else {
-                result = nce.call(CONTROLLER + CONTROLLER_METHOD.RESOLVE_RELATIVE_URL, [nce.getSelectedTabAppId(), link], {noResolveRefs:true});
+                result = nce.call(CONTROLLER + CONTROLLER_METHOD.GET_URL_CONTENT, [nce.getSelectedTabAppId(), link], {noResolveRefs:true});
                 if (result.status && result.data) {
-                    $.ajax({
-                        async: false,
-                        type: 'GET',
-                        url: result.data,
-                        success: function (data) {
-                            popoutAceEditor({
-                                value: data,
-                                readonly: true
-                            });
-                        }
+                    popoutAceEditor({
+                        value: result.data,
+                        readonly: true
                     });
                 } else {
                     msg = result.data ? result.data : 'Unable to resolve relative URL against entries in sys.classpath';

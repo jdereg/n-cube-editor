@@ -2,6 +2,9 @@
 * 1.1.18-SNAPSHOT
   * Updated toast to show full message on pull requests errors.
   * Added dynamic table population support to form builder.
+  * Added support to see revision history for cubes currently in a deleted state.
+  * Changed n-cube view search to keep focus on the search field while changing table selection.
+  * Bug fix: Using the server to get CDN data to prevent CORS issues.
 * 1.1.17
   * Consumed n-cube 4.1.20
 * 1.1.16
