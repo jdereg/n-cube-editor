@@ -1,4 +1,6 @@
 ### Revision History
+* 1.1.35
+  * Allow blank scope in values mode
 * 1.1.34
   * Include PR #556, Commit option hidden when user had update, but not commit permissions
 * 1.1.33
