@@ -72,7 +72,7 @@
     </parent>
 
     <properties>
-        <version.ncube>4.6.3</version.ncube>
+        <version.ncube>4.6.4</version.ncube>
         <version.java.util>1.38.0</version.java.util>
         <version.groovy>2.4.17</version.groovy>
         <version.ojdbc>12.2.0.1</version.ojdbc>
@@ -198,6 +198,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <version>2.2.1.RELEASE</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
             <version>2.2.1.RELEASE</version>
         </dependency>
 
