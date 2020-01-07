@@ -1,0 +1,140 @@
+plugins {
+    id 'groovy'
+    id 'java-library'
+    id 'maven'
+    id 'maven-publish'
+    id 'signing'
+    id 'io.codearte.nexus-staging' version '0.21.1'
+}
+
+group = 'com.cedarsoftware'
+description = 'n-cube-editor'
+version = '1.1.39-SNAPSHOT'
+
+// Example builds
+//gradle clean build 
+//gradle clean build publishToMavenLocal
+//gradle clean build publish upload closeAndReleaseRepository
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+wrapper {
+    distributionType = Wrapper.DistributionType.ALL
+}
+
+jar {
+    enabled = true
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.2.2.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.2.2.RELEASE'
+    implementation 'org.springframework:spring-context-support:5.2.1.RELEASE'
+    implementation 'com.cedarsoftware:n-cube:4.6.7'
+    implementation 'com.cedarsoftware:json-command-servlet:1.9.0'
+    implementation 'com.oracle.jdbc:ojdbc8:12.2.0.1'
+    implementation 'com.github.groovy-wslite:groovy-wslite:1.1.3'
+    implementation 'org.apache.poi:poi:4.1.1'
+    implementation 'org.apache.poi:poi-ooxml:4.1.1'
+    implementation 'org.apache.poi:poi-ooxml-schemas:4.1.1'
+
+
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:2.2.2.RELEASE'
+    implementation 'org.springframework:spring-aspects:5.2.2.RELEASE'
+    implementation 'org.springframework:spring-web:5.2.2.RELEASE'
+    implementation 'com.cedarsoftware:json-command-servlet:1.9.0'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.10'
+    implementation 'org.apache.ivy:ivy:2.4.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.0'
+    implementation 'com.google.guava:guava:28.1-jre'
+    implementation 'javax.servlet:javax.servlet-api:4.0.1'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+    implementation 'org.hsqldb:hsqldb:2.5.0'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allSource
+    archiveClassifier.set('sources')
+}
+
+task groovydocJar(type: Jar, dependsOn: groovydoc) {
+    from groovydoc
+    archiveClassifier.set('javadoc')
+}
+
+artifacts {
+    archives sourcesJar
+    archives groovydocJar
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact sourcesJar
+            artifact groovydocJar
+            from components.java
+        }
+    }
+}
+
+signing {
+    sign configurations.archives
+    sign publishing.publications.maven
+}
+
+tasks.withType(Sign) {
+    onlyIf { !version.endsWith("SNAPSHOT") }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name = 'n-cube-editor'
+                packaging = 'jar'
+                // optionally artifactId can be defined here
+                description = 'NCube Front End'
+                url = 'https://github.com/jdereg/n-cube-editor'
+
+                scm {
+                    connection = 'scm:git:git://github.com/jdereg/n-cube-editor.git'
+                    developerConnection = 'scm:git:git@github.com:jdereg/n-cube-editor.git'
+                    url = 'https://github.com/jdereg/n-cube-editor'
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'jdereg'
+                        name = 'John DeRegnaucourt'
+                        email = 'jdereg@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}
