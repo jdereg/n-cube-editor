@@ -49,7 +49,7 @@ onmessage = function(e) {
 
         if (null !== match && 2 === match.length) {
             if ("js" !== match[1])
-            {   // Checking for "js" because if that is returned, the app is running without a context.
+            {   // Checking for "js" because if that is returned, the app is running without a context (context would be before the "/js").
                 url += "/" + match[1];
             }
         }
