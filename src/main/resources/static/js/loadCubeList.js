@@ -58,7 +58,10 @@ onmessage = function(e) {
         var url = location.protocol + '//' + location.hostname + ":" + location.port;
 
         if (null !== match && 2 === match.length) {
-            url += "/" + match[1];
+            if ("js" !== match[1])
+            {   // Checking for "js" because if that is returned, the app is running without a context.
+                url += "/" + match[1];
+            }
         }
         url += '/cmd/ncubeController/search';
         return url;
