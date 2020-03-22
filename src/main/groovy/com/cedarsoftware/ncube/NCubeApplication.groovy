@@ -54,6 +54,10 @@ class NCubeApplication
 {
     static void main(String[] args)
     {
+        // Setting Spring Boot SetTimeZone
+        TimeZone.default = TimeZone.getTimeZone('America/New_York')
+        log.info("Time zone: ${TimeZone.default.ID}")
+        
         ConfigurableApplicationContext ctx = SpringApplication.run(NCubeApplication, args)
         List<String> requiredProfiles = ['runtime-server', 'storage-server', 'combined-server']
         String[] activeProfiles = ctx.environment.activeProfiles
