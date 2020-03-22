@@ -1,0 +1,6 @@
+[git-together "authors"]
+  jd = "John DeRegnaucourt; jderegnaucourt"
+  js = "Josh Snyder; jsnyder4"
+  tp = "Tym Pollack; tpollack"
+[git-together]
+  domain = github.com

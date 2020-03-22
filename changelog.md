@@ -1,4 +1,6 @@
 ### Revision History
+* 1.1.40
+  * Updated Handsontable js plugin to version 7.2.2
 * 1.1.39
   * Consumed n-cube 4.5.0
   * Consumed tomcat 8.5.46
