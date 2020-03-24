@@ -4920,10 +4920,10 @@ function frameLoaded(doc) {
             NCE.closeParentMenu();
         });
     }
-    $('.fadeMe2').fadeOut(800, function() {
-        $('.fadeMe2').remove();
-    });
-    $('#fadeMe1').fadeOut(500, function() {
-        $('#fadeMe1').remove();
-    });
+
+    setTimeout(function () {
+        $('.fadeMe2').fadeOut(500, function() {
+            $('.fadeMe2').remove();
+        });
+    }, 1000);
 }

@@ -5,6 +5,7 @@ var NCubeEditor2 = (function ($) {
     var _hot = null;
     var CellEditor;
     var ColumnEditor;
+    var ColumnEditor;
     var CubeEditor;
     var _numColumns = 0;
     var _numRows = 0;
@@ -3083,6 +3084,10 @@ var NCubeEditor2 = (function ($) {
     function getSelectedCellRange() {
         var row1, row2, col1, col2, cellRange;
         cellRange = _hot.getSelected(); // index of the currently selected cells as an array [startRow, startCol, endRow, endCol]
+        if (!cellRange) {
+            return null;
+        }
+        cellRange = cellRange[0];
         if (!cellRange) {
             return null;
         }

@@ -134,7 +134,7 @@ var CUBE_INFO = {
     TAB_VIEW: 5
 };
 
-var MAX_VISIBLE_ROWS = 150000;
+var MAX_VISIBLE_ROWS = 250000;
 var MAX_TEMP = 10000000;
 var REGEX_ANY_TAG = /(<([^>]+)>)/ig;
 var REGEX_HR_TAG = /(<hr([^>]+)>)/ig;
