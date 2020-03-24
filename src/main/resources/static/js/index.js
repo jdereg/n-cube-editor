@@ -4921,9 +4921,10 @@ function frameLoaded(doc) {
         });
     }
 
-    setTimeout(function () {
-        $('.fadeMe2').fadeOut(500, function() {
-            $('.fadeMe2').remove();
-        });
-    }, 1000);
+    $('.fadeMe2').fadeOut(800, function() {
+        $('.fadeMe2').remove();
+    });
+    $('#fadeMe1').fadeOut(500, function() {
+        $('#fadeMe1').remove();
+    });
 }
