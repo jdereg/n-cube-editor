@@ -285,7 +285,10 @@ var NCubeEditor2 = (function ($) {
         if (s.length) {
             s = s.substring(0, s.length - 1);
         }
-        s = '(?<![\\/])\\b(' + s + ')\\b(?![\\/])';
+        // The line below contains a "negative look behind" in the regex, which is not yet supported on Safari and FireFox.
+        // Once globally supported, we use the line below.
+        // s = '(?<![\\/])\\b(' + s + ')\\b(?![\\/])';
+        s = '\\b(' + s + ')\\b(?![\\/])';
         _cubeMapRegex = null;
         _cubeMapRegex = new RegExp(s, 'gi');
     }
