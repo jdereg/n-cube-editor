@@ -2349,7 +2349,7 @@ var NCE = (function ($) {
             var text = anchor[0].textContent;
             var elemName = anchor.data('itemname');
             if (loItemName === elemName || itemName === text) {
-                anchor.scrollintoview();
+                anchor[0].scrollIntoView();
                 return true;
             }
             return false;
