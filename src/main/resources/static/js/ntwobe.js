@@ -5,7 +5,6 @@ var NCubeEditor2 = (function ($) {
     var _hot = null;
     var CellEditor;
     var ColumnEditor;
-    var ColumnEditor;
     var CubeEditor;
     var _numColumns = 0;
     var _numRows = 0;
@@ -2908,7 +2907,11 @@ var NCubeEditor2 = (function ($) {
     };
     CellEditor.prototype.open = function() {
         NcubeBaseEditor.prototype.open.apply(this, arguments);
-        editCell();
+        var element = _nce.getFocusedElement()
+        if (!element)
+        {
+            editCell();
+        }
     };
     CellEditor.prototype.isOpened = function() {
         return _editCellModal.hasClass('in');

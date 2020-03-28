@@ -1361,6 +1361,7 @@ var NCE = (function ($) {
             checkPermissions: checkPermissions,
             freezePage: freezePage,
             isPageFrozen: isPageFrozen,
+            getFocusedElement: getFocusedElement,
             updateCubeLeftHandChangedStatus: updateCubeLeftHandChangedStatus,
             hasBeenWarnedAboutUpdatingIfUnableToCommitCube: hasBeenWarnedAboutUpdatingIfUnableToCommitCube
         };
@@ -4700,6 +4701,34 @@ var NCE = (function ($) {
     // ============================================ End Cube Comparison ================================================
 
     // ============================================= General Utilities =================================================
+
+    /**
+     * Retrieve active element of document and preserve iframe priority MULTILEVEL!
+     * @return HTMLElement
+     **/
+    var getFocusedElement = function( document ){
+
+        document = document || window.document;
+
+        // Check if the active element is in the main web or iframe
+        if( document.body === document.activeElement
+            || document.activeElement.tagName == 'IFRAME' ){
+            // Get iframes
+            var iframes = document.getElementsByTagName('iframe');
+            for(var i = 0; i<iframes.length; i++ ){
+                // Recall
+                var focused = getFocusedElement( iframes[i].contentWindow.document );
+                if( focused !== false ){
+                    return focused; // The focused
+                }
+            }
+        }
+        else {
+            return document.activeElement;
+        }
+
+        return false;
+    };
 
     function callWithSave(target, args, params) {
         _savedCall = null;
